@@ -547,12 +547,249 @@ if (result$status == "Withdrawn") {
 }
 ```
 
+## Change Tracking & Validation (Phase 1.5)
+
+Functions for monitoring gene nomenclature changes and validating gene lists against HGNC policies.
+
+### 7. Track Gene Changes: `hgnc_changes()`
+
+Monitor genes that have been modified since a specific date:
+
+```r
+# Find all genes modified in the last 30 days
+recent_changes <- hgnc_changes(since = Sys.Date() - 30)
+
+# View summary
+print(recent_changes$summary)
+# $total: number of changed genes
+# $since: the date used for filtering
+# $change_type: type of changes tracked
+# $symbol_changes: count of symbol changes
+# $name_changes: count of name changes
+
+# View changed genes
+print(recent_changes$changes)
+
+# Find symbol changes since a specific date
+symbol_changes <- hgnc_changes(
+  since = "2024-01-01",
+  change_type = "symbol"
+)
+
+# See which genes had their symbols changed
+if (nrow(symbol_changes$changes) > 0) {
+  cat("Genes with symbol changes:\n")
+  print(symbol_changes$changes[, c("symbol", "prev_symbol", "date_symbol_changed")])
+}
+
+# Track name changes with detailed information
+name_changes <- hgnc_changes(
+  since = "2023-06-01",
+  change_type = "name",
+  fields = c("symbol", "name", "status", "date_name_changed", "date_modified")
+)
+
+# All changes (any modification)
+all_changes <- hgnc_changes(
+  since = "2024-01-01",
+  change_type = "all"
+)
+print(all_changes$summary)
+```
+
+**Use Cases:**
+- Monitor watchlists for nomenclature updates
+- Ensure compliance with current nomenclature
+- Track when genes in your panel were last updated
+- Identify genes that need review in your datasets
+
+### 8. Validate Gene Panels: `hgnc_validate_panel()`
+
+Comprehensive quality assurance for gene lists:
+
+```r
+# Basic validation
+gene_panel <- c("BRCA1", "TP53", "EGFR", "KRAS", "MYC")
+validation <- hgnc_validate_panel(gene_panel)
+
+# View summary statistics
+print(validation$summary)
+# $total_items: total input
+# $valid: approved symbols
+# $issues: problems found
+# $issues_by_type: breakdown by issue type
+# $issues_by_severity: errors vs warnings
+
+# View human-readable report
+cat(validation$report, sep = "\n")
+
+# Check valid genes
+if (nrow(validation$valid) > 0) {
+  print(validation$valid[, c("symbol", "name", "hgnc_id")])
+}
+
+# Check issues
+if (nrow(validation$issues) > 0) {
+  print(validation$issues[, c("position", "input", "issue", "message")])
+}
+
+# Get replacement suggestions
+if (length(validation$replacements) > 0) {
+  for (repl in validation$replacements) {
+    cat(sprintf("Position %d: '%s' → '%s' (%s)\n",
+                repl$position, repl$input,
+                repl$suggested, repl$rationale))
+  }
+}
+```
+
+**Validate Clinical Gene Panel with Mixed Quality:**
+
+```r
+# Real-world scenario: mixed case, duplicates, old symbols, invalid entries
+clinical_panel <- c(
+  "BRCA1",           # Valid approved symbol
+  "brca2",           # Valid (case insensitive)
+  "TP53",            # Valid
+  "BRCA1",           # Duplicate
+  "P53",             # Previous symbol for TP53 (if applicable)
+  "HER2",            # Alias for ERBB2 (if applicable)
+  "NOTAREALGENE",    # Invalid
+  "",                # Empty
+  "MLH1",            # Valid
+  "MSH2"             # Valid
+)
+
+validation <- hgnc_validate_panel(
+  clinical_panel,
+  suggest_replacements = TRUE,
+  include_dates = TRUE
+)
+
+# Generate QC report
+cat("\n=== Gene Panel Validation Report ===\n\n")
+cat(validation$report, sep = "\n")
+
+# Issues breakdown
+if ("issues_by_type" %in% names(validation$summary)) {
+  cat("\n\nIssues by type:\n")
+  print(validation$summary$issues_by_type)
+}
+
+# Detailed issue listing
+if (nrow(validation$issues) > 0) {
+  cat("\n\nDetailed issues:\n")
+  for (i in seq_len(nrow(validation$issues))) {
+    issue <- validation$issues[i, ]
+    cat(sprintf("[%s] Position %d (%s): %s\n",
+                toupper(issue$severity),
+                issue$position,
+                issue$input,
+                issue$message))
+  }
+}
+
+# Suggested fixes
+if (length(validation$replacements) > 0) {
+  cat("\n\nSuggested replacements:\n")
+  for (repl in validation$replacements) {
+    if (!is.na(repl$suggested)) {
+      cat(sprintf("  '%s' → '%s'\n    Reason: %s\n",
+                  repl$input, repl$suggested, repl$rationale))
+    }
+  }
+}
+
+# Export clean panel (only valid genes)
+if (nrow(validation$valid) > 0) {
+  write.csv(validation$valid, "validated_panel.csv", row.names = FALSE)
+  cat("\n\nClean panel exported to validated_panel.csv\n")
+}
+```
+
+**Common Validation Issues Detected:**
+
+1. **Alias Used**: Using an alias instead of the approved symbol
+2. **Previous Symbol**: Using an outdated symbol (gene was renamed)
+3. **Withdrawn**: Gene has been withdrawn from HGNC
+4. **Duplicate**: Same gene listed multiple times
+5. **Not Found**: Symbol doesn't exist in HGNC database
+6. **Empty/NA**: Missing or empty values
+7. **Ambiguous**: Symbol matches multiple genes
+
+**Performance Optimization with Pre-built Index:**
+
+```r
+# Build index once for validating multiple panels
+index <- build_symbol_index()
+
+# Validate multiple panels efficiently
+panel1 <- c("BRCA1", "BRCA2", "TP53")
+panel2 <- c("MLH1", "MSH2", "MSH6")
+panel3 <- c("APC", "KRAS", "NRAS")
+
+result1 <- hgnc_validate_panel(panel1, index = index)
+result2 <- hgnc_validate_panel(panel2, index = index)
+result3 <- hgnc_validate_panel(panel3, index = index)
+
+# Much faster than building index each time!
+```
+
+**Integration with Change Tracking:**
+
+```r
+# Workflow: Validate panel, then check when genes were last modified
+
+# 1. Validate your panel
+panel <- c("BRCA1", "TP53", "EGFR", "KRAS", "APC")
+validation <- hgnc_validate_panel(panel)
+
+# 2. Extract valid genes
+if (nrow(validation$valid) > 0) {
+  valid_symbols <- validation$valid$symbol
+
+  # 3. Check when these genes were last modified
+  # Get the HGNC data with dates
+  index <- build_symbol_index()
+
+  for (sym in valid_symbols) {
+    hgnc_id <- index$symbol_to_id[sym]
+    if (!is.null(hgnc_id) && !is.na(hgnc_id)) {
+      gene <- index$id_to_record[[hgnc_id]]
+
+      cat(sprintf("%s (HGNC:%s):\n", sym, hgnc_id))
+      if (!is.null(gene$date_modified) && !is.na(gene$date_modified)) {
+        cat(sprintf("  Last modified: %s\n", gene$date_modified))
+      }
+      if (!is.null(gene$date_symbol_changed) && !is.na(gene$date_symbol_changed)) {
+        cat(sprintf("  Symbol changed: %s\n", gene$date_symbol_changed))
+      }
+      cat("\n")
+    }
+  }
+}
+
+# 4. Or use hgnc_changes() to monitor these specific genes
+# (by filtering the results to your panel)
+recent_changes <- hgnc_changes(since = "2024-01-01")
+if (nrow(recent_changes$changes) > 0) {
+  panel_changes <- recent_changes$changes[
+    recent_changes$changes$symbol %in% valid_symbols,
+  ]
+
+  if (nrow(panel_changes) > 0) {
+    cat("\nGenes in your panel that changed since 2024-01-01:\n")
+    print(panel_changes[, c("symbol", "name", "date_modified")])
+  }
+}
+```
+
 ## Next Steps
 
-The core lookup tools (Phase 1.2) and batch operations (Phase 1.3) are now complete. Next phases include:
+The core lookup tools (Phase 1.2), batch operations (Phase 1.3), groups & collections (Phase 1.4), and change tracking & validation (Phase 1.5) are now complete. Next phases include:
 
-- **Phase 1.4**: Gene groups and collections
-- **Phase 1.5**: Change tracking and validation
 - **Phase 2**: MCP server implementation
+- **Phase 3**: Enhanced features
+- **Phase 4**: Polish & distribution
 
 See `TODO.md` for the complete implementation roadmap.
