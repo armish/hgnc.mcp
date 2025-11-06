@@ -1,0 +1,22 @@
+Package: hgnc.mcp
+Title: MCP Server for HGNC Gene Nomenclature Resources
+Version: 0.1.0
+Author: Bulent Arman Aksoy
+Maintainer: Bulent Arman Aksoy <arman@aksoy.org>
+Authors@R:
+    person("Bulent Arman", "Aksoy", , "arman@aksoy.org", role = c("aut", "cre"))
+Description: Provides an MCP (Model Context Protocol) server for accessing
+    HGNC (HUGO Gene Nomenclature Committee) gene nomenclature resources.
+    Enables AI assistants to query gene symbols, names, and related information
+    through a standardized protocol using plumber2mcp.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+    plumber2mcp,
+    plumber,
+    jsonlite
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
