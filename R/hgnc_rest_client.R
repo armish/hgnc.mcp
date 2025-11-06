@@ -272,6 +272,11 @@ clear_hgnc_cache <- function() {
   # Clear memoise cache for hgnc_rest_info
   memoise::forget(hgnc_rest_info)
 
+  # Clear memoise cache for hgnc_group_members if it exists
+  if (exists("hgnc_group_members_memo", envir = .hgnc_env)) {
+    memoise::forget(.hgnc_env$hgnc_group_members_memo)
+  }
+
   invisible(NULL)
 }
 
