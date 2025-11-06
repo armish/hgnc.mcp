@@ -19,8 +19,7 @@ Imports:
     httr,
     rappdirs,
     readr,
-    memoise,
-    lubridate
+    memoise
 Suggests:
     testthat (>= 3.0.0),
     curl
