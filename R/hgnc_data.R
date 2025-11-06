@@ -1,3 +1,9 @@
+# Default HGNC data URL
+.HGNC_DATA_URL <- paste0(
+  "https://storage.googleapis.com/public-download-files/",
+  "hgnc/tsv/tsv/hgnc_complete_set.txt"
+)
+
 #' Get HGNC cache directory
 #'
 #' Returns the path to the directory where HGNC data is cached.
@@ -73,8 +79,7 @@ is_hgnc_cache_fresh <- function(max_age_days = 30) {
 #' download_hgnc_data()
 #' download_hgnc_data(force = TRUE)
 #' }
-download_hgnc_data <- function(url = "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
-                                force = FALSE) {
+download_hgnc_data <- function(url = .HGNC_DATA_URL, force = FALSE) {
   cache_path <- get_hgnc_cache_path()
   metadata_path <- get_hgnc_metadata_path()
 

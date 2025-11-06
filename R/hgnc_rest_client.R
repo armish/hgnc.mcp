@@ -175,8 +175,6 @@ hgnc_rest_get <- function(endpoint,
 #' date, searchable fields, and stored fields. Useful for cache invalidation
 #' decisions and understanding API capabilities.
 #'
-#' @param use_cache Whether to use session-level caching (default: TRUE)
-#'
 #' @return A list containing:
 #'   - lastModified: Timestamp of last database update
 #'   - searchableFields: Fields that can be used in search queries
