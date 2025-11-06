@@ -42,23 +42,30 @@ The implementation will leverage both:
 
 Build a robust R client for the HGNC REST API with rate limiting and caching.
 
-### 1.1 Core REST Client Infrastructure
+### 1.1 Core REST Client Infrastructure ✓
 
 **File**: `R/hgnc_rest_client.R`
 
-- [ ] `hgnc_rest_get()` - Base HTTP client with:
-  - Rate limiting (≤10 req/sec)
-  - User-Agent header
-  - Error handling & retries
-  - JSON parsing
-  - Optional response caching (in-memory for session)
-- [ ] `hgnc_rest_info()` - GET `/info` endpoint
+- [x] `hgnc_rest_get()` - Base HTTP client with:
+  - Rate limiting (≤10 req/sec) using sliding window algorithm
+  - User-Agent header identifying hgnc.mcp package
+  - Error handling & retries with exponential backoff (httr::RETRY)
+  - JSON parsing with helpful error messages
+  - Optional response caching (in-memory for session via memoise)
+- [x] `hgnc_rest_info()` - GET `/info` endpoint
   - Returns: `lastModified`, searchable fields, stored fields
   - Use for cache invalidation decisions
-- [ ] Session-level cache for repeated queries
-- [ ] Tests for REST client
+  - Cached with memoise for fast repeated calls
+- [x] Session-level cache for repeated queries
+  - `clear_hgnc_cache()` to manually clear cache
+  - `reset_rate_limiter()` for testing
+- [x] Tests for REST client in `tests/testthat/test-hgnc_rest_client.R`
+  - Rate limiting tests
+  - Live API integration tests
+  - Caching behavior tests
+  - Error handling tests
 
-**Dependencies to add**: `httr` or `httr2`, `memoise` (for caching)
+**Dependencies added**: `httr`, `memoise`, `lubridate`, `curl` (testing)
 
 ### 1.2 Essential Lookup Tools
 

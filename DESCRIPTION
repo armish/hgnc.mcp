@@ -19,7 +19,10 @@ Imports:
     jsonlite,
     httr,
     rappdirs,
-    readr
+    readr,
+    memoise,
+    lubridate
 Suggests:
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    curl
 Config/testthat/edition: 3
