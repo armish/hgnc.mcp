@@ -135,22 +135,25 @@ Implement the minimal viable tool set:
 
 - [x] Tests for group functions
 
-### 1.5 Change Tracking & Validation
+### 1.5 Change Tracking & Validation ✓
 
 **File**: `R/hgnc_changes.R`
 
-- [ ] **`hgnc_changes(since, fields = c("symbol", "name", "status"))`**
+- [x] **`hgnc_changes(since, fields = c("symbol", "name", "status"))`**
   - Query genes with date_* fields ≥ since
   - Return before/after values where available
   - Useful for watchlists and compliance
+  - Supports multiple change types: all, symbol, name, status, modified
 
-- [ ] **`hgnc_validate_panel(items, policy = "HGNC")`**
+- [x] **`hgnc_validate_panel(items, policy = "HGNC")`**
   - QA gene lists against HGNC policy
   - Report: non-approved, withdrawn, duplicates
   - Suggest replacements with rationale and dates
   - Use prev_symbol/alias_symbol for mapping
+  - Comprehensive validation with human-readable reports
 
-- [ ] Tests for validation functions
+- [x] Tests for validation functions in `tests/testthat/test-hgnc_changes.R`
+- [x] Documentation and examples in `EXAMPLES.md`
 
 ---
 
@@ -429,7 +432,8 @@ User-friendly errors with actionable guidance:
 - [x] `hgnc_normalize_list()` (batch, using cache)
 - [x] `hgnc_xrefs()`
 - [x] `hgnc_group_members()`
-- [ ] `hgnc_changes()`
+- [x] `hgnc_changes()`
+- [x] `hgnc_validate_panel()`
 
 **Phase 2 (MCP Server)**:
 - [ ] Plumber API with all MVP tools
@@ -514,4 +518,4 @@ User-friendly errors with actionable guidance:
 
 ---
 
-*Last updated: 2025-11-05*
+*Last updated: 2025-11-06*
