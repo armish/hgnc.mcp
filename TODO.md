@@ -98,22 +98,27 @@ Implement the minimal viable tool set:
 - [x] Tests for lookup functions
 - [x] Documentation and usage examples in `EXAMPLES.md`
 
-### 1.3 Batch Operations (Using Cached Data)
+### 1.3 Batch Operations (Using Cached Data) ✓
 
 **File**: `R/hgnc_batch.R`
 
-- [ ] **`hgnc_normalize_list(symbols, return_fields, include_fields, status = "Approved")`**
+- [x] **`hgnc_normalize_list(symbols, return_fields, status = "Approved", dedupe = TRUE, index = NULL)`**
   - Batch resolver using local cache for speed
   - Upper-case, trim, dedupe by HGNC ID
   - Flag invalid/withdrawn
   - Return clean table ready for downstream use
   - Emit warnings/reports for problematic entries
+  - Support for reusing pre-built index for efficiency
 
-- [ ] Helper: `build_symbol_index()` - Create in-memory lookup from cached data
+- [x] Helper: `build_symbol_index()` - Create in-memory lookup from cached data
   - Index by: symbol, alias_symbol, prev_symbol
   - Map to hgnc_id for fast resolution
+  - Handles ambiguous matches
 
-- [ ] Tests for batch operations
+- [x] Tests for batch operations
+  - Unit tests with mock data
+  - Integration tests with cached data
+  - Edge case handling (duplicates, ambiguous, withdrawn, empty)
 
 ### 1.4 Groups & Collections
 
