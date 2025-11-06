@@ -168,38 +168,3 @@ get_hgnc_cache_info <- function() {
     url = metadata$url
   )
 }
-
-#' Clear HGNC cache
-#'
-#' Removes cached HGNC data and metadata files.
-#'
-#' @return Invisible TRUE if successful
-#' @export
-#' @examples
-#' \dontrun{
-#' clear_hgnc_cache()
-#' }
-clear_hgnc_cache <- function() {
-  cache_path <- get_hgnc_cache_path()
-  metadata_path <- get_hgnc_metadata_path()
-
-  removed <- FALSE
-
-  if (file.exists(cache_path)) {
-    file.remove(cache_path)
-    removed <- TRUE
-  }
-
-  if (file.exists(metadata_path)) {
-    file.remove(metadata_path)
-    removed <- TRUE
-  }
-
-  if (removed) {
-    message("Cache cleared successfully")
-  } else {
-    message("No cache to clear")
-  }
-
-  invisible(TRUE)
-}

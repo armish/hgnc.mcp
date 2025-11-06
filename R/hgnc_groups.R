@@ -126,6 +126,11 @@ hgnc_group_members_uncached <- function(group_id_or_name) {
 #' @rdname hgnc_group_members_uncached
 #' @export
 hgnc_group_members <- function(group_id_or_name, use_cache = TRUE) {
+  # Validate input before passing to uncached function
+  if (missing(group_id_or_name) || is.null(group_id_or_name)) {
+    stop("'group_id_or_name' is required", call. = FALSE)
+  }
+
   if (use_cache) {
     # Use memoised version
     if (!exists("hgnc_group_members_memo", envir = .hgnc_env)) {
