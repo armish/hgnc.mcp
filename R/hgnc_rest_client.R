@@ -175,8 +175,6 @@ hgnc_rest_get <- function(endpoint,
 #' date, searchable fields, and stored fields. Useful for cache invalidation
 #' decisions and understanding API capabilities.
 #'
-#' @param use_cache Whether to use session-level caching (default: TRUE)
-#'
 #' @return A list containing:
 #'   - lastModified: Timestamp of last database update
 #'   - searchableFields: Fields that can be used in search queries
@@ -234,18 +232,20 @@ hgnc_rest_info_uncached <- function() {
 #' @export
 hgnc_rest_info <- memoise::memoise(hgnc_rest_info_uncached)
 
-#' Clear HGNC Session Cache
+#' Clear HGNC Caches
 #'
-#' Clears all session-level caches used by hgnc.mcp REST API functions.
-#' This forces fresh API calls on the next request.
+#' Clears both session-level (memoise) caches and local file caches used by
+#' hgnc.mcp. This forces fresh API calls and file downloads on the next request.
 #'
-#' @return Invisible NULL
+#' @return Invisible TRUE
 #'
 #' @details
-#' This clears the memoise cache for functions like `hgnc_rest_info()`.
+#' This clears:
+#' - The memoise cache for functions like `hgnc_rest_info()`
+#' - The local file cache (hgnc_complete_set.txt and metadata)
+#'
 #' It does NOT affect:
-#' - The local file cache (hgnc_complete_set.txt)
-#' - The rate limiter state
+#' - The rate limiter state (use `reset_rate_limiter()` for that)
 #'
 #' You might want to clear the cache when:
 #' - You know the HGNC database has been updated
@@ -277,7 +277,27 @@ clear_hgnc_cache <- function() {
     memoise::forget(.hgnc_env$hgnc_group_members_memo)
   }
 
-  invisible(NULL)
+  # Also clear file cache from hgnc_data.R
+  cache_path <- get_hgnc_cache_path()
+  metadata_path <- get_hgnc_metadata_path()
+
+  removed <- FALSE
+
+  if (file.exists(cache_path)) {
+    file.remove(cache_path)
+    removed <- TRUE
+  }
+
+  if (file.exists(metadata_path)) {
+    file.remove(metadata_path)
+    removed <- TRUE
+  }
+
+  if (removed) {
+    message("File cache cleared")
+  }
+
+  invisible(TRUE)
 }
 
 #' Reset HGNC Rate Limiter

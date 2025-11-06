@@ -1,3 +1,9 @@
+# Default HGNC data URL
+.HGNC_DATA_URL <- paste0(
+  "https://storage.googleapis.com/public-download-files/",
+  "hgnc/tsv/tsv/hgnc_complete_set.txt"
+)
+
 #' Get HGNC cache directory
 #'
 #' Returns the path to the directory where HGNC data is cached.
@@ -73,8 +79,7 @@ is_hgnc_cache_fresh <- function(max_age_days = 30) {
 #' download_hgnc_data()
 #' download_hgnc_data(force = TRUE)
 #' }
-download_hgnc_data <- function(url = "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt",
-                                force = FALSE) {
+download_hgnc_data <- function(url = .HGNC_DATA_URL, force = FALSE) {
   cache_path <- get_hgnc_cache_path()
   metadata_path <- get_hgnc_metadata_path()
 
@@ -167,39 +172,4 @@ get_hgnc_cache_info <- function() {
     file_size_mb = round(file_info$size / 1024^2, 2),
     url = metadata$url
   )
-}
-
-#' Clear HGNC cache
-#'
-#' Removes cached HGNC data and metadata files.
-#'
-#' @return Invisible TRUE if successful
-#' @export
-#' @examples
-#' \dontrun{
-#' clear_hgnc_cache()
-#' }
-clear_hgnc_cache <- function() {
-  cache_path <- get_hgnc_cache_path()
-  metadata_path <- get_hgnc_metadata_path()
-
-  removed <- FALSE
-
-  if (file.exists(cache_path)) {
-    file.remove(cache_path)
-    removed <- TRUE
-  }
-
-  if (file.exists(metadata_path)) {
-    file.remove(metadata_path)
-    removed <- TRUE
-  }
-
-  if (removed) {
-    message("Cache cleared successfully")
-  } else {
-    message("No cache to clear")
-  }
-
-  invisible(TRUE)
 }

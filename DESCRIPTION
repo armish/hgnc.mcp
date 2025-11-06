@@ -5,23 +5,21 @@ Author: Bulent Arman Aksoy
 Maintainer: Bulent Arman Aksoy <arman@aksoy.org>
 Authors@R:
     person("Bulent Arman", "Aksoy", , "arman@aksoy.org", role = c("aut", "cre"))
-Description: Provides an MCP (Model Context Protocol) server for accessing
-    HGNC (HUGO Gene Nomenclature Committee) gene nomenclature resources.
-    Enables AI assistants to query gene symbols, names, and related information
-    through a standardized protocol using plumber2mcp.
+Description: Provides tools for accessing HGNC (HUGO Gene Nomenclature
+    Committee) gene nomenclature resources. Includes functions for searching,
+    resolving, and validating gene symbols using local cached data and the
+    HGNC REST API. MCP (Model Context Protocol) server functionality planned
+    for future release.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 Imports:
-    plumber2mcp,
-    plumber,
     jsonlite,
     httr,
     rappdirs,
     readr,
-    memoise,
-    lubridate
+    memoise
 Suggests:
     testthat (>= 3.0.0),
     curl

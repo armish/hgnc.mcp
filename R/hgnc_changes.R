@@ -618,7 +618,7 @@ hgnc_validate_panel <- function(items,
     for (repl in replacements_list) {
       if (!is.na(repl$suggested)) {
         report_lines <- c(report_lines,
-                         sprintf("  Position %d: '%s' → '%s' (%s)",
+                         sprintf("  Position %d: '%s' -> '%s' (%s)",
                                 repl$position, repl$input, repl$suggested, repl$rationale))
       } else {
         report_lines <- c(report_lines,

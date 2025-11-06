@@ -112,7 +112,7 @@ test_that("hgnc_changes() summary contains useful info", {
 test_that("hgnc_validate_panel() requires items parameter", {
   expect_error(
     hgnc_validate_panel(),
-    "items.*required"
+    "'items' must be a non-empty character vector"
   )
 
   expect_error(

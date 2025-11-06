@@ -4,7 +4,7 @@ MCP (Model Context Protocol) Server for HGNC (HUGO Gene Nomenclature Committee) 
 
 ## Overview
 
-This R package provides an MCP server that enables AI assistants to access HGNC gene nomenclature data. It uses `plumber2mcp` to expose gene information through a standardized protocol.
+This R package provides tools for accessing HGNC gene nomenclature data, including functions for searching, resolving, and validating gene symbols. MCP (Model Context Protocol) server functionality is planned for a future release.
 
 ## Installation
 
@@ -62,7 +62,11 @@ https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_
 - Cross-platform cache directory management
 - Configurable cache freshness (default: 30 days)
 - Cache metadata tracking (download time, file size, source URL)
-- Integration with plumber2mcp for MCP server functionality
+- HGNC REST API client with rate limiting and caching
+- Gene symbol search, resolution, and validation tools
+- Batch operations for gene lists
+- Gene group and family queries
+- Change tracking for updated symbols
 
 ## License
 
