@@ -67,35 +67,36 @@ Build a robust R client for the HGNC REST API with rate limiting and caching.
 
 **Dependencies added**: `httr`, `memoise`, `lubridate`, `curl` (testing)
 
-### 1.2 Essential Lookup Tools
+### 1.2 Essential Lookup Tools ✓
 
 **File**: `R/hgnc_tools.R`
 
 Implement the minimal viable tool set:
 
-- [ ] **`hgnc_find(query, filters = NULL)`**
+- [x] **`hgnc_find(query, filters = NULL)`**
   - Wraps `/search` endpoint
   - Search across symbol, alias, prev_symbol, name
   - Return hits with scores and match reasons
   - Support filters: status, locus_type, etc.
 
-- [ ] **`hgnc_fetch(field, term)`**
+- [x] **`hgnc_fetch(field, term)`**
   - Wraps `/fetch/{field}/{term}`
   - Common fields: `hgnc_id`, `symbol`, `entrez_id`, `ensembl_gene_id`
   - Return full gene "card" with all stored fields
 
-- [ ] **`hgnc_resolve_symbol(symbol, mode = "lenient")`**
+- [x] **`hgnc_resolve_symbol(symbol, mode = "lenient")`**
   - `strict`: exact approved symbol only
   - `lenient`: search symbol|alias|prev, then fetch by hgnc_id
   - Return: approved symbol, status, confidence, candidates if ambiguous
   - Handle case normalization (HGNC uses uppercase)
 
-- [ ] **`hgnc_xrefs(id_or_symbol)`**
+- [x] **`hgnc_xrefs(id_or_symbol)`**
   - Extract cross-references from gene record
   - Return: NCBI Gene, Ensembl, UniProt, OMIM, CCDS, MANE Select
   - Useful for dataset harmonization
 
-- [ ] Tests for lookup functions
+- [x] Tests for lookup functions
+- [x] Documentation and usage examples in `EXAMPLES.md`
 
 ### 1.3 Batch Operations (Using Cached Data)
 
@@ -418,10 +419,10 @@ User-friendly errors with actionable guidance:
 ### MVP Checklist
 
 **Phase 1 (Core Functions)**:
-- [ ] REST client with rate limiting
-- [ ] `hgnc_find()`, `hgnc_fetch()`, `hgnc_resolve_symbol()`
+- [x] REST client with rate limiting
+- [x] `hgnc_find()`, `hgnc_fetch()`, `hgnc_resolve_symbol()`
 - [ ] `hgnc_normalize_list()` (batch, using cache)
-- [ ] `hgnc_xrefs()`
+- [x] `hgnc_xrefs()`
 - [ ] `hgnc_group_members()`
 - [ ] `hgnc_changes()`
 
