@@ -120,20 +120,20 @@ Implement the minimal viable tool set:
   - Integration tests with cached data
   - Edge case handling (duplicates, ambiguous, withdrawn, empty)
 
-### 1.4 Groups & Collections
+### 1.4 Groups & Collections ✓
 
 **File**: `R/hgnc_groups.R`
 
-- [ ] **`hgnc_group_members(group_id_or_name)`**
+- [x] **`hgnc_group_members(group_id_or_name)`**
   - Use REST API `/fetch/gene_group/{id}`
   - Return members with IDs and xrefs
   - Cache results (groups don't change often)
 
-- [ ] **`hgnc_search_groups(query)`**
+- [x] **`hgnc_search_groups(query)`**
   - Find gene groups by keyword
   - Return group IDs, names, descriptions
 
-- [ ] Tests for group functions
+- [x] Tests for group functions
 
 ### 1.5 Change Tracking & Validation
 
@@ -426,9 +426,9 @@ User-friendly errors with actionable guidance:
 **Phase 1 (Core Functions)**:
 - [x] REST client with rate limiting
 - [x] `hgnc_find()`, `hgnc_fetch()`, `hgnc_resolve_symbol()`
-- [ ] `hgnc_normalize_list()` (batch, using cache)
+- [x] `hgnc_normalize_list()` (batch, using cache)
 - [x] `hgnc_xrefs()`
-- [ ] `hgnc_group_members()`
+- [x] `hgnc_group_members()`
 - [ ] `hgnc_changes()`
 
 **Phase 2 (MCP Server)**:
