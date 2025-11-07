@@ -20,6 +20,7 @@ test_that("hgnc_find requires non-empty query", {
 test_that("hgnc_find returns expected structure (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -47,6 +48,7 @@ test_that("hgnc_find returns expected structure (live API)", {
 test_that("hgnc_find works with filters (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -68,6 +70,7 @@ test_that("hgnc_find works with filters (live API)", {
 test_that("hgnc_find respects limit parameter (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -81,6 +84,7 @@ test_that("hgnc_find respects limit parameter (live API)", {
 test_that("hgnc_find handles no results gracefully (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -106,6 +110,7 @@ test_that("hgnc_fetch requires field and term", {
 test_that("hgnc_fetch by symbol returns expected structure (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -134,6 +139,7 @@ test_that("hgnc_fetch by symbol returns expected structure (live API)", {
 test_that("hgnc_fetch by hgnc_id works (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -151,6 +157,7 @@ test_that("hgnc_fetch by hgnc_id works (live API)", {
 test_that("hgnc_fetch by entrez_id works (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -169,6 +176,7 @@ test_that("hgnc_fetch by entrez_id works (live API)", {
 test_that("hgnc_fetch handles not found gracefully (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -199,6 +207,7 @@ test_that("hgnc_resolve_symbol validates mode parameter", {
 test_that("hgnc_resolve_symbol strict mode finds exact matches (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -220,6 +229,7 @@ test_that("hgnc_resolve_symbol strict mode finds exact matches (live API)", {
 test_that("hgnc_resolve_symbol lenient mode finds exact matches (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -234,6 +244,7 @@ test_that("hgnc_resolve_symbol lenient mode finds exact matches (live API)", {
 test_that("hgnc_resolve_symbol handles case insensitivity (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -251,6 +262,7 @@ test_that("hgnc_resolve_symbol handles case insensitivity (live API)", {
 test_that("hgnc_resolve_symbol handles whitespace (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -261,6 +273,7 @@ test_that("hgnc_resolve_symbol handles whitespace (live API)", {
 test_that("hgnc_resolve_symbol returns not_found for missing genes (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -275,6 +288,7 @@ test_that("hgnc_resolve_symbol returns not_found for missing genes (live API)", 
 test_that("hgnc_resolve_symbol can return full record (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -297,6 +311,7 @@ test_that("hgnc_resolve_symbol can return full record (live API)", {
 test_that("hgnc_resolve_symbol lenient mode structure is correct (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -325,6 +340,7 @@ test_that("hgnc_xrefs requires non-empty id_or_symbol", {
 test_that("hgnc_xrefs by symbol returns expected structure (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -351,6 +367,7 @@ test_that("hgnc_xrefs by symbol returns expected structure (live API)", {
 test_that("hgnc_xrefs by HGNC ID works (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -364,6 +381,7 @@ test_that("hgnc_xrefs by HGNC ID works (live API)", {
 test_that("hgnc_xrefs includes common cross-references (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -382,6 +400,7 @@ test_that("hgnc_xrefs includes common cross-references (live API)", {
 test_that("hgnc_xrefs handles not found with warning (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -396,6 +415,7 @@ test_that("hgnc_xrefs handles not found with warning (live API)", {
 test_that("hgnc_xrefs returns NA for missing cross-references", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -418,6 +438,7 @@ test_that("hgnc_xrefs returns NA for missing cross-references", {
 test_that("resolve and fetch work together (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -439,6 +460,7 @@ test_that("resolve and fetch work together (live API)", {
 test_that("find and xrefs work together (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -461,6 +483,7 @@ test_that("find and xrefs work together (live API)", {
 test_that("workflow: search, resolve, get xrefs (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 

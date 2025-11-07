@@ -13,6 +13,7 @@ test_that("hgnc_changes() requires 'since' parameter", {
 test_that("hgnc_changes() accepts various date formats", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Date object
   result <- hgnc_changes(since = as.Date("2024-01-01"))
@@ -46,6 +47,7 @@ test_that("hgnc_changes() rejects invalid date formats", {
 test_that("hgnc_changes() returns expected structure", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   result <- hgnc_changes(since = Sys.Date() - 365)
 
@@ -61,6 +63,7 @@ test_that("hgnc_changes() returns expected structure", {
 test_that("hgnc_changes() filters by change type", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Test all change types
   result_all <- hgnc_changes(since = "2023-01-01", change_type = "all")
@@ -83,6 +86,7 @@ test_that("hgnc_changes() filters by change type", {
 test_that("hgnc_changes() includes requested fields", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   result <- hgnc_changes(
     since = "2023-01-01",
@@ -99,6 +103,7 @@ test_that("hgnc_changes() includes requested fields", {
 test_that("hgnc_changes() summary contains useful info", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   result <- hgnc_changes(since = Sys.Date() - 90)
 
@@ -124,6 +129,7 @@ test_that("hgnc_validate_panel() requires items parameter", {
 test_that("hgnc_validate_panel() returns expected structure", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "TP53", "EGFR")
   result <- hgnc_validate_panel(items)
@@ -141,6 +147,7 @@ test_that("hgnc_validate_panel() returns expected structure", {
 test_that("hgnc_validate_panel() validates approved symbols correctly", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Test with known approved symbols
   items <- c("BRCA1", "TP53", "EGFR", "KRAS")
@@ -154,6 +161,7 @@ test_that("hgnc_validate_panel() validates approved symbols correctly", {
 test_that("hgnc_validate_panel() detects duplicates", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "TP53", "BRCA1", "EGFR", "BRCA1")
   result <- hgnc_validate_panel(items)
@@ -171,6 +179,7 @@ test_that("hgnc_validate_panel() detects duplicates", {
 test_that("hgnc_validate_panel() detects not found symbols", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "NOTAREALGENE123", "TP53")
   result <- hgnc_validate_panel(items)
@@ -187,6 +196,7 @@ test_that("hgnc_validate_panel() detects not found symbols", {
 test_that("hgnc_validate_panel() handles empty/NA values", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "", NA, "TP53")
   result <- hgnc_validate_panel(items)
@@ -201,6 +211,7 @@ test_that("hgnc_validate_panel() handles empty/NA values", {
 test_that("hgnc_validate_panel() handles case insensitivity", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("brca1", "BRCA1", "BrCa1")
   result <- hgnc_validate_panel(items)
@@ -216,6 +227,7 @@ test_that("hgnc_validate_panel() handles case insensitivity", {
 test_that("hgnc_validate_panel() generates readable report", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "TP53", "NOTREAL")
   result <- hgnc_validate_panel(items)
@@ -232,6 +244,7 @@ test_that("hgnc_validate_panel() generates readable report", {
 test_that("hgnc_validate_panel() suggests replacements", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Use a mix of symbols that might trigger replacement suggestions
   # Note: This test might need adjustment based on actual HGNC data
@@ -248,6 +261,7 @@ test_that("hgnc_validate_panel() suggests replacements", {
 test_that("hgnc_validate_panel() summary contains useful statistics", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "TP53", "EGFR", "NOTREAL", "BRCA1")
   result <- hgnc_validate_panel(items)
@@ -264,6 +278,7 @@ test_that("hgnc_validate_panel() summary contains useful statistics", {
 test_that("hgnc_validate_panel() works with pre-built index", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Build index once
   index <- build_symbol_index()
@@ -290,6 +305,7 @@ test_that("hgnc_validate_panel() only supports HGNC policy", {
 test_that("hgnc_changes() and hgnc_validate_panel() work together", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Get recent changes
   changes <- hgnc_changes(since = Sys.Date() - 180)
@@ -315,6 +331,7 @@ test_that("hgnc_changes() and hgnc_validate_panel() work together", {
 test_that("hgnc_validate_panel() handles all valid input", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "TP53", "EGFR")
   result <- hgnc_validate_panel(items)
@@ -329,6 +346,7 @@ test_that("hgnc_validate_panel() handles all valid input", {
 test_that("hgnc_validate_panel() handles all invalid input", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("NOTREAL1", "NOTREAL2", "NOTREAL3")
   result <- hgnc_validate_panel(items)
@@ -340,6 +358,7 @@ test_that("hgnc_validate_panel() handles all invalid input", {
 test_that("hgnc_changes() handles very recent dates", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Very recent (yesterday)
   result <- hgnc_changes(since = Sys.Date() - 1)
@@ -354,6 +373,7 @@ test_that("hgnc_changes() handles very recent dates", {
 test_that("hgnc_changes() handles dates far in the past", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Far in the past (should return many changes)
   result <- hgnc_changes(since = "2000-01-01")
@@ -369,6 +389,7 @@ test_that("hgnc_changes() handles dates far in the past", {
 test_that("hgnc_validate_panel() includes date info when requested", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   items <- c("BRCA1", "TP53")
   result_with_dates <- hgnc_validate_panel(items, include_dates = TRUE)

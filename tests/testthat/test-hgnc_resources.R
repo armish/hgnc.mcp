@@ -14,6 +14,7 @@ skip_if_offline <- function() {
 test_that("hgnc_get_gene_card requires valid format argument", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -26,6 +27,7 @@ test_that("hgnc_get_gene_card requires valid format argument", {
 test_that("hgnc_get_gene_card returns JSON format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -58,6 +60,7 @@ test_that("hgnc_get_gene_card returns JSON format correctly (live API)", {
 test_that("hgnc_get_gene_card returns markdown format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -78,6 +81,7 @@ test_that("hgnc_get_gene_card returns markdown format correctly (live API)", {
 test_that("hgnc_get_gene_card returns text format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -98,6 +102,7 @@ test_that("hgnc_get_gene_card returns text format correctly (live API)", {
 test_that("hgnc_get_gene_card accepts HGNC ID with prefix (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -111,6 +116,7 @@ test_that("hgnc_get_gene_card accepts HGNC ID with prefix (live API)", {
 test_that("hgnc_get_gene_card accepts numeric HGNC ID without prefix (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -124,6 +130,7 @@ test_that("hgnc_get_gene_card accepts numeric HGNC ID without prefix (live API)"
 test_that("hgnc_get_gene_card accepts gene symbol (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -136,6 +143,7 @@ test_that("hgnc_get_gene_card accepts gene symbol (live API)", {
 test_that("hgnc_get_gene_card handles gene not found error (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -148,6 +156,7 @@ test_that("hgnc_get_gene_card handles gene not found error (live API)", {
 test_that("hgnc_get_gene_card includes cross-references in JSON (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -166,6 +175,7 @@ test_that("hgnc_get_gene_card includes cross-references in JSON (live API)", {
 test_that("hgnc_get_gene_card includes aliases and previous symbols when present (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -180,6 +190,7 @@ test_that("hgnc_get_gene_card includes aliases and previous symbols when present
 test_that("hgnc_get_gene_card markdown includes sections when data present (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -196,6 +207,7 @@ test_that("hgnc_get_gene_card markdown includes sections when data present (live
 test_that("hgnc_get_group_card requires valid format argument", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -208,6 +220,7 @@ test_that("hgnc_get_group_card requires valid format argument", {
 test_that("hgnc_get_group_card returns JSON format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -240,6 +253,7 @@ test_that("hgnc_get_group_card returns JSON format correctly (live API)", {
 test_that("hgnc_get_group_card returns markdown format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -259,6 +273,7 @@ test_that("hgnc_get_group_card returns markdown format correctly (live API)", {
 test_that("hgnc_get_group_card returns text format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -277,6 +292,7 @@ test_that("hgnc_get_group_card returns text format correctly (live API)", {
 test_that("hgnc_get_group_card respects include_members parameter (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -297,6 +313,7 @@ test_that("hgnc_get_group_card respects include_members parameter (live API)", {
 test_that("hgnc_get_group_card markdown includes member table when include_members=TRUE (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -310,6 +327,7 @@ test_that("hgnc_get_group_card markdown includes member table when include_membe
 test_that("hgnc_get_group_card handles group not found error (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -322,6 +340,7 @@ test_that("hgnc_get_group_card handles group not found error (live API)", {
 test_that("hgnc_get_group_card member data includes expected fields (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -499,6 +518,7 @@ test_that("hgnc_get_snapshot_metadata includes statistics (with cache)", {
 test_that("hgnc_get_changes_summary requires valid format argument", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   expect_error(
     hgnc_get_changes_summary("2024-01-01", format = "invalid"),
@@ -509,6 +529,7 @@ test_that("hgnc_get_changes_summary requires valid format argument", {
 test_that("hgnc_get_changes_summary returns JSON format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -540,6 +561,7 @@ test_that("hgnc_get_changes_summary returns JSON format correctly (live API)", {
 test_that("hgnc_get_changes_summary returns markdown format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -559,6 +581,7 @@ test_that("hgnc_get_changes_summary returns markdown format correctly (live API)
 test_that("hgnc_get_changes_summary returns text format correctly (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -578,6 +601,7 @@ test_that("hgnc_get_changes_summary returns text format correctly (live API)", {
 test_that("hgnc_get_changes_summary respects max_results parameter (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -595,6 +619,7 @@ test_that("hgnc_get_changes_summary respects max_results parameter (live API)", 
 test_that("hgnc_get_changes_summary includes truncation flag when limited (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -609,6 +634,7 @@ test_that("hgnc_get_changes_summary includes truncation flag when limited (live 
 test_that("hgnc_get_changes_summary respects change_type parameter (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -623,6 +649,7 @@ test_that("hgnc_get_changes_summary respects change_type parameter (live API)", 
 test_that("hgnc_get_changes_summary change records have expected fields (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -642,6 +669,7 @@ test_that("hgnc_get_changes_summary change records have expected fields (live AP
 test_that("hgnc_get_changes_summary markdown includes table when changes exist (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -662,6 +690,7 @@ test_that("hgnc_get_changes_summary markdown includes table when changes exist (
 test_that("gene card and group card work together (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -687,6 +716,7 @@ test_that("gene card and group card work together (live API)", {
 test_that("snapshot and changes summary are consistent (with cache)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Try to get snapshot metadata
   tryCatch({
