@@ -337,22 +337,22 @@ Pre-configured multi-step workflows:
 
 ## Phase 4: Polish & Distribution [Production-Ready]
 
-### 4.1 Documentation
+### 4.1 Documentation ✓
 
-- [ ] Vignettes:
+- [x] Vignettes:
   - "Getting Started with hgnc.mcp"
   - "Normalizing Gene Lists for Clinical Panels"
   - "Running the MCP Server"
   - "Working with HGNC Gene Groups"
 
-- [ ] Update README with:
+- [x] Update README with:
   - MCP server setup instructions
   - Client connection examples
   - Real-world use cases
   - API reference links
 
-- [ ] Function documentation complete with examples
-- [ ] MCP tool/resource discovery documentation
+- [x] Function documentation complete with examples
+- [x] MCP tool/resource discovery documentation
 
 ### 4.2 Testing & Quality
 
