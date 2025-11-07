@@ -193,23 +193,23 @@ Create Plumber endpoints that wrap our HGNC functions:
 - [ ] Error handling and validation
 - [ ] OpenAPI documentation via Plumber decorators
 
-### 2.2 MCP Integration with plumber2mcp
+### 2.2 MCP Integration with plumber2mcp ✓
 
 **File**: `R/mcp_server.R`
 
-- [ ] **`start_hgnc_mcp_server(port = 8080, ...)`**
+- [x] **`start_hgnc_mcp_server(port = 8080, ...)`**
   - Initialize plumber API
   - Apply `pr_mcp()` from plumber2mcp
   - Start server
   - Print connection info
 
-- [ ] Server configuration and startup script
-- [ ] Documentation for running the server
+- [x] Server configuration and startup script
+- [x] Documentation for running the server
 
 **File**: `inst/scripts/run_server.R` (executable script)
 
-- [ ] Standalone server launcher
-- [ ] Command-line argument parsing (port, cache settings, etc.)
+- [x] Standalone server launcher
+- [x] Command-line argument parsing (port, cache settings, etc.)
 
 ### 2.3 MCP Resources Implementation
 
