@@ -20,6 +20,7 @@ test_that("hgnc_search_groups requires non-empty query", {
 test_that("hgnc_search_groups returns expected structure (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -37,6 +38,7 @@ test_that("hgnc_search_groups returns expected structure (live API)", {
 test_that("hgnc_search_groups finds gene groups (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -62,6 +64,7 @@ test_that("hgnc_search_groups finds gene groups (live API)", {
 test_that("hgnc_search_groups respects limit parameter (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -75,6 +78,7 @@ test_that("hgnc_search_groups respects limit parameter (live API)", {
 test_that("hgnc_search_groups handles no results gracefully (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -89,6 +93,7 @@ test_that("hgnc_search_groups handles no results gracefully (live API)", {
 test_that("hgnc_search_groups returns unique groups (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -117,6 +122,7 @@ test_that("hgnc_group_members requires group_id_or_name", {
 test_that("hgnc_group_members returns expected structure (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -134,6 +140,7 @@ test_that("hgnc_group_members returns expected structure (live API)", {
 test_that("hgnc_group_members by ID returns gene records (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -158,6 +165,7 @@ test_that("hgnc_group_members by ID returns gene records (live API)", {
 test_that("hgnc_group_members can search by name (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -174,6 +182,7 @@ test_that("hgnc_group_members can search by name (live API)", {
 test_that("hgnc_group_members handles not found gracefully (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -191,6 +200,7 @@ test_that("hgnc_group_members handles not found gracefully (live API)", {
 test_that("hgnc_group_members caching works", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -213,6 +223,7 @@ test_that("hgnc_group_members caching works", {
 test_that("hgnc_group_members gene records contain group information (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -235,6 +246,7 @@ test_that("hgnc_group_members gene records contain group information (live API)"
 test_that("search groups and get members work together (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -266,6 +278,7 @@ test_that("search groups and get members work together (live API)", {
 test_that("workflow: find group, get members, extract symbols (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -296,6 +309,7 @@ test_that("workflow: find group, get members, extract symbols (live API)", {
 test_that("multiple group queries respect rate limiting (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -324,6 +338,7 @@ test_that("multiple group queries respect rate limiting (live API)", {
 test_that("hgnc_search_groups handles special characters", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -338,6 +353,7 @@ test_that("hgnc_search_groups handles special characters", {
 test_that("hgnc_group_members handles numeric vs string IDs", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 

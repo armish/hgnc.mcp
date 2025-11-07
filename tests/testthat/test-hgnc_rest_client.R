@@ -61,6 +61,7 @@ test_that("reset_rate_limiter clears state", {
 test_that("clear_hgnc_cache clears memoise cache", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   # Call hgnc_rest_info twice
   info1 <- hgnc_rest_info()
@@ -84,6 +85,7 @@ test_that("clear_hgnc_cache clears memoise cache", {
 test_that("hgnc_rest_info returns expected structure (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   clear_hgnc_cache()
   reset_rate_limiter()
@@ -117,6 +119,7 @@ test_that("hgnc_rest_info returns expected structure (live API)", {
 test_that("hgnc_rest_get can fetch info endpoint (live API)", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -129,6 +132,7 @@ test_that("hgnc_rest_get can fetch info endpoint (live API)", {
 test_that("hgnc_rest_get handles bad endpoints gracefully", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   reset_rate_limiter()
 
@@ -151,6 +155,7 @@ test_that("hgnc_rest_get sets User-Agent header", {
 test_that("hgnc_rest_info caching works", {
   skip_on_cran()
   skip_if_offline()
+  skip_if_integration_tests()
 
   clear_hgnc_cache()
   reset_rate_limiter()
