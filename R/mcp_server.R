@@ -16,13 +16,18 @@
 #' @details
 #' The function performs the following steps:
 #' 1. Loads the Plumber API definition from `inst/plumber/hgnc_api.R`
-#' 2. Applies MCP integration via `plumber2mcp::pr_mcp()`
-#' 3. Starts the server on the specified port
-#' 4. Prints connection information
+#' 2. Registers MCP prompts (workflow templates) for common HGNC tasks
+#' 3. Applies MCP integration via `plumber2mcp::pr_mcp()`
+#' 4. Starts the server on the specified port
+#' 5. Prints connection information
 #'
-#' The server exposes all HGNC tools as MCP tools, making them available
-#' to MCP clients like Claude Desktop, VS Code with MCP extensions, and
-#' other compatible applications.
+#' The server exposes HGNC functionality through three MCP primitives:
+#' - **Tools**: API endpoints for actions (search, normalize, validate)
+#' - **Resources**: Read-only data for context injection (gene cards, metadata)
+#' - **Prompts**: Workflow templates for multi-step tasks (normalization, compliance)
+#'
+#' This makes them available to MCP clients like Claude Desktop, VS Code with
+#' MCP extensions, and other compatible applications.
 #'
 #' @section Available Tools:
 #' The MCP server provides the following tools:
@@ -46,6 +51,17 @@
 #'
 #' Resources provide read-only data that can be injected into LLM context
 #' for enhanced understanding of genes, groups, and nomenclature changes.
+#'
+#' @section Available Prompts:
+#' The MCP server provides the following workflow template prompts:
+#' - `normalize-gene-list`: Guide through normalizing gene symbols to HGNC
+#' - `check-nomenclature-compliance`: Validate gene panels against HGNC policy
+#' - `what-changed-since`: Generate human-readable nomenclature change reports
+#' - `build-gene-set-from-group`: Build gene sets from HGNC gene groups
+#'
+#' Prompts provide structured guidance for multi-step workflows, helping AI
+#' assistants understand how to use multiple tools together to accomplish
+#' complex nomenclature tasks.
 #'
 #' @section MCP Client Configuration:
 #' To connect an MCP client (e.g., Claude Desktop), add the following to
@@ -114,6 +130,113 @@ start_hgnc_mcp_server <- function(port = 8080,
   # Create the Plumber router
   pr <- plumber::plumb(api_file)
 
+  # Register MCP Prompts (workflow templates)
+  # Note: pr_mcp_prompt is available in plumber2mcp but not yet exported in NAMESPACE
+  # TODO: Uncomment when plumber2mcp NAMESPACE is updated to export pr_mcp_prompt
+  if (!quiet) {
+    message("Checking for MCP prompts support...")
+  }
+
+  # Check if pr_mcp_prompt is available (conditionally register prompts)
+  has_prompt_support <- "pr_mcp_prompt" %in% getNamespaceExports("plumber2mcp")
+
+  if (has_prompt_support) {
+    if (!quiet) {
+      message("Registering MCP prompts...")
+    }
+
+    # Get the pr_mcp_prompt function dynamically to avoid R CMD check warnings
+    pr_mcp_prompt_fn <- get("pr_mcp_prompt", envir = asNamespace("plumber2mcp"))
+
+    # Prompt 1: Normalize Gene List
+    pr <- pr_mcp_prompt_fn(
+    pr,
+    name = "normalize-gene-list",
+    description = "Guide through normalizing a gene symbol list to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.",
+    arguments = list(
+      list(
+        name = "gene_list",
+        description = "Comma-separated or newline-separated list of gene symbols to normalize",
+        required = TRUE
+      ),
+      list(
+        name = "strictness",
+        description = "Resolution mode: 'lenient' (allows aliases/prev symbols) or 'strict' (approved only)",
+        required = FALSE
+      ),
+      list(
+        name = "return_xrefs",
+        description = "Whether to include cross-references (Entrez, Ensembl, etc.) - true/false",
+        required = FALSE
+      )
+    ),
+    func = function(gene_list = "", strictness = "lenient", return_xrefs = FALSE) {
+      prompt_normalize_gene_list(gene_list, strictness, return_xrefs)
+    }
+  )
+
+  # Prompt 2: Check Nomenclature Compliance
+  pr <- pr_mcp_prompt_fn(
+    pr,
+    name = "check-nomenclature-compliance",
+    description = "Validate a gene panel against HGNC nomenclature policy. Identifies non-approved symbols, withdrawn genes, duplicates, and provides replacement suggestions with rationale.",
+    arguments = list(
+      list(
+        name = "panel_text",
+        description = "Gene panel as text (symbols separated by commas, newlines, etc.)",
+        required = FALSE
+      ),
+      list(
+        name = "file_uri",
+        description = "URI to a file containing the gene panel (alternative to panel_text)",
+        required = FALSE
+      )
+    ),
+    func = function(panel_text = "", file_uri = NULL) {
+      prompt_check_nomenclature_compliance(panel_text, file_uri)
+    }
+  )
+
+  # Prompt 3: What Changed Since
+  pr <- pr_mcp_prompt_fn(
+    pr,
+    name = "what-changed-since",
+    description = "Generate a human-readable summary of HGNC nomenclature changes since a specific date. Useful for governance, compliance tracking, and watchlist monitoring.",
+    arguments = list(
+      list(
+        name = "since",
+        description = "ISO 8601 date (YYYY-MM-DD) from which to track changes. Defaults to 30 days ago if not provided.",
+        required = FALSE
+      )
+    ),
+    func = function(since = NULL) {
+      prompt_what_changed_since(since)
+    }
+  )
+
+  # Prompt 4: Build Gene Set from Group
+  pr <- pr_mcp_prompt_fn(
+    pr,
+    name = "build-gene-set-from-group",
+    description = "Discover an HGNC gene group by keyword search and build a reusable gene set definition from its members. Provides output in multiple formats (list, table, JSON) with metadata for reproducibility.",
+    arguments = list(
+      list(
+        name = "group_query",
+        description = "Search query for finding gene groups (e.g., 'kinase', 'zinc finger', 'immunoglobulin')",
+        required = TRUE
+      )
+    ),
+    func = function(group_query = "") {
+      prompt_build_gene_set_from_group(group_query)
+    }
+  )
+  } else {
+    if (!quiet) {
+      message("Note: MCP prompts not available yet (pr_mcp_prompt not exported in plumber2mcp)")
+      message("      Prompts will be enabled automatically when plumber2mcp is updated.")
+    }
+  }
+
   # Apply MCP integration
   if (!quiet) {
     message("Applying MCP integration via plumber2mcp...")
@@ -157,6 +280,17 @@ start_hgnc_mcp_server <- function(port = 8080,
     cat("  - get_group_card: Gene group information\n")
     cat("  - get_changes_summary: Nomenclature changes log\n")
     cat("  - snapshot: Dataset metadata (static)\n")
+    cat("\n")
+    if (has_prompt_support) {
+      cat("Available Prompts: 4\n")
+      cat("  - normalize-gene-list: Normalize gene symbols to HGNC\n")
+      cat("  - check-nomenclature-compliance: Validate gene panels\n")
+      cat("  - what-changed-since: Track nomenclature changes\n")
+      cat("  - build-gene-set-from-group: Create gene sets from groups\n")
+    } else {
+      cat("Available Prompts: 0\n")
+      cat("  (Prompts pending plumber2mcp update)\n")
+    }
     cat("\n")
     cat("MCP Client Configuration:\n")
     cat("  Add to your MCP config file:\n")

@@ -71,7 +71,13 @@ https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_
 
 ## MCP Server
 
-The package includes a Model Context Protocol (MCP) server that exposes HGNC tools to AI assistants, copilots, and other MCP-compatible clients. This allows LLMs to directly access HGNC nomenclature services for gene name resolution, validation, and more.
+The package includes a Model Context Protocol (MCP) server that exposes HGNC nomenclature services to AI assistants, copilots, and other MCP-compatible clients. The server provides three types of MCP primitives:
+
+- **Tools**: API endpoints for actions like search, normalize, and validate
+- **Resources**: Read-only data for context injection (gene cards, group information, dataset metadata)
+- **Prompts**: Workflow templates that guide AI assistants through multi-step nomenclature tasks
+
+This allows LLMs to directly access HGNC services for gene name resolution, validation, compliance checking, and more.
 
 ### Starting the MCP Server
 
@@ -146,6 +152,29 @@ The MCP server exposes the following tools:
 8. **search_groups** - Search for gene groups by keyword
 9. **changes** - Track nomenclature changes since a specific date
 10. **validate_panel** - Validate gene panels against HGNC policy with replacement suggestions
+
+### Available MCP Resources
+
+Resources provide read-only data for context injection:
+
+1. **get_gene_card** - Formatted gene information cards (JSON/markdown/text)
+2. **get_group_card** - Gene group information with members
+3. **get_changes_summary** - Nomenclature changes since a date
+4. **snapshot** - Dataset metadata (static resource)
+
+### Available MCP Prompts
+
+> **Note**: MCP Prompts are currently being integrated. Prompt functionality will be automatically enabled once the `plumber2mcp` package NAMESPACE is updated to export `pr_mcp_prompt()`. The prompt functions are implemented and ready to use.
+
+Prompts are workflow templates that guide AI assistants through multi-step HGNC tasks:
+
+1. **normalize-gene-list** - Guides through normalizing gene symbols to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.
+
+2. **check-nomenclature-compliance** - Validates gene panels against HGNC nomenclature policy. Identifies non-approved symbols, withdrawn genes, and duplicates, then provides replacement suggestions with rationale.
+
+3. **what-changed-since** - Generates human-readable summaries of HGNC nomenclature changes since a specific date. Useful for governance, compliance tracking, and watchlist monitoring.
+
+4. **build-gene-set-from-group** - Discovers HGNC gene groups by keyword search and builds reusable gene set definitions from members. Provides output in multiple formats (list, table, JSON) with metadata for reproducibility.
 
 ### API Documentation
 
