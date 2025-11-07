@@ -1,11 +1,13 @@
 # Tests for HGNC MCP Resource Helpers
-
-# Helper function to check if we're offline
-skip_if_offline <- function() {
-  if (!curl::has_internet()) {
-    skip("No internet connection")
-  }
-}
+#
+# This test suite covers:
+# - hgnc_get_gene_card(): Generate gene cards in JSON, Markdown, or Text format
+# - hgnc_get_group_card(): Generate group cards with member information
+# - hgnc_get_snapshot_metadata(): Cached dataset metadata
+# - hgnc_get_changes_summary(): Change tracking summaries
+#
+# Integration tests are skipped on CRAN and during coverage runs.
+# Use skip_if_offline() from helper.R to check internet connectivity.
 
 # =============================================================================
 # Tests for hgnc_get_gene_card()

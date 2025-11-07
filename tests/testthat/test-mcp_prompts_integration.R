@@ -1,3 +1,15 @@
+# Tests for MCP Server Integration
+#
+# This test suite covers:
+# - MCP prompt support detection
+# - MCP dependency checking (plumber, plumber2mcp)
+# - Server initialization and configuration
+# - API file location and structure
+# - Prompt registration and parameter handling
+#
+# These tests verify the MCP server setup without actually starting
+# the server (which would block test execution).
+
 test_that("MCP server checks for prompt support correctly", {
   # Check if pr_mcp_prompt is in plumber2mcp exports
   has_prompt_support <- "pr_mcp_prompt" %in% getNamespaceExports("plumber2mcp")

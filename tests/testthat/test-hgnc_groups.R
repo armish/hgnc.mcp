@@ -1,11 +1,11 @@
 # Tests for HGNC Gene Groups & Collections
-
-# Helper function to check if we're offline
-skip_if_offline <- function() {
-  if (!curl::has_internet()) {
-    skip("No internet connection")
-  }
-}
+#
+# This test suite covers:
+# - hgnc_search_groups(): Find gene groups by keyword
+# - hgnc_group_members(): Get members of a gene group
+#
+# Integration tests are skipped on CRAN and during coverage runs.
+# Use skip_if_offline() from helper.R to check internet connectivity.
 
 # =============================================================================
 # Tests for hgnc_search_groups()

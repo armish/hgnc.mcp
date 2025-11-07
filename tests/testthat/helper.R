@@ -7,3 +7,11 @@ skip_if_integration_tests <- function() {
     testthat::skip("Integration tests skipped (SKIP_INTEGRATION_TESTS=true)")
   }
 }
+
+# Helper function to check if we're offline
+# Used by integration tests that require internet access
+skip_if_offline <- function() {
+  if (!curl::has_internet()) {
+    testthat::skip("No internet connection")
+  }
+}

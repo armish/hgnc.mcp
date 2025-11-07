@@ -1,4 +1,13 @@
 # Tests for HGNC Change Tracking & Validation Functions
+#
+# This test suite covers:
+# - hgnc_changes(): Track nomenclature changes over time
+# - hgnc_validate_panel(): Validate gene panels against HGNC policy
+# - Change type filtering (symbol, name, status, modified)
+# - Panel validation with replacement suggestions
+# - Duplicate detection and withdrawn gene handling
+#
+# Integration tests are skipped on CRAN and during coverage runs.
 
 library(testthat)
 
