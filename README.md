@@ -252,6 +252,204 @@ kinases <- hgnc_search_groups("kinase")
 members <- hgnc_group_members("Protein kinases")
 ```
 
+## Real-World Use Cases
+
+### Clinical Genomics: Panel Validation
+
+Ensure clinical gene panels use current HGNC-approved nomenclature:
+
+```r
+# Load a clinical panel from a CSV file
+clinical_panel <- read.csv("hereditary_cancer_panel.csv")$gene_symbol
+
+# Validate against HGNC standards
+validation <- hgnc_validate_panel(clinical_panel, policy = "HGNC")
+
+# Review any issues
+if (validation$summary$status != "PASS") {
+  cat("Issues found:\n")
+  print(validation$report)
+
+  # Get replacement suggestions
+  if (!is.null(validation$suggestions)) {
+    cat("\nSuggested updates:\n")
+    print(validation$suggestions[, c("input_symbol", "suggested_symbol", "reason")])
+  }
+}
+
+# Generate normalized panel for clinical use
+normalized <- hgnc_normalize_list(
+  clinical_panel,
+  return_fields = c("symbol", "name", "hgnc_id", "omim_id", "location")
+)
+
+# Export for lab reporting system
+write.csv(normalized$results, "validated_panel.csv", row.names = FALSE)
+```
+
+### Research: Cross-Study Data Integration
+
+Harmonize gene symbols across multiple datasets:
+
+```r
+# Combine gene lists from different studies
+study1_genes <- read.csv("rnaseq_study1.csv")$gene
+study2_genes <- read.csv("microarray_study2.csv")$gene
+study3_genes <- read.csv("proteomics_study3.csv")$gene
+
+all_genes <- unique(c(study1_genes, study2_genes, study3_genes))
+
+# Normalize to current HGNC symbols
+normalized <- hgnc_normalize_list(
+  all_genes,
+  return_fields = c("symbol", "name", "hgnc_id", "entrez_id", "ensembl_gene_id"),
+  dedupe = TRUE
+)
+
+# Map back to original datasets with unified nomenclature
+# This eliminates false negatives from symbol inconsistencies
+```
+
+### Drug Development: Target Validation
+
+Build and maintain target gene lists for drug development:
+
+```r
+# Build a kinase inhibitor target panel
+kinase_groups <- hgnc_search_groups("kinase")
+all_kinases <- hgnc_group_members("Protein kinases")
+
+# Filter for specific kinase families of interest
+tyrosine_kinases <- hgnc_search_groups("tyrosine kinase")
+target_kinases <- hgnc_group_members("Receptor tyrosine kinases")
+
+# Get comprehensive cross-references for target validation
+targets_with_xrefs <- hgnc_normalize_list(
+  target_kinases$symbol,
+  return_fields = c("symbol", "name", "hgnc_id", "entrez_id",
+                   "ensembl_gene_id", "uniprot_id", "omim_id")
+)
+
+# Track any nomenclature changes quarterly
+quarterly_changes <- hgnc_changes(since = Sys.Date() - 90, change_type = "all")
+target_updates <- quarterly_changes$changes[
+  quarterly_changes$changes$symbol %in% target_kinases$symbol,
+]
+```
+
+### Regulatory Compliance: Audit Trail
+
+Maintain nomenclature compliance for regulatory submissions:
+
+```r
+# Document panel version with HGNC provenance
+create_compliance_report <- function(panel_genes, panel_name) {
+  # Normalize genes
+  normalized <- hgnc_normalize_list(
+    panel_genes,
+    return_fields = c("symbol", "name", "hgnc_id", "status", "location")
+  )
+
+  # Validate
+  validation <- hgnc_validate_panel(panel_genes)
+
+  # Get cache info for provenance
+  cache_info <- get_hgnc_cache_info()
+
+  # Create report
+  report <- list(
+    panel_name = panel_name,
+    report_date = Sys.Date(),
+    hgnc_version = cache_info$download_date,
+    hgnc_source = cache_info$source_url,
+    total_genes = length(panel_genes),
+    valid_genes = sum(normalized$results$status == "Approved"),
+    validation_status = validation$summary$status,
+    normalized_genes = normalized$results,
+    validation_report = validation$report,
+    warnings = normalized$warnings
+  )
+
+  # Save for audit trail
+  saveRDS(report, paste0(panel_name, "_", Sys.Date(), "_compliance.rds"))
+
+  return(report)
+}
+
+# Use for regulatory submission
+panel <- c("BRCA1", "BRCA2", "TP53", "PTEN", "ATM")
+compliance <- create_compliance_report(panel, "BRCA_Panel_v2")
+```
+
+### Literature Mining: Standardizing Gene References
+
+Extract and normalize gene symbols from publications:
+
+```r
+# Parse gene symbols from abstract/full text (hypothetical)
+extracted_genes <- c("p53", "BRCA-1", "EGF receptor", "HER2", "ERBB2")
+
+# Resolve to standard HGNC symbols
+resolved <- lapply(extracted_genes, function(g) {
+  result <- hgnc_resolve_symbol(g, mode = "lenient")
+  if (!is.null(result$approved_symbol)) {
+    data.frame(
+      original = g,
+      approved = result$approved_symbol,
+      confidence = result$confidence
+    )
+  }
+})
+
+# Combine results
+gene_mapping <- do.call(rbind, resolved)
+print(gene_mapping)
+
+# Result:
+#     original approved confidence
+# 1        p53     TP53      alias
+# 2     BRCA-1    BRCA1   approved
+# 3  ERBB2     ERBB2   approved
+```
+
+### AI-Assisted Analysis: Using MCP with Claude
+
+With the MCP server running, Claude can help with gene nomenclature tasks:
+
+```bash
+# Start the MCP server
+Rscript -e "library(hgnc.mcp); start_hgnc_mcp_server()"
+```
+
+Then in Claude Desktop (with MCP configured):
+
+> **You**: "I have a list of genes from an old microarray study: BRCA1, p53, EGFR, HER-2, NBS1. Can you normalize these to current HGNC symbols and check if any have been updated?"
+
+> **Claude**: *Uses the normalize_list and validate_panel MCP tools to analyze the genes and provide a detailed report with current symbols, any changes, and recommendations.*
+
+## Documentation
+
+Comprehensive documentation is available in the package vignettes:
+
+- [Getting Started with hgnc.mcp](vignettes/getting-started.Rmd) - Installation, basic usage, and core functions
+- [Normalizing Gene Lists for Clinical Panels](vignettes/normalizing-gene-lists.Rmd) - Best practices for clinical genomics workflows
+- [Running the MCP Server](vignettes/running-mcp-server.Rmd) - MCP server setup, configuration, and deployment
+- [Working with HGNC Gene Groups](vignettes/gene-groups.Rmd) - Building gene panels from families and functional groups
+
+View vignettes in R:
+
+```r
+# List all vignettes
+vignette(package = "hgnc.mcp")
+
+# View a specific vignette
+vignette("getting-started", package = "hgnc.mcp")
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+
 ## License
 
 MIT License - see LICENSE file for details.

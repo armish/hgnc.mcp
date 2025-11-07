@@ -1,0 +1,580 @@
+---
+title: "Running the MCP Server"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Running the MCP Server}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Introduction
+
+The Model Context Protocol (MCP) is a standard for exposing services to AI assistants and LLM-powered tools. The `hgnc.mcp` package includes an MCP server that allows AI copilots like Claude Desktop to access HGNC nomenclature services directly.
+
+This vignette covers:
+
+- Setting up and starting the MCP server
+- Configuring MCP clients to connect to the server
+- Understanding available MCP primitives (Tools, Resources, Prompts)
+- Troubleshooting common issues
+
+## What is MCP?
+
+MCP (Model Context Protocol) provides a standardized way for AI assistants to:
+
+1. **Call tools** - Execute specific actions (search, normalize, validate)
+2. **Access resources** - Retrieve read-only data for context (gene cards, group info)
+3. **Use prompts** - Follow workflow templates for multi-step tasks
+
+For HGNC nomenclature, this means AI assistants can:
+
+- Normalize gene lists in real-time
+- Validate clinical panels
+- Look up gene information
+- Track nomenclature changes
+- Build gene sets from families
+
+## Prerequisites
+
+### Required Packages
+
+```{r prerequisites}
+# Install dependencies if needed
+# install.packages(c("plumber", "jsonlite", "httr", "memoise", "rappdirs", "readr"))
+# remotes::install_github("plumber2mcp/plumber2mcp")
+
+# Load the package
+library(hgnc.mcp)
+
+# Check that all MCP dependencies are available
+check_mcp_dependencies()
+```
+
+### Cache Setup
+
+Ensure the HGNC data cache is populated:
+
+```{r cache-setup}
+# Download and cache HGNC data
+hgnc_data <- load_hgnc_data()
+
+# Verify cache is fresh
+cache_info <- get_hgnc_cache_info()
+cat("Cache date:", cache_info$download_date, "\n")
+cat("Cache size:", cache_info$file_size, "bytes\n")
+```
+
+## Starting the MCP Server
+
+### Method 1: From R Console
+
+The simplest way to start the server:
+
+```{r start-basic}
+# Start server on default port 8080
+start_hgnc_mcp_server()
+
+# The server will display:
+# - Server URL
+# - MCP endpoint
+# - Swagger UI link
+# - Available tools/resources/prompts
+```
+
+### Method 2: With Custom Configuration
+
+Customize the server settings:
+
+```{r start-custom}
+# Start with custom settings
+start_hgnc_mcp_server(
+  port = 9090,              # Custom port
+  host = "0.0.0.0",         # Listen on all interfaces (for Docker/remote)
+  swagger = TRUE,           # Enable Swagger UI (default)
+  cache_update = FALSE      # Don't update cache on startup
+)
+```
+
+### Method 3: Using Standalone Script
+
+For production deployments or background processes:
+
+```{bash start-script}
+# Basic usage
+Rscript -e "library(hgnc.mcp); start_hgnc_mcp_server()"
+
+# Or use the included script
+Rscript inst/scripts/run_server.R
+
+# With options
+Rscript inst/scripts/run_server.R --port 9090 --no-swagger
+
+# Update cache before starting
+Rscript inst/scripts/run_server.R --update-cache
+
+# Get help
+Rscript inst/scripts/run_server.R --help
+```
+
+### Server Startup Output
+
+When the server starts, you'll see:
+
+```
+=== HGNC MCP Server ===
+
+Server URL: http://localhost:8080
+MCP Endpoint: http://localhost:8080/mcp
+Swagger UI: http://localhost:8080/__docs__/
+
+Available MCP Primitives:
+  Tools: 10 (info, find, fetch, resolve_symbol, normalize_list, ...)
+  Resources: 4 (get_gene_card, get_group_card, snapshot, ...)
+  Prompts: 4 (normalize-gene-list, check-nomenclature-compliance, ...)
+
+To connect a client, use: http://localhost:8080/mcp
+```
+
+## Connecting MCP Clients
+
+### Claude Desktop
+
+Claude Desktop is Anthropic's MCP-compatible desktop application.
+
+**Configuration file location:**
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+**Configuration:**
+
+```json
+{
+  "mcpServers": {
+    "hgnc": {
+      "url": "http://localhost:8080/mcp"
+    }
+  }
+}
+```
+
+**With description and metadata:**
+
+```json
+{
+  "mcpServers": {
+    "hgnc": {
+      "url": "http://localhost:8080/mcp",
+      "description": "HGNC Gene Nomenclature Services",
+      "metadata": {
+        "version": "1.0.0",
+        "author": "hgnc.mcp"
+      }
+    }
+  }
+}
+```
+
+After editing the configuration:
+
+1. Save the file
+2. Restart Claude Desktop
+3. The HGNC tools should appear in Claude's tool menu
+
+### Other MCP Clients
+
+For other MCP-compatible clients, consult their documentation. Generally, you'll need to provide:
+
+- **MCP endpoint URL**: `http://localhost:8080/mcp`
+- **Protocol**: HTTP
+- **Authentication**: None (local server)
+
+## Available MCP Primitives
+
+### Tools
+
+MCP tools are API endpoints that perform specific actions. The HGNC server provides:
+
+1. **info** - Get HGNC REST API metadata
+   - Returns searchable fields, stored fields, last modified date
+   - Useful for discovering capabilities
+
+2. **find** - Search for genes
+   - Search across symbols, aliases, names
+   - Support filters (status, locus_type)
+   - Returns matches with scores
+
+3. **fetch** - Fetch complete gene records
+   - By HGNC ID, symbol, Entrez ID, Ensembl ID
+   - Returns full gene "card" with all fields
+
+4. **resolve_symbol** - Resolve gene symbols
+   - Strict or lenient mode
+   - Handles aliases and previous symbols
+   - Returns approved symbol with confidence
+
+5. **normalize_list** - Batch normalize symbols
+   - Fast, uses local cache
+   - Handles case, duplicates, invalid symbols
+   - Returns normalized table with warnings
+
+6. **xrefs** - Extract cross-references
+   - Entrez, Ensembl, UniProt, OMIM, etc.
+   - Useful for dataset harmonization
+
+7. **group_members** - Get genes in a group
+   - By group ID or name
+   - Returns all members with metadata
+
+8. **search_groups** - Search gene groups
+   - By keyword
+   - Returns matching groups
+
+9. **changes** - Track nomenclature changes
+   - Since a specific date
+   - Filter by change type (symbol, name, status)
+
+10. **validate_panel** - Validate gene panels
+    - Check HGNC compliance
+    - Suggest replacements for outdated symbols
+
+### Resources
+
+Resources provide read-only data for context injection:
+
+1. **get_gene_card** - Formatted gene cards
+   - JSON, markdown, or text format
+   - Includes symbol, name, location, aliases, xrefs, groups
+
+2. **get_group_card** - Gene group information
+   - Group description and metadata
+   - Optional member list
+   - Multiple formats
+
+3. **snapshot** - Dataset metadata (static)
+   - Cache version, download date, row count
+   - Useful for provenance tracking
+
+4. **get_changes_summary** - Change summaries
+   - Changes since a specific date
+   - Compact format for monitoring
+
+### Prompts
+
+> **Note**: Prompts will be automatically enabled once the `plumber2mcp` package is updated to export `pr_mcp_prompt()`. The functionality is implemented and ready.
+
+Prompts are workflow templates that guide AI assistants:
+
+1. **normalize-gene-list**
+   - Multi-step gene normalization workflow
+   - Handles batch processing
+   - Returns structured results
+
+2. **check-nomenclature-compliance**
+   - Validates against HGNC policy
+   - Identifies issues
+   - Suggests replacements
+
+3. **what-changed-since**
+   - Generates change reports
+   - Categorizes by change type
+   - Human-readable summaries
+
+4. **build-gene-set-from-group**
+   - Discovers gene groups
+   - Builds reusable gene sets
+   - Multiple output formats
+
+## Testing the Server
+
+### Using Swagger UI
+
+The easiest way to test the server is via the Swagger UI:
+
+1. Start the server with `swagger = TRUE` (default)
+2. Open browser to `http://localhost:8080/__docs__/`
+3. Explore available endpoints
+4. Try executing API calls directly
+
+### Using curl
+
+Test endpoints from the command line:
+
+```{bash curl-examples}
+# Test the info endpoint
+curl http://localhost:8080/tools/info
+
+# Search for a gene
+curl -X POST http://localhost:8080/tools/find \
+  -H "Content-Type: application/json" \
+  -d '{"query": "BRCA1"}'
+
+# Fetch a gene by symbol
+curl -X POST http://localhost:8080/tools/fetch \
+  -H "Content-Type: application/json" \
+  -d '{"field": "symbol", "term": "BRCA1"}'
+
+# Normalize a list
+curl -X POST http://localhost:8080/tools/normalize_list \
+  -H "Content-Type: application/json" \
+  -d '{"symbols": ["BRCA1", "tp53", "EGFR"]}'
+```
+
+### Using R
+
+Test the endpoints from R:
+
+```{r test-r}
+library(httr)
+library(jsonlite)
+
+# Test info endpoint
+response <- GET("http://localhost:8080/tools/info")
+info <- content(response, as = "parsed")
+print(info$lastModified)
+
+# Test find
+response <- POST(
+  "http://localhost:8080/tools/find",
+  body = list(query = "BRCA1"),
+  encode = "json"
+)
+result <- content(response, as = "parsed")
+print(result$numFound)
+
+# Test normalize_list
+response <- POST(
+  "http://localhost:8080/tools/normalize_list",
+  body = list(symbols = c("BRCA1", "tp53", "EGFR")),
+  encode = "json"
+)
+result <- content(response, as = "parsed")
+print(result$results)
+```
+
+## Production Deployment
+
+### Using Docker
+
+Create a Dockerfile:
+
+```{dockerfile}
+FROM rocker/r-ver:4.3.0
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libcurl4-openssl-dev \
+    libssl-dev \
+    libxml2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install R packages
+RUN R -e "install.packages(c('plumber', 'jsonlite', 'httr', 'memoise', 'rappdirs', 'readr', 'lubridate'))"
+RUN R -e "remotes::install_github('plumber2mcp/plumber2mcp')"
+RUN R -e "remotes::install_github('yourusername/hgnc.mcp')"
+
+# Pre-populate cache
+RUN R -e "library(hgnc.mcp); load_hgnc_data()"
+
+# Expose port
+EXPOSE 8080
+
+# Start server
+CMD ["R", "-e", "library(hgnc.mcp); start_hgnc_mcp_server(host='0.0.0.0', port=8080)"]
+```
+
+Build and run:
+
+```{bash docker}
+# Build image
+docker build -t hgnc-mcp-server .
+
+# Run container
+docker run -p 8080:8080 hgnc-mcp-server
+
+# Run in background
+docker run -d -p 8080:8080 --name hgnc-mcp hgnc-mcp-server
+
+# Check logs
+docker logs hgnc-mcp
+```
+
+### Using Docker Compose
+
+Create `docker-compose.yml`:
+
+```yaml
+version: '3.8'
+
+services:
+  hgnc-mcp:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - HGNC_PORT=8080
+      - HGNC_HOST=0.0.0.0
+    volumes:
+      - hgnc-cache:/root/.cache/hgnc.mcp
+    restart: unless-stopped
+
+volumes:
+  hgnc-cache:
+```
+
+Run:
+
+```{bash docker-compose}
+docker-compose up -d
+docker-compose logs -f
+```
+
+### Environment Variables
+
+Configure the server using environment variables:
+
+```{r env-vars}
+# Read from environment
+port <- as.integer(Sys.getenv("HGNC_PORT", "8080"))
+host <- Sys.getenv("HGNC_HOST", "127.0.0.1")
+
+# Start server
+start_hgnc_mcp_server(port = port, host = host)
+```
+
+## Troubleshooting
+
+### Server won't start
+
+**Check port availability:**
+
+```{bash check-port}
+# Linux/macOS
+lsof -i :8080
+
+# Windows
+netstat -ano | findstr :8080
+```
+
+**Solution**: Use a different port or stop the conflicting process.
+
+### Client can't connect
+
+**Check server is running:**
+
+```{bash check-server}
+curl http://localhost:8080/__docs__/
+```
+
+**Check firewall rules** (if accessing remotely):
+
+```{bash firewall}
+# Allow port 8080
+sudo ufw allow 8080
+```
+
+### Cache issues
+
+**Clear and rebuild cache:**
+
+```{r clear-cache}
+clear_hgnc_cache()
+hgnc_data <- load_hgnc_data(force = TRUE)
+```
+
+### Memory issues
+
+**For large deployments**, consider:
+
+1. Increasing R memory limit
+2. Using a smaller cache subset
+3. Disabling session-level caching
+
+```{r memory}
+# Clear session cache
+clear_hgnc_cache()  # This clears memoise cache
+
+# Increase R memory (Linux)
+# ulimit -v unlimited
+```
+
+## Performance Optimization
+
+### Caching Strategy
+
+1. **Local cache** - Fast bulk operations
+2. **Session cache** - Memoise for repeated queries
+3. **Pre-warm cache** - Load data at startup
+
+```{r performance}
+# Pre-warm cache at server startup
+start_hgnc_mcp_server(cache_update = TRUE)
+```
+
+### Monitoring
+
+Monitor server performance:
+
+```{r monitoring}
+# Log requests
+library(logger)
+log_threshold(INFO)
+
+# In plumber.R, add:
+# pr$registerHook("preroute", function(req) {
+#   log_info("Request: {req$REQUEST_METHOD} {req$PATH_INFO}")
+# })
+```
+
+## Security Considerations
+
+### For Local Use
+
+- Bind to `127.0.0.1` (default) to prevent external access
+- No authentication needed
+
+### For Remote Access
+
+- Use reverse proxy (nginx, Apache) with HTTPS
+- Implement authentication (API keys, OAuth)
+- Rate limiting
+- IP whitelisting
+
+Example nginx configuration:
+
+```nginx
+server {
+  listen 443 ssl;
+  server_name hgnc-mcp.example.com;
+
+  ssl_certificate /path/to/cert.pem;
+  ssl_certificate_key /path/to/key.pem;
+
+  location / {
+    proxy_pass http://localhost:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+}
+```
+
+## Next Steps
+
+- Explore [Working with HGNC Gene Groups](gene-groups.html)
+- Review [Normalizing Gene Lists for Clinical Panels](normalizing-gene-lists.html)
+- Check the [Getting Started](getting-started.html) guide
+
+## Additional Resources
+
+- MCP Protocol: https://modelcontextprotocol.io
+- Plumber Documentation: https://www.rplumber.io
+- HGNC REST API: https://www.genenames.org/help/rest/

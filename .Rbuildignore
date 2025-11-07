@@ -2,3 +2,4 @@
 ^\.github$
 ^EXAMPLES\.md$
 ^TODO\.md$
+^codecov\.yml$

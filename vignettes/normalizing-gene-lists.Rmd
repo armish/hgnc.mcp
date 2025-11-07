@@ -1,0 +1,443 @@
+---
+title: "Normalizing Gene Lists for Clinical Panels"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Normalizing Gene Lists for Clinical Panels}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = FALSE
+)
+```
+
+## Introduction
+
+Gene nomenclature consistency is critical for clinical genomics workflows. Inconsistent gene symbols can lead to:
+
+- **Data integration errors** - Failed joins between datasets using different naming conventions
+- **Clinical misinterpretation** - Confusion between genes with similar names or outdated symbols
+- **Compliance issues** - Failure to meet regulatory requirements for standardized nomenclature
+
+This vignette demonstrates how to use `hgnc.mcp` to normalize gene lists for clinical panels, ensuring they comply with HGNC nomenclature standards.
+
+## Common Nomenclature Issues
+
+Gene lists often contain:
+
+1. **Case inconsistencies** - "brca1", "Brca1", "BRCA1"
+2. **Aliases** - Alternative symbols that refer to the same gene
+3. **Previous symbols** - Outdated symbols that have been changed
+4. **Withdrawn genes** - Genes that are no longer approved
+5. **Duplicates** - The same gene listed multiple times with different symbols
+6. **Invalid symbols** - Typos or non-existent gene names
+7. **Non-coding RNAs with special naming** - miRNA, lncRNA, etc.
+
+## Setup
+
+```{r setup}
+library(hgnc.mcp)
+
+# Ensure local cache is available
+hgnc_data <- load_hgnc_data()
+```
+
+## Basic Normalization Workflow
+
+### Example 1: Simple Gene Panel
+
+Let's start with a typical breast cancer panel that has some common issues:
+
+```{r basic-normalization}
+# A gene panel with various issues
+breast_cancer_panel <- c(
+  "BRCA1",       # Valid approved symbol
+  "brca2",       # Lowercase
+  "tp53",        # Lowercase
+  "PTEN",        # Valid
+  "atm",         # Lowercase
+  "CHEK2",       # Valid
+  "PALB2",       # Valid
+  "CDH1",        # Valid
+  "TP53",        # Duplicate (same gene as tp53)
+  "NBN",         # Valid
+  "NBS1",        # Previous symbol for NBN
+  "RAD51C",      # Valid
+  "RAD51D"       # Valid
+)
+
+# Normalize the list
+result <- hgnc_normalize_list(
+  breast_cancer_panel,
+  return_fields = c("symbol", "name", "hgnc_id", "location", "status"),
+  dedupe = TRUE
+)
+
+# View the normalized results
+print(result$results)
+
+# Check the summary
+print(result$summary)
+
+# Review any warnings
+if (length(result$warnings) > 0) {
+  cat("\nWarnings:\n")
+  for (warning in result$warnings) {
+    cat("  -", warning, "\n")
+  }
+}
+```
+
+### Understanding the Results
+
+The `hgnc_normalize_list()` function returns a list with three components:
+
+1. **results** - A data frame with normalized gene information
+2. **summary** - Statistics about the normalization process
+3. **warnings** - Issues encountered (invalid symbols, withdrawn genes, etc.)
+
+```{r examine-results}
+# View column names
+colnames(result$results)
+
+# Check for any invalid or withdrawn genes
+invalid <- result$results[result$results$status != "Approved", ]
+if (nrow(invalid) > 0) {
+  cat("Non-approved genes found:\n")
+  print(invalid[, c("input_symbol", "symbol", "status")])
+}
+
+# View deduplication summary
+cat("\nDeduplication:\n")
+cat("  Input symbols:", result$summary$input_count, "\n")
+cat("  Unique genes:", result$summary$unique_genes, "\n")
+cat("  Duplicates removed:", result$summary$duplicates_removed, "\n")
+```
+
+## Advanced Normalization
+
+### Example 2: Large Panel with Cross-References
+
+For clinical reporting, you often need to include cross-references to other databases:
+
+```{r advanced-normalization}
+# A larger cancer panel
+comprehensive_panel <- c(
+  # Breast cancer genes
+  "BRCA1", "BRCA2", "TP53", "PTEN", "ATM", "CHEK2", "PALB2",
+
+  # Lynch syndrome genes (with some outdated symbols)
+  "MLH1", "MSH2", "MSH6", "PMS2", "EPCAM",
+
+  # Other cancer predisposition genes
+  "APC", "MUTYH", "CDH1", "STK11", "SMAD4",
+
+  # Some with potential issues
+  "p53",         # Common alias for TP53
+  "FCC1",        # Previous symbol for MLH1
+  "invalid_gene" # Not a real gene
+)
+
+# Normalize with additional fields
+result <- hgnc_normalize_list(
+  comprehensive_panel,
+  return_fields = c(
+    "symbol", "name", "hgnc_id", "location", "status",
+    "entrez_id", "ensembl_gene_id", "omim_id"
+  ),
+  dedupe = TRUE
+)
+
+# View results with cross-references
+print(result$results[, c("symbol", "name", "entrez_id", "ensembl_gene_id")])
+
+# Export to CSV for clinical use
+# write.csv(result$results, "normalized_cancer_panel.csv", row.names = FALSE)
+```
+
+### Example 3: Handling Ambiguous Matches
+
+Sometimes a symbol might match multiple genes. Here's how to handle that:
+
+```{r ambiguous-matches}
+# Some potentially ambiguous symbols
+ambiguous_panel <- c(
+  "KIT",    # Could match multiple entries in some contexts
+  "CD3",    # Generic name used for multiple genes
+  "BRCA1"   # Clear match
+)
+
+# Normalize
+result <- hgnc_normalize_list(ambiguous_panel)
+
+# Check for ambiguous matches in warnings
+if (any(grepl("ambiguous", result$warnings, ignore.case = TRUE))) {
+  cat("Ambiguous matches found. Review warnings:\n")
+  print(result$warnings[grepl("ambiguous", result$warnings, ignore.case = TRUE)])
+}
+```
+
+## Validation Workflow
+
+### Example 4: Validating Against HGNC Policy
+
+Use `hgnc_validate_panel()` to check if your gene panel meets HGNC nomenclature standards:
+
+```{r validation}
+# A panel that might have issues
+panel_to_validate <- c(
+  "BRCA1", "BRCA2", "TP53",  # Valid approved symbols
+  "NBS1",                     # Previous symbol (now NBN)
+  "p53",                      # Alias
+  "FAKE_GENE"                 # Invalid
+)
+
+# Validate the panel
+validation <- hgnc_validate_panel(panel_to_validate, policy = "HGNC")
+
+# Review the validation summary
+print(validation$summary)
+
+# View the detailed report
+print(validation$report)
+
+# Check for suggested replacements
+if (!is.null(validation$suggestions) && nrow(validation$suggestions) > 0) {
+  cat("\nSuggested replacements:\n")
+  print(validation$suggestions[, c("input_symbol", "suggested_symbol", "reason")])
+}
+```
+
+### Understanding Validation Policies
+
+The `policy` parameter can be:
+
+- **"HGNC"** (default) - Strict HGNC policy: only approved symbols allowed
+- **"lenient"** - Allows approved symbols and some well-documented aliases
+
+```{r validation-policies}
+# Strict validation
+strict_result <- hgnc_validate_panel(
+  c("BRCA1", "p53"),  # p53 is alias for TP53
+  policy = "HGNC"
+)
+
+# Lenient validation
+lenient_result <- hgnc_validate_panel(
+  c("BRCA1", "p53"),
+  policy = "lenient"
+)
+
+# Compare results
+cat("Strict policy issues:", nrow(strict_result$issues), "\n")
+cat("Lenient policy issues:", nrow(lenient_result$issues), "\n")
+```
+
+## Best Practices for Clinical Workflows
+
+### 1. Pre-process Input Data
+
+```{r preprocess}
+# Function to clean input before normalization
+clean_gene_list <- function(genes) {
+  genes <- trimws(genes)                    # Remove whitespace
+  genes <- genes[genes != ""]               # Remove empty strings
+  genes <- genes[!is.na(genes)]             # Remove NAs
+  genes <- unique(genes)                    # Remove exact duplicates
+  return(genes)
+}
+
+# Example
+messy_input <- c("BRCA1 ", " TP53", "", "BRCA1", NA, "PTEN")
+clean_input <- clean_gene_list(messy_input)
+print(clean_input)
+
+# Then normalize
+result <- hgnc_normalize_list(clean_input)
+```
+
+### 2. Build Reusable Index for Large Batches
+
+If you're processing multiple gene lists, build a symbol index once and reuse it:
+
+```{r reusable-index}
+# Build index once
+symbol_index <- build_symbol_index(hgnc_data)
+
+# Use the same index for multiple normalizations
+panel1 <- c("BRCA1", "BRCA2", "TP53")
+panel2 <- c("ATM", "CHEK2", "PALB2")
+panel3 <- c("MLH1", "MSH2", "MSH6")
+
+result1 <- hgnc_normalize_list(panel1, index = symbol_index)
+result2 <- hgnc_normalize_list(panel2, index = symbol_index)
+result3 <- hgnc_normalize_list(panel3, index = symbol_index)
+
+# This is much faster than building the index three times
+```
+
+### 3. Document Your Normalization Process
+
+```{r documentation}
+# Create a normalization report
+create_normalization_report <- function(input_symbols, result) {
+  report <- list(
+    timestamp = Sys.time(),
+    input_count = length(input_symbols),
+    output_count = nrow(result$results),
+    duplicates_removed = result$summary$duplicates_removed,
+    invalid_symbols = result$summary$invalid_count,
+    warnings = result$warnings,
+    hgnc_version = get_hgnc_cache_info()$download_date
+  )
+
+  return(report)
+}
+
+# Use it
+panel <- c("BRCA1", "brca2", "tp53", "TP53", "invalid")
+result <- hgnc_normalize_list(panel)
+report <- create_normalization_report(panel, result)
+
+# Save report for audit trail
+# saveRDS(report, "normalization_report_2024-01-15.rds")
+```
+
+### 4. Handle Edge Cases
+
+```{r edge-cases}
+# Empty list
+empty_result <- hgnc_normalize_list(character(0))
+
+# Single gene
+single_result <- hgnc_normalize_list("BRCA1")
+
+# All invalid genes
+invalid_result <- hgnc_normalize_list(c("FAKE1", "FAKE2", "FAKE3"))
+
+# Check if any valid genes were found
+if (nrow(invalid_result$results) == 0) {
+  cat("No valid genes found in input!\n")
+}
+```
+
+## Real-World Example: Clinical Panel Processing
+
+Here's a complete workflow for processing a clinical gene panel file:
+
+```{r complete-workflow}
+# Function to process a clinical panel
+process_clinical_panel <- function(gene_file, output_file = NULL) {
+
+  # 1. Read input
+  # genes <- read.csv(gene_file, stringsAsFactors = FALSE)$gene_symbol
+  # For this example, we'll use a sample panel
+  genes <- c(
+    "BRCA1", "BRCA2", "TP53", "PTEN", "ATM", "CHEK2", "PALB2",
+    "MLH1", "MSH2", "MSH6", "PMS2", "APC", "MUTYH"
+  )
+
+  # 2. Clean input
+  genes <- trimws(genes)
+  genes <- genes[genes != "" & !is.na(genes)]
+
+  # 3. Normalize
+  result <- hgnc_normalize_list(
+    genes,
+    return_fields = c(
+      "symbol", "name", "hgnc_id", "location", "status",
+      "entrez_id", "ensembl_gene_id", "omim_id", "gene_group"
+    ),
+    dedupe = TRUE
+  )
+
+  # 4. Validate
+  validation <- hgnc_validate_panel(genes, policy = "HGNC")
+
+  # 5. Generate report
+  cat("=== Clinical Panel Processing Report ===\n\n")
+  cat("Input genes:", length(genes), "\n")
+  cat("Unique genes after normalization:", nrow(result$results), "\n")
+  cat("Duplicates removed:", result$summary$duplicates_removed, "\n")
+  cat("Invalid genes:", result$summary$invalid_count, "\n")
+  cat("\nValidation status:", validation$summary$status, "\n")
+
+  if (length(result$warnings) > 0) {
+    cat("\nWarnings:\n")
+    for (w in result$warnings) cat("  -", w, "\n")
+  }
+
+  # 6. Export if requested
+  if (!is.null(output_file)) {
+    write.csv(result$results, output_file, row.names = FALSE)
+    cat("\nResults saved to:", output_file, "\n")
+  }
+
+  return(list(
+    normalized = result,
+    validation = validation
+  ))
+}
+
+# Run the workflow
+# panel_result <- process_clinical_panel("input_panel.csv", "normalized_panel.csv")
+```
+
+## Monitoring Changes Over Time
+
+Track changes to your gene panels:
+
+```{r track-changes}
+# Check if any genes in your panel have been updated recently
+my_panel <- c("BRCA1", "BRCA2", "TP53", "PTEN", "ATM")
+
+# Get recent changes
+changes <- hgnc_changes(since = Sys.Date() - 365, change_type = "symbol")
+
+# Check if any of your panel genes changed
+panel_changes <- changes$changes[changes$changes$symbol %in% my_panel, ]
+
+if (nrow(panel_changes) > 0) {
+  cat("Genes in your panel that changed in the last year:\n")
+  print(panel_changes[, c("symbol", "date_symbol_changed")])
+} else {
+  cat("No changes to panel genes in the last year.\n")
+}
+```
+
+## Troubleshooting
+
+### Issue: Genes not found
+
+```{r troubleshooting-not-found}
+# If genes aren't found, try:
+# 1. Check for typos
+# 2. Search HGNC to find the correct symbol
+result <- hgnc_find("BRAC1")  # Common typo for BRCA1
+if (result$numFound > 0) {
+  cat("Did you mean:", result$docs[[1]]$symbol, "?\n")
+}
+```
+
+### Issue: Ambiguous matches
+
+```{r troubleshooting-ambiguous}
+# For ambiguous matches, fetch by specific identifier
+gene_by_id <- hgnc_fetch("hgnc_id", "HGNC:1100")
+cat("Gene:", gene_by_id$docs[[1]]$symbol, "\n")
+```
+
+## Next Steps
+
+- Learn about [Running the MCP Server](running-mcp-server.html) to integrate with AI tools
+- Explore [Working with HGNC Gene Groups](gene-groups.html) to build panels from families
+- See the [Getting Started](getting-started.html) vignette for basic usage
+
+## References
+
+- HGNC Guidelines: https://www.genenames.org/about/guidelines/
+- HGNC REST API: https://www.genenames.org/help/rest/
