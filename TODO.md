@@ -211,26 +211,43 @@ Create Plumber endpoints that wrap our HGNC functions:
 - [x] Standalone server launcher
 - [x] Command-line argument parsing (port, cache settings, etc.)
 
-### 2.3 MCP Resources Implementation
+### 2.3 MCP Resources Implementation ✓
 
 Resources provide read-only context injection.
 
-- [ ] **`resource://hgnc/gene/{hgnc_id}`**
-  - Minimal gene card: symbol, name, location, status, aliases, prev_symbols, xrefs, groups, MANE
-  - Format as structured JSON/markdown for LLM context
+**Implementation Note**: As of this implementation, `plumber2mcp` does not support
+resource templates with dynamic URI parameters (e.g., `{hgnc_id}`). We implemented
+a hybrid approach using tool endpoints that provide resource-like functionality.
 
-- [ ] **`resource://hgnc/group/{id_or_slug}`**
+- [x] **`get_gene_card` tool** (replaces `resource://hgnc/gene/{hgnc_id}`)
+  - Minimal gene card: symbol, name, location, status, aliases, prev_symbols, xrefs, groups, MANE
+  - Format as structured JSON/markdown/text for LLM context
+  - Function: `hgnc_get_gene_card(hgnc_id, format)`
+
+- [x] **`get_group_card` tool** (replaces `resource://hgnc/group/{id_or_slug}`)
   - Group summary + members
   - Include group description and size
+  - Function: `hgnc_get_group_card(group_id_or_name, format, include_members)`
 
-- [ ] **`resource://hgnc/snapshot/{version}`**
+- [x] **`snapshot` resource endpoint**
   - Metadata for cached snapshot (URL, date, columns, row count)
   - Useful for provenance
+  - Endpoint: `GET /resources/snapshot`
+  - Function: `hgnc_get_snapshot_metadata(format)`
 
-- [ ] **`resource://hgnc/changes/since/{ISO_date}`**
+- [x] **`get_changes_summary` tool** (replaces `resource://hgnc/changes/since/{ISO_date}`)
   - Compact change log (IDs, symbols, dates)
+  - Function: `hgnc_get_changes_summary(since, format, change_type, max_results)`
 
-**Note**: Check plumber2mcp documentation for resources implementation pattern.
+**Files Created/Modified**:
+- `R/hgnc_resources.R` - New file with resource helper functions
+- `inst/plumber/hgnc_api.R` - Added resource endpoints
+- `R/mcp_server.R` - Updated documentation and startup info
+- `NAMESPACE` - Added exports for new resource functions
+
+**Future Enhancement**: When `plumber2mcp` adds support for resource templates,
+these tool-based resources can be migrated to proper parameterized resources
+using the `pr_mcp_resource()` function with URI templates.
 
 ### 2.4 MCP Prompts (Workflow Templates)
 

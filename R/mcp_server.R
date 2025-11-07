@@ -37,6 +37,16 @@
 #' - `changes`: Track nomenclature changes since a date
 #' - `validate_panel`: Validate gene panels against HGNC policy
 #'
+#' @section Available Resources:
+#' The MCP server provides the following resources for context injection:
+#' - `get_gene_card`: Formatted gene cards (JSON/markdown/text)
+#' - `get_group_card`: Gene group information with members
+#' - `get_changes_summary`: Nomenclature changes since a date
+#' - `snapshot`: Static resource with dataset metadata
+#'
+#' Resources provide read-only data that can be injected into LLM context
+#' for enhanced understanding of genes, groups, and nomenclature changes.
+#'
 #' @section MCP Client Configuration:
 #' To connect an MCP client (e.g., Claude Desktop), add the following to
 #' your MCP configuration file:
@@ -141,6 +151,12 @@ start_hgnc_mcp_server <- function(port = 8080,
     cat("  - normalize_list, xrefs\n")
     cat("  - group_members, search_groups\n")
     cat("  - changes, validate_panel\n")
+    cat("\n")
+    cat("Available Resources: 4\n")
+    cat("  - get_gene_card: Gene information cards\n")
+    cat("  - get_group_card: Gene group information\n")
+    cat("  - get_changes_summary: Nomenclature changes log\n")
+    cat("  - snapshot: Dataset metadata (static)\n")
     cat("\n")
     cat("MCP Client Configuration:\n")
     cat("  Add to your MCP config file:\n")
