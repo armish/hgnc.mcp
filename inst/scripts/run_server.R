@@ -126,10 +126,10 @@ if (update_cache || check_cache) {
     tryCatch({
       hgnc.mcp::download_hgnc_data(force = TRUE, verbose = !quiet)
       if (!quiet) {
-        cat("✓ Cache updated successfully\n\n")
+        cat("[OK] Cache updated successfully\n\n")
       }
     }, error = function(e) {
-      cat("✗ Failed to update cache:", e$message, "\n")
+      cat("[X] Failed to update cache:", e$message, "\n")
       cat("The server will start anyway and attempt to use existing cache.\n\n")
     })
   } else if (check_cache) {
@@ -140,10 +140,10 @@ if (update_cache || check_cache) {
       # Try to load data; this will download if missing
       data <- hgnc.mcp::load_hgnc_data(verbose = !quiet)
       if (!quiet) {
-        cat(sprintf("✓ Cache available with %d genes\n\n", nrow(data)))
+        cat(sprintf("[OK] Cache available with %d genes\n\n", nrow(data)))
       }
     }, error = function(e) {
-      cat("✗ Failed to load cache:", e$message, "\n")
+      cat("[X] Failed to load cache:", e$message, "\n")
       cat("Warning: Some tools may not work without cached data.\n\n")
     })
   }
@@ -165,7 +165,7 @@ tryCatch({
     quiet = quiet
   )
 }, error = function(e) {
-  cat("\n✗ Failed to start MCP server:\n")
+  cat("\n[X] Failed to start MCP server:\n")
   cat("  ", e$message, "\n\n")
 
   # Provide helpful troubleshooting info

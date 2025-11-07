@@ -22,6 +22,7 @@ Imports:
     rappdirs,
     readr,
     memoise,
+    plumber,
     plumber2mcp
 Suggests:
     testthat (>= 3.0.0),

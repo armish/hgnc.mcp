@@ -199,17 +199,17 @@ check_mcp_dependencies <- function() {
     if (!requireNamespace(dep$package, quietly = TRUE)) {
       all_ok <- FALSE
       missing <- c(missing, dep_name)
-      message(sprintf("✗ Missing: %s", dep$package))
-      message(sprintf("  Install with: %s", dep$install))
+      message(sprintf("[X] Missing: %s", dep$package))
+      message(sprintf("    Install with: %s", dep$install))
     } else {
-      message(sprintf("✓ Found: %s", dep$package))
+      message(sprintf("[OK] Found: %s", dep$package))
     }
   }
 
   if (all_ok) {
-    message("\n✓ All MCP server dependencies are installed!")
+    message("\n[OK] All MCP server dependencies are installed!")
   } else {
-    message("\n✗ Some dependencies are missing. Please install them to run the MCP server.")
+    message("\n[X] Some dependencies are missing. Please install them to run the MCP server.")
   }
 
   invisible(all_ok)
