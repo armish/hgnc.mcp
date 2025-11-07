@@ -249,29 +249,40 @@ a hybrid approach using tool endpoints that provide resource-like functionality.
 these tool-based resources can be migrated to proper parameterized resources
 using the `pr_mcp_resource()` function with URI templates.
 
-### 2.4 MCP Prompts (Workflow Templates)
+### 2.4 MCP Prompts (Workflow Templates) ✓
 
 Pre-configured multi-step workflows:
 
-- [ ] **`normalize-gene-list`**
-  - Args: list, strictness, return_xrefs
-  - Orchestrates find/resolve/fetch
-  - Returns tidy table + warnings
+- [x] **`normalize-gene-list`**
+  - Args: gene_list, strictness, return_xrefs
+  - Guides through normalizing gene symbols to approved HGNC nomenclature
+  - Orchestrates find/resolve/fetch workflow
+  - Returns structured guidance for tidy table + warnings
 
-- [ ] **`check-nomenclature-compliance`**
-  - Args: panel_text or fileUri
-  - Lints panel against HGNC policy
-  - Returns report with suggested fixes
+- [x] **`check-nomenclature-compliance`**
+  - Args: panel_text, file_uri
+  - Validates gene panels against HGNC policy
+  - Identifies non-approved symbols, withdrawn genes, duplicates
+  - Returns report with replacement suggestions and rationale
 
-- [ ] **`what-changed-since`**
-  - Args: date
-  - Human-readable summary for governance
+- [x] **`what-changed-since`**
+  - Args: since (ISO date)
+  - Generates human-readable nomenclature change reports
+  - Categorizes changes by type (symbol, status, name)
+  - Useful for governance and compliance tracking
 
-- [ ] **`build-gene-set-from-group`**
+- [x] **`build-gene-set-from-group`**
   - Args: group_query
-  - Finds group and produces reusable set definition
+  - Discovers HGNC gene groups by keyword search
+  - Builds reusable gene set definitions from members
+  - Provides output in multiple formats (list, table, JSON)
 
-**Note**: Prompts are MCP templates; verify plumber2mcp support and syntax.
+**Implementation Notes**:
+- Created `R/hgnc_prompts.R` with helper functions for generating prompt content
+- Registered prompts in `R/mcp_server.R` using `plumber2mcp::pr_mcp_prompt()`
+- Each prompt provides structured workflow guidance for multi-step tasks
+- Prompts help AI assistants understand how to use multiple tools together
+- Updated documentation in README and function roxygen comments
 
 ---
 
@@ -453,10 +464,10 @@ User-friendly errors with actionable guidance:
 - [x] `hgnc_validate_panel()`
 
 **Phase 2 (MCP Server)**:
-- [ ] Plumber API with all MVP tools
-- [ ] MCP integration via `plumber2mcp`
-- [ ] Resources: `gene/*`, `group/*`
-- [ ] Prompt: `normalize-gene-list`
+- [x] Plumber API with all MVP tools
+- [x] MCP integration via `plumber2mcp`
+- [x] Resources: `gene/*`, `group/*`, `snapshot`, `changes/*`
+- [x] Prompts: All 4 workflow templates (normalize, compliance, changes, gene sets)
 
 **Phase 4 (Launch-Ready)**:
 - [ ] Basic documentation (README + function docs)
