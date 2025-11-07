@@ -1,4 +1,13 @@
 # Tests for HGNC REST API Client
+#
+# This test suite covers:
+# - Rate limiting implementation (≤10 req/sec)
+# - Response caching with memoise
+# - Error handling and retries
+# - API endpoint wrappers (info, search, fetch)
+# - Cache management (clear_hgnc_cache, reset_rate_limiter)
+#
+# Integration tests are skipped on CRAN and during coverage runs.
 
 test_that("rate limiter prevents exceeding 10 req/sec", {
   # Reset rate limiter

@@ -1,3 +1,14 @@
+# Tests for HGNC MCP Prompt Helpers
+#
+# This test suite covers:
+# - prompt_normalize_gene_list(): Generate gene list normalization workflow prompts
+# - prompt_check_nomenclature_compliance(): Generate compliance check prompts
+# - prompt_what_changed_since(): Generate change tracking prompts
+# - prompt_build_gene_set_from_group(): Generate gene set building prompts
+#
+# These prompts provide structured workflow guidance for AI assistants
+# to use multiple HGNC tools together effectively.
+
 test_that("prompt_normalize_gene_list generates valid prompt", {
   # Test with specified arguments
   prompt <- prompt_normalize_gene_list(

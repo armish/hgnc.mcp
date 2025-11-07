@@ -1,11 +1,13 @@
 # Tests for HGNC Essential Lookup Tools
-
-# Helper function to check if we're offline
-skip_if_offline <- function() {
-  if (!curl::has_internet()) {
-    skip("No internet connection")
-  }
-}
+#
+# This test suite covers:
+# - hgnc_find(): Search across symbol, alias, prev_symbol, name
+# - hgnc_fetch(): Fetch gene records by field/term
+# - hgnc_resolve_symbol(): Intelligent symbol resolution with strict/lenient modes
+# - hgnc_xrefs(): Extract cross-references for genes
+#
+# Integration tests are skipped on CRAN and during coverage runs.
+# Use skip_if_offline() from helper.R to check internet connectivity.
 
 # =============================================================================
 # Tests for hgnc_find()

@@ -1,4 +1,13 @@
 # Tests for HGNC Batch Operations
+#
+# This test suite covers:
+# - build_symbol_index(): Create in-memory lookup tables from cached data
+# - hgnc_normalize_list(): Batch symbol normalization and validation
+# - Symbol resolution via exact matches, aliases, and previous symbols
+# - Duplicate detection and handling
+# - Status filtering (Approved, Withdrawn)
+#
+# Tests use both real cached data and mock data for specific scenarios.
 
 # =============================================================================
 # Tests for build_symbol_index()

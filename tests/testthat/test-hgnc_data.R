@@ -1,3 +1,15 @@
+# Tests for HGNC Data Cache Management
+#
+# This test suite covers:
+# - Cache directory management (get_hgnc_cache_dir, get_hgnc_cache_path)
+# - Cache freshness checking (is_hgnc_cache_fresh)
+# - Cache metadata (get_hgnc_cache_info)
+# - Cache clearing (clear_hgnc_cache)
+# - Local cache for offline operations
+#
+# Note: download_hgnc_data() and load_hgnc_data() should be tested manually
+# as they require internet connection and download large files.
+
 test_that("get_hgnc_cache_dir creates and returns valid directory", {
   cache_dir <- get_hgnc_cache_dir()
 
