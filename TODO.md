@@ -279,10 +279,17 @@ Pre-configured multi-step workflows:
 
 **Implementation Notes**:
 - Created `R/hgnc_prompts.R` with helper functions for generating prompt content
-- Registered prompts in `R/mcp_server.R` using `plumber2mcp::pr_mcp_prompt()`
+- Registered prompts in `R/mcp_server.R` using conditional loading
 - Each prompt provides structured workflow guidance for multi-step tasks
 - Prompts help AI assistants understand how to use multiple tools together
 - Updated documentation in README and function roxygen comments
+
+**Current Status (2025-11-07)**:
+- Prompt functions are fully implemented and tested
+- Prompts are conditionally registered (will auto-enable when available)
+- Awaiting `plumber2mcp` NAMESPACE update to export `pr_mcp_prompt()`
+- The function exists in plumber2mcp with @export tag but NAMESPACE not regenerated
+- Once plumber2mcp is updated, prompts will work automatically without code changes
 
 ---
 

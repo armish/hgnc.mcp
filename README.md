@@ -164,6 +164,8 @@ Resources provide read-only data for context injection:
 
 ### Available MCP Prompts
 
+> **Note**: MCP Prompts are currently being integrated. Prompt functionality will be automatically enabled once the `plumber2mcp` package NAMESPACE is updated to export `pr_mcp_prompt()`. The prompt functions are implemented and ready to use.
+
 Prompts are workflow templates that guide AI assistants through multi-step HGNC tasks:
 
 1. **normalize-gene-list** - Guides through normalizing gene symbols to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.

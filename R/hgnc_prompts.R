@@ -364,11 +364,11 @@ Organize changes into meaningful categories:
 
 **Symbol Changes** (most critical for watchlists):
 - Genes where the approved symbol changed
-- Include: old symbol → new symbol (if available via prev_symbol)
+- Include: old symbol -> new symbol (if available via prev_symbol)
 - Impact: Code/databases using old symbol may break
 
 **Status Changes** (affects usability):
-- Genes that changed status (e.g., Approved → Withdrawn)
+- Genes that changed status (e.g., Approved -> Withdrawn)
 - Withdrawals are critical (gene may be obsolete, merged, or split)
 - New approvals indicate newly characterized genes
 
@@ -409,13 +409,13 @@ Highlight changes that require immediate attention:
 
 **Symbol Changes (Critical)**
 List each symbol change as:
-- HGNC:##### - [OLD_SYMBOL] → [NEW_SYMBOL] - [gene name]
+- HGNC:##### - [OLD_SYMBOL] -> [NEW_SYMBOL] - [gene name]
 - Changed on: [date]
 - Action required: Update references from OLD_SYMBOL to NEW_SYMBOL
 
 **Status Changes (Important)**
 For each status change:
-- HGNC:##### - [symbol] - Status: [old] → [new]
+- HGNC:##### - [symbol] - Status: [old] -> [new]
 - Changed on: [date]
 - Action: [explain implications, e.g., \"Remove from active panels\"]
 

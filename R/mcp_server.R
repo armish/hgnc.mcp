@@ -131,12 +131,22 @@ start_hgnc_mcp_server <- function(port = 8080,
   pr <- plumber::plumb(api_file)
 
   # Register MCP Prompts (workflow templates)
+  # Note: pr_mcp_prompt is available in plumber2mcp but not yet exported in NAMESPACE
+  # TODO: Uncomment when plumber2mcp NAMESPACE is updated to export pr_mcp_prompt
   if (!quiet) {
-    message("Registering MCP prompts...")
+    message("Checking for MCP prompts support...")
   }
 
-  # Prompt 1: Normalize Gene List
-  pr <- plumber2mcp::pr_mcp_prompt(
+  # Check if pr_mcp_prompt is available (conditionally register prompts)
+  has_prompt_support <- "pr_mcp_prompt" %in% getNamespaceExports("plumber2mcp")
+
+  if (has_prompt_support) {
+    if (!quiet) {
+      message("Registering MCP prompts...")
+    }
+
+    # Prompt 1: Normalize Gene List
+    pr <- plumber2mcp::pr_mcp_prompt(
     pr,
     name = "normalize-gene-list",
     description = "Guide through normalizing a gene symbol list to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.",
@@ -217,6 +227,12 @@ start_hgnc_mcp_server <- function(port = 8080,
       prompt_build_gene_set_from_group(group_query)
     }
   )
+  } else {
+    if (!quiet) {
+      message("Note: MCP prompts not available yet (pr_mcp_prompt not exported in plumber2mcp)")
+      message("      Prompts will be enabled automatically when plumber2mcp is updated.")
+    }
+  }
 
   # Apply MCP integration
   if (!quiet) {
@@ -262,11 +278,16 @@ start_hgnc_mcp_server <- function(port = 8080,
     cat("  - get_changes_summary: Nomenclature changes log\n")
     cat("  - snapshot: Dataset metadata (static)\n")
     cat("\n")
-    cat("Available Prompts: 4\n")
-    cat("  - normalize-gene-list: Normalize gene symbols to HGNC\n")
-    cat("  - check-nomenclature-compliance: Validate gene panels\n")
-    cat("  - what-changed-since: Track nomenclature changes\n")
-    cat("  - build-gene-set-from-group: Create gene sets from groups\n")
+    if (has_prompt_support) {
+      cat("Available Prompts: 4\n")
+      cat("  - normalize-gene-list: Normalize gene symbols to HGNC\n")
+      cat("  - check-nomenclature-compliance: Validate gene panels\n")
+      cat("  - what-changed-since: Track nomenclature changes\n")
+      cat("  - build-gene-set-from-group: Create gene sets from groups\n")
+    } else {
+      cat("Available Prompts: 0\n")
+      cat("  (Prompts pending plumber2mcp update)\n")
+    }
     cat("\n")
     cat("MCP Client Configuration:\n")
     cat("  Add to your MCP config file:\n")
