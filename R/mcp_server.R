@@ -145,8 +145,11 @@ start_hgnc_mcp_server <- function(port = 8080,
       message("Registering MCP prompts...")
     }
 
+    # Get the pr_mcp_prompt function dynamically to avoid R CMD check warnings
+    pr_mcp_prompt_fn <- get("pr_mcp_prompt", envir = asNamespace("plumber2mcp"))
+
     # Prompt 1: Normalize Gene List
-    pr <- plumber2mcp::pr_mcp_prompt(
+    pr <- pr_mcp_prompt_fn(
     pr,
     name = "normalize-gene-list",
     description = "Guide through normalizing a gene symbol list to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.",
@@ -173,7 +176,7 @@ start_hgnc_mcp_server <- function(port = 8080,
   )
 
   # Prompt 2: Check Nomenclature Compliance
-  pr <- plumber2mcp::pr_mcp_prompt(
+  pr <- pr_mcp_prompt_fn(
     pr,
     name = "check-nomenclature-compliance",
     description = "Validate a gene panel against HGNC nomenclature policy. Identifies non-approved symbols, withdrawn genes, duplicates, and provides replacement suggestions with rationale.",
@@ -195,7 +198,7 @@ start_hgnc_mcp_server <- function(port = 8080,
   )
 
   # Prompt 3: What Changed Since
-  pr <- plumber2mcp::pr_mcp_prompt(
+  pr <- pr_mcp_prompt_fn(
     pr,
     name = "what-changed-since",
     description = "Generate a human-readable summary of HGNC nomenclature changes since a specific date. Useful for governance, compliance tracking, and watchlist monitoring.",
@@ -212,7 +215,7 @@ start_hgnc_mcp_server <- function(port = 8080,
   )
 
   # Prompt 4: Build Gene Set from Group
-  pr <- plumber2mcp::pr_mcp_prompt(
+  pr <- pr_mcp_prompt_fn(
     pr,
     name = "build-gene-set-from-group",
     description = "Discover an HGNC gene group by keyword search and build a reusable gene set definition from its members. Provides output in multiple formats (list, table, JSON) with metadata for reproducibility.",
