@@ -1,0 +1,70 @@
+name: Setup GitHub Pages
+
+# This workflow automatically enables GitHub Pages for the repository
+# It runs after the pkgdown workflow creates the gh-pages branch
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+  contents: read
+
+jobs:
+  setup-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if gh-pages branch exists
+        id: check-branch
+        run: |
+          if git ls-remote --heads origin gh-pages | grep gh-pages > /dev/null; then
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+            echo "✓ gh-pages branch exists"
+          else
+            echo "branch_exists=false" >> $GITHUB_OUTPUT
+            echo "✗ gh-pages branch does not exist yet"
+          fi
+
+      - name: Enable GitHub Pages
+        if: steps.check-branch.outputs.branch_exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Enable GitHub Pages using GitHub API
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/pages \
+            -d '{
+              "source": {
+                "branch": "gh-pages",
+                "path": "/"
+              }
+            }' || echo "Pages may already be enabled or error occurred (this is often OK)"
+
+      - name: Get Pages URL
+        if: steps.check-branch.outputs.branch_exists == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching GitHub Pages information..."
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/pages | \
+            jq -r '"GitHub Pages is available at: " + .html_url' || echo "Could not fetch Pages URL"
+
+      - name: Summary
+        run: |
+          echo "### GitHub Pages Setup Complete! 🚀" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Your pkgdown site should be available at:" >> $GITHUB_STEP_SUMMARY
+          echo "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Note: It may take a few minutes for the site to be available after the first deployment." >> $GITHUB_STEP_SUMMARY
