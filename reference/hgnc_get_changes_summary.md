@@ -1,70 +1,32 @@
-# Get Changes Summary Resource
+# HGNC MCP Resource Helpers
 
-Retrieve a summary of nomenclature changes since a specified date.
-Provides a compact change log with gene IDs, symbols, and modification
-dates.
+HGNC MCP Resource Helpers
 
 ## Usage
 
 ``` r
-hgnc_get_changes_summary(
-  since,
-  format = c("json", "markdown", "text"),
-  change_type = "all",
-  max_results = 100
-)
+hgnc_get_changes_summary(since, format = c("json", "markdown", "text"), change_type = "all", max_results = 100)
 ```
 
 ## Arguments
 
 - since:
 
-  Character. ISO 8601 date (YYYY-MM-DD) from which to track changes.
+  (parameter description)
 
 - format:
 
-  Character. Output format: "json" (default), "markdown", or "text".
+  (parameter description)
 
 - change_type:
 
-  Character. Type of changes: "all" (default), "symbol", "name",
-  "status", or "modified".
+  (parameter description)
 
 - max_results:
 
-  Integer. Maximum number of changes to return (default: 100).
+  (parameter description)
 
-## Value
+## Details
 
-A list with components:
-
-- uri:
-
-  Resource URI
-
-- mimeType:
-
-  Content MIME type
-
-- content:
-
-  Formatted changes summary
-
-- changes:
-
-  Raw changes data
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Get changes since 2024-01-01
-changes <- hgnc_get_changes_summary("2024-01-01")
-
-# Get symbol changes only as markdown
-changes <- hgnc_get_changes_summary("2024-01-01",
-  format = "markdown",
-  change_type = "symbol"
-)
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

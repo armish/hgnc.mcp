@@ -533,19 +533,19 @@
 </div>
 <div class="section level2">
 <h2 id="caching">Caching<a class="anchor" aria-label="anchor" href="#caching"></a></h2>
-<p>The <code><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info()</a></code> function is cached for the session:</p>
+<p>The <code><a href="reference/hgnc_rest_info.html">hgnc_rest_info()</a></code> function is cached for the session:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># First call hits API</span></span>
-<span><span class="va">info1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">info1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_rest_info.html">hgnc_rest_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Second call uses cache (instant)</span></span>
-<span><span class="va">info2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">info2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_rest_info.html">hgnc_rest_info</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Clear cache to force fresh API call</span></span>
 <span><span class="fu"><a href="reference/clear_hgnc_cache.html">clear_hgnc_cache</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Next call will hit API again</span></span>
-<span><span class="va">info3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">info3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_rest_info.html">hgnc_rest_info</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="error-handling">Error Handling<a class="anchor" aria-label="anchor" href="#error-handling"></a></h2>

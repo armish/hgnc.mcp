@@ -1,7 +1,6 @@
-# Get cache information
+# Get HGNC cache directory
 
-Returns information about the cached HGNC data including download time,
-file size, and age.
+Get HGNC cache directory
 
 ## Usage
 
@@ -9,14 +8,7 @@ file size, and age.
 get_hgnc_cache_info()
 ```
 
-## Value
+## Details
 
-A list with cache information or NULL if no cache exists
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-get_hgnc_cache_info()
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

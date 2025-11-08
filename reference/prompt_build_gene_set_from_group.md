@@ -1,7 +1,6 @@
-# Generate Build Gene Set from Group Prompt
+# MCP Prompt Helpers for HGNC Workflows
 
-Creates a prompt template for discovering an HGNC gene group and
-building a reusable gene set definition from its members.
+MCP Prompt Helpers for HGNC Workflows
 
 ## Usage
 
@@ -13,31 +12,9 @@ prompt_build_gene_set_from_group(group_query = "")
 
 - group_query:
 
-  Character. Search query for finding gene groups (e.g., "kinase", "zinc
-  finger", "immunoglobulin")
-
-## Value
-
-A formatted prompt string guiding the gene set building workflow
+  (parameter description)
 
 ## Details
 
-This prompt helps AI assistants:
-
-1.  Search for relevant HGNC gene groups by keyword
-
-2.  Select the most appropriate group
-
-3.  Retrieve all member genes
-
-4.  Build a structured gene set definition
-
-5.  Provide metadata for reproducibility
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-prompt_build_gene_set_from_group(group_query = "protein kinase")
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

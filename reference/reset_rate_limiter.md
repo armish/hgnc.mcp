@@ -1,6 +1,6 @@
-# Reset HGNC Rate Limiter
+# Rate Limiter for HGNC API Requests
 
-Resets the rate limiter state. Primarily useful for testing.
+Rate Limiter for HGNC API Requests
 
 ## Usage
 
@@ -8,6 +8,7 @@ Resets the rate limiter state. Primarily useful for testing.
 reset_rate_limiter()
 ```
 
-## Value
+## Details
 
-Invisible NULL
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

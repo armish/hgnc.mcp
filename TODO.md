@@ -66,7 +66,7 @@ Base HTTP client with:
 - JSON parsing with helpful error messages
 - Optional response caching (in-memory for session via memoise)
 
-[`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md) -
+[`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info.md) -
 GET `/info` endpoint
 
 - Returns: `lastModified`, searchable fields, stored fields
@@ -220,7 +220,7 @@ endpoint_find <- function(query, filters = NULL) {
 Endpoints needed:
 
 - `/tools/info` →
-  [`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md)
+  [`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info.md)
 - `/tools/find` →
   [`hgnc_find()`](https://armish.github.io/hgnc.mcp/reference/hgnc_find.md)
 - `/tools/fetch` →
@@ -232,7 +232,7 @@ Endpoints needed:
 - `/tools/xrefs` →
   [`hgnc_xrefs()`](https://armish.github.io/hgnc.mcp/reference/hgnc_xrefs.md)
 - `/tools/group_members` →
-  [`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.md)
+  [`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members.md)
 - `/tools/search_groups` →
   [`hgnc_search_groups()`](https://armish.github.io/hgnc.mcp/reference/hgnc_search_groups.md)
 - `/tools/changes` →
@@ -581,7 +581,7 @@ capabilities.
 (batch, using cache) - \[x\]
 [`hgnc_xrefs()`](https://armish.github.io/hgnc.mcp/reference/hgnc_xrefs.md) -
 \[x\]
-[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.md) -
+[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members.md) -
 \[x\]
 [`hgnc_changes()`](https://armish.github.io/hgnc.mcp/reference/hgnc_changes.md) -
 \[x\]
@@ -663,7 +663,7 @@ wrangling, optional but recommended) - `glue` (string formatting)
 1.  ✅ Review and finalize this TODO.md
 2.  ⬜ Set up HGNC REST API client skeleton (`R/hgnc_rest_client.R`)
 3.  ⬜ Implement
-    [`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md)
+    [`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info.md)
     and test against live API
 4.  ⬜ Add rate limiting to base client
 5.  ⬜ Implement

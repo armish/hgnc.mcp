@@ -1,7 +1,6 @@
 # Get HGNC cache directory
 
-Returns the path to the directory where HGNC data is cached. Creates the
-directory if it doesn't exist.
+Get HGNC cache directory
 
 ## Usage
 
@@ -9,14 +8,7 @@ directory if it doesn't exist.
 get_hgnc_cache_dir()
 ```
 
-## Value
+## Details
 
-Character string with the path to the cache directory
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-get_hgnc_cache_dir()
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

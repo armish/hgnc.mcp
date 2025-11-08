@@ -1,20 +1,20 @@
-# Get HGNC cache directory
+# Get Members of a Gene Group
 
-Get HGNC cache directory
+Get Members of a Gene Group
 
 ## Usage
 
 ``` r
-load_hgnc_data(max_age_days = 30, force = FALSE)
+hgnc_group_members(group_id_or_name, use_cache = TRUE)
 ```
 
 ## Arguments
 
-- max_age_days:
+- group_id_or_name:
 
   (parameter description)
 
-- force:
+- use_cache:
 
   (parameter description)
 

@@ -1,7 +1,6 @@
-# Generate Nomenclature Compliance Check Prompt
+# MCP Prompt Helpers for HGNC Workflows
 
-Creates a prompt template for validating a gene panel against HGNC
-nomenclature policy and suggesting corrections.
+MCP Prompt Helpers for HGNC Workflows
 
 ## Usage
 
@@ -13,39 +12,13 @@ prompt_check_nomenclature_compliance(panel_text = "", file_uri = NULL)
 
 - panel_text:
 
-  Character. Gene panel as text (symbols separated by commas, newlines,
-  or whitespace) or empty string if file-based
+  (parameter description)
 
 - file_uri:
 
-  Character. URI to a file containing the gene panel (optional,
-  alternative to panel_text)
-
-## Value
-
-A formatted prompt string guiding the compliance check workflow
+  (parameter description)
 
 ## Details
 
-This prompt helps AI assistants perform HGNC nomenclature compliance
-checks by:
-
-1.  Parsing the gene panel from text or file
-
-2.  Using validate_panel tool to check against HGNC policy
-
-3.  Categorizing issues (withdrawn, non-approved, duplicates)
-
-4.  Presenting replacement suggestions with rationale
-
-5.  Generating a compliance report
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-prompt_check_nomenclature_compliance(
-  panel_text = "BRCA1, BRCA2, TP53, OLD_SYMBOL"
-)
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

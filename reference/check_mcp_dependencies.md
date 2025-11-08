@@ -1,7 +1,6 @@
-# Check MCP Server Dependencies
+# Start HGNC MCP Server
 
-Verify that all required packages for running the MCP server are
-installed and provide installation instructions if any are missing.
+Start HGNC MCP Server
 
 ## Usage
 
@@ -9,16 +8,7 @@ installed and provide installation instructions if any are missing.
 check_mcp_dependencies()
 ```
 
-## Value
+## Details
 
-Logical. TRUE if all dependencies are available, FALSE otherwise
-
-## Examples
-
-``` r
-check_mcp_dependencies()
-#> [OK] Found: plumber
-#> [OK] Found: plumber2mcp
-#> 
-#> [OK] All MCP server dependencies are installed!
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

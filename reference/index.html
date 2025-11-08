@@ -40,6 +40,22 @@
     </div>
 
     <div class="section level2">
+      <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a></h2>
+
+      <div class="section-desc"><p>Package overview and introduction</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="hgnc.mcp-package.html">hgnc.mcp-package</a></code> <code><a href="hgnc.mcp-package.html">hgnc.mcp</a></code>
+
+        </dt>
+        <dd>MCP Server for HGNC Gene Nomenclature Resources</dd>
+      </dl></div><div class="section level2">
       <h2 id="data-management">Data Management<a class="anchor" aria-label="anchor" href="#data-management"></a></h2>
 
       <div class="section-desc"><p>Functions for downloading, caching, and managing HGNC data</p></div>
@@ -54,28 +70,28 @@
           <code><a href="load_hgnc_data.html">load_hgnc_data()</a></code>
 
         </dt>
-        <dd>Load HGNC data</dd>
+        <dd>Get HGNC cache directory</dd>
 
         <dt>
 
           <code><a href="download_hgnc_data.html">download_hgnc_data()</a></code>
 
         </dt>
-        <dd>Download HGNC data from the official source</dd>
+        <dd>Get HGNC cache directory</dd>
 
         <dt>
 
           <code><a href="get_hgnc_cache_info.html">get_hgnc_cache_info()</a></code>
 
         </dt>
-        <dd>Get cache information</dd>
+        <dd>Get HGNC cache directory</dd>
 
         <dt>
 
           <code><a href="is_hgnc_cache_fresh.html">is_hgnc_cache_fresh()</a></code>
 
         </dt>
-        <dd>Check if cached HGNC data exists and is fresh</dd>
+        <dd>Get HGNC cache directory</dd>
 
         <dt>
 
@@ -89,7 +105,7 @@
           <code><a href="clear_hgnc_cache.html">clear_hgnc_cache()</a></code>
 
         </dt>
-        <dd>Clear HGNC Caches</dd>
+        <dd>Rate Limiter for HGNC API Requests</dd>
       </dl></div><div class="section level2">
       <h2 id="rest-api-client">REST API Client<a class="anchor" aria-label="anchor" href="#rest-api-client"></a></h2>
 
@@ -102,24 +118,31 @@
 
       <dl><dt>
 
-          <code><a href="hgnc_rest_info_uncached.html">hgnc_rest_info_uncached()</a></code> <code><a href="hgnc_rest_info_uncached.html">hgnc_rest_info()</a></code>
+          <code><a href="hgnc_rest_info.html">hgnc_rest_info()</a></code>
 
         </dt>
-        <dd>Get HGNC REST API Information</dd>
+        <dd>Get HGNC REST API Information (Cached)</dd>
+
+        <dt>
+
+          <code><a href="hgnc_rest_info_uncached.html">hgnc_rest_info_uncached()</a></code>
+
+        </dt>
+        <dd>Rate Limiter for HGNC API Requests</dd>
 
         <dt>
 
           <code><a href="hgnc_rest_get.html">hgnc_rest_get()</a></code>
 
         </dt>
-        <dd>Base HTTP Client for HGNC REST API</dd>
+        <dd>Rate Limiter for HGNC API Requests</dd>
 
         <dt>
 
           <code><a href="reset_rate_limiter.html">reset_rate_limiter()</a></code>
 
         </dt>
-        <dd>Reset HGNC Rate Limiter</dd>
+        <dd>Rate Limiter for HGNC API Requests</dd>
       </dl></div><div class="section level2">
       <h2 id="gene-lookup-and-resolution">Gene Lookup and Resolution<a class="anchor" aria-label="anchor" href="#gene-lookup-and-resolution"></a></h2>
 
@@ -142,21 +165,21 @@
           <code><a href="hgnc_fetch.html">hgnc_fetch()</a></code>
 
         </dt>
-        <dd>Fetch Gene Records by Field Value</dd>
+        <dd>Search for Genes in HGNC Database</dd>
 
         <dt>
 
           <code><a href="hgnc_resolve_symbol.html">hgnc_resolve_symbol()</a></code>
 
         </dt>
-        <dd>Resolve Gene Symbol to Approved Symbol</dd>
+        <dd>Search for Genes in HGNC Database</dd>
 
         <dt>
 
           <code><a href="hgnc_xrefs.html">hgnc_xrefs()</a></code>
 
         </dt>
-        <dd>Extract Cross-References from Gene Record</dd>
+        <dd>Search for Genes in HGNC Database</dd>
       </dl></div><div class="section level2">
       <h2 id="batch-operations">Batch Operations<a class="anchor" aria-label="anchor" href="#batch-operations"></a></h2>
 
@@ -172,7 +195,7 @@
           <code><a href="hgnc_normalize_list.html">hgnc_normalize_list()</a></code>
 
         </dt>
-        <dd>Normalize Gene Symbol List</dd>
+        <dd>Build Symbol Index from Cached Data</dd>
 
         <dt>
 
@@ -192,7 +215,14 @@
 
       <dl><dt>
 
-          <code><a href="hgnc_group_members_uncached.html">hgnc_group_members_uncached()</a></code> <code><a href="hgnc_group_members_uncached.html">hgnc_group_members()</a></code>
+          <code><a href="hgnc_group_members_uncached.html">hgnc_group_members_uncached()</a></code>
+
+        </dt>
+        <dd>Get Members of a Gene Group</dd>
+
+        <dt>
+
+          <code><a href="hgnc_group_members.html">hgnc_group_members()</a></code>
 
         </dt>
         <dd>Get Members of a Gene Group</dd>
@@ -202,7 +232,7 @@
           <code><a href="hgnc_search_groups.html">hgnc_search_groups()</a></code>
 
         </dt>
-        <dd>Search for Gene Groups</dd>
+        <dd>Get Members of a Gene Group</dd>
       </dl></div><div class="section level2">
       <h2 id="change-tracking-and-validation">Change Tracking and Validation<a class="anchor" aria-label="anchor" href="#change-tracking-and-validation"></a></h2>
 
@@ -225,7 +255,7 @@
           <code><a href="hgnc_validate_panel.html">hgnc_validate_panel()</a></code>
 
         </dt>
-        <dd>Validate Gene Panel Against HGNC Policy</dd>
+        <dd>Track Gene Nomenclature Changes</dd>
       </dl></div><div class="section level2">
       <h2 id="mcp-server">MCP Server<a class="anchor" aria-label="anchor" href="#mcp-server"></a></h2>
 
@@ -248,7 +278,7 @@
           <code><a href="check_mcp_dependencies.html">check_mcp_dependencies()</a></code>
 
         </dt>
-        <dd>Check MCP Server Dependencies</dd>
+        <dd>Start HGNC MCP Server</dd>
       </dl></div><div class="section level2">
       <h2 id="mcp-resources">MCP Resources<a class="anchor" aria-label="anchor" href="#mcp-resources"></a></h2>
 
@@ -271,28 +301,28 @@
           <code><a href="hgnc_get_gene_card.html">hgnc_get_gene_card()</a></code>
 
         </dt>
-        <dd>Get Gene Card Resource</dd>
+        <dd>HGNC MCP Resource Helpers</dd>
 
         <dt>
 
           <code><a href="hgnc_get_group_card.html">hgnc_get_group_card()</a></code>
 
         </dt>
-        <dd>Get Group Card Resource</dd>
+        <dd>HGNC MCP Resource Helpers</dd>
 
         <dt>
 
           <code><a href="hgnc_get_snapshot_metadata.html">hgnc_get_snapshot_metadata()</a></code>
 
         </dt>
-        <dd>Get Snapshot Metadata Resource</dd>
+        <dd>HGNC MCP Resource Helpers</dd>
 
         <dt>
 
           <code><a href="hgnc_get_changes_summary.html">hgnc_get_changes_summary()</a></code>
 
         </dt>
-        <dd>Get Changes Summary Resource</dd>
+        <dd>HGNC MCP Resource Helpers</dd>
       </dl></div><div class="section level2">
       <h2 id="mcp-prompts">MCP Prompts<a class="anchor" aria-label="anchor" href="#mcp-prompts"></a></h2>
 
@@ -315,28 +345,28 @@
           <code><a href="prompt_normalize_gene_list.html">prompt_normalize_gene_list()</a></code>
 
         </dt>
-        <dd>Generate Normalize Gene List Prompt</dd>
+        <dd>MCP Prompt Helpers for HGNC Workflows</dd>
 
         <dt>
 
           <code><a href="prompt_check_nomenclature_compliance.html">prompt_check_nomenclature_compliance()</a></code>
 
         </dt>
-        <dd>Generate Nomenclature Compliance Check Prompt</dd>
+        <dd>MCP Prompt Helpers for HGNC Workflows</dd>
 
         <dt>
 
           <code><a href="prompt_what_changed_since.html">prompt_what_changed_since()</a></code>
 
         </dt>
-        <dd>Generate What Changed Since Prompt</dd>
+        <dd>MCP Prompt Helpers for HGNC Workflows</dd>
 
         <dt>
 
           <code><a href="prompt_build_gene_set_from_group.html">prompt_build_gene_set_from_group()</a></code>
 
         </dt>
-        <dd>Generate Build Gene Set from Group Prompt</dd>
+        <dd>MCP Prompt Helpers for HGNC Workflows</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

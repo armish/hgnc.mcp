@@ -1,60 +1,28 @@
-# Get Group Card Resource
+# HGNC MCP Resource Helpers
 
-Retrieve a formatted gene group card with members and metadata.
+HGNC MCP Resource Helpers
 
 ## Usage
 
 ``` r
-hgnc_get_group_card(
-  group_id_or_name,
-  format = c("json", "markdown", "text"),
-  include_members = TRUE
-)
+hgnc_get_group_card(group_id_or_name, format = c("json", "markdown", "text"), include_members = TRUE)
 ```
 
 ## Arguments
 
 - group_id_or_name:
 
-  Numeric gene group ID or group name/slug.
+  (parameter description)
 
 - format:
 
-  Character. Output format: "json" (default), "markdown", or "text".
+  (parameter description)
 
 - include_members:
 
-  Logical. Whether to include full member gene records (default: TRUE).
-  If FALSE, only member count is included.
+  (parameter description)
 
-## Value
+## Details
 
-A list with components:
-
-- uri:
-
-  Resource URI
-
-- mimeType:
-
-  Content MIME type
-
-- content:
-
-  Formatted group card content
-
-- group:
-
-  Raw group data (if format="json")
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Get kinase group card
-card <- hgnc_get_group_card("kinase")
-
-# Get group as markdown
-card <- hgnc_get_group_card(588, format = "markdown")
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

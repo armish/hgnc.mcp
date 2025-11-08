@@ -32,12 +32,14 @@
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_get_gene_card.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_get_group_card.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_get_snapshot_metadata.html</loc></url>
+<url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_group_members.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_normalize_list.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_prompts.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_resolve_symbol.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_resources.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_rest_get.html</loc></url>
+<url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_search_groups.html</loc></url>
 <url><loc>https://armish.github.io/hgnc.mcp/reference/hgnc_validate_panel.html</loc></url>

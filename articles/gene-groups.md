@@ -102,7 +102,7 @@ print(sample_groups[, c("gene_group_name", "gene_group_id")])
 ### Basic Group Retrieval
 
 Use
-[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.md)
+[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members.md)
 to get all genes in a specific group:
 
 ``` r

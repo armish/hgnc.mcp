@@ -521,7 +521,7 @@ reset_rate_limiter()
 ## Caching
 
 The
-[`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md)
+[`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info.md)
 function is cached for the session:
 
 ``` r

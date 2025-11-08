@@ -1,7 +1,6 @@
-# Download HGNC data from the official source
+# Get HGNC cache directory
 
-Downloads the complete HGNC dataset from the official Google Cloud
-Storage and saves it to the cache directory along with metadata.
+Get HGNC cache directory
 
 ## Usage
 
@@ -13,21 +12,13 @@ download_hgnc_data(url = .HGNC_DATA_URL, force = FALSE)
 
 - url:
 
-  URL to the HGNC data file (default: official HGNC complete set)
+  (parameter description)
 
 - force:
 
-  Force download even if cache exists (default: FALSE)
+  (parameter description)
 
-## Value
+## Details
 
-Invisible path to the cached file
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-download_hgnc_data()
-download_hgnc_data(force = TRUE)
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

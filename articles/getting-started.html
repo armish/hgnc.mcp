@@ -330,11 +330,11 @@ keyword:</p>
 <div class="section level3">
 <h3 id="getting-group-members">Getting Group Members<a class="anchor" aria-label="anchor" href="#getting-group-members"></a>
 </h3>
-<p>Use <code><a href="../reference/hgnc_group_members_uncached.html">hgnc_group_members()</a></code> to retrieve all genes in a
+<p>Use <code><a href="../reference/hgnc_group_members.html">hgnc_group_members()</a></code> to retrieve all genes in a
 specific group:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get members of a specific group</span></span>
-<span><span class="va">members</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hgnc_group_members_uncached.html">hgnc_group_members</a></span><span class="op">(</span><span class="st">"Protein kinases"</span><span class="op">)</span></span>
+<span><span class="va">members</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hgnc_group_members.html">hgnc_group_members</a></span><span class="op">(</span><span class="st">"Protein kinases"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># View member count</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Number of members:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">members</span><span class="op">)</span>, <span class="st">"\n"</span><span class="op">)</span></span>

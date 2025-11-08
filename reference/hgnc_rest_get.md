@@ -1,68 +1,36 @@
-# Base HTTP Client for HGNC REST API
+# Rate Limiter for HGNC API Requests
 
-Makes HTTP GET requests to the HGNC REST API with rate limiting, error
-handling, retries, and automatic JSON parsing.
+Rate Limiter for HGNC API Requests
 
 ## Usage
 
 ``` r
-hgnc_rest_get(
-  endpoint,
-  base_url = "https://rest.genenames.org",
-  timeout = 30,
-  max_retries = 3,
-  parse_json = TRUE
-)
+hgnc_rest_get(endpoint, base_url = "https://rest.genenames.org", timeout = 30, max_retries = 3, parse_json = TRUE)
 ```
 
 ## Arguments
 
 - endpoint:
 
-  API endpoint path (e.g., "info", "search/BRCA1")
+  (parameter description)
 
 - base_url:
 
-  Base URL for HGNC REST API
+  (parameter description)
 
 - timeout:
 
-  Request timeout in seconds
+  (parameter description)
 
 - max_retries:
 
-  Maximum number of retry attempts
+  (parameter description)
 
 - parse_json:
 
-  Whether to parse JSON response automatically
-
-## Value
-
-Parsed JSON response (if parse_json=TRUE) or raw httr response object
+  (parameter description)
 
 ## Details
 
-The function implements:
-
-- Rate limiting: ≤10 requests per second (HGNC requirement)
-
-- User-Agent header identifying the hgnc.mcp package
-
-- Automatic retries with exponential backoff for transient failures
-
-- Comprehensive error handling with informative messages
-
-- JSON parsing with helpful error messages
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-# Get HGNC API info
-info <- hgnc_rest_get("info")
-
-# Search for a gene
-results <- hgnc_rest_get("search/BRCA1")
-} # }
-```
+This is an automatically generated documentation file. For complete
+documentation, run: roxygen2::roxygenise()

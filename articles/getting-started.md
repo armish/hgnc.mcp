@@ -251,7 +251,7 @@ for (i in seq_len(min(5, nrow(kinases)))) {
 ### Getting Group Members
 
 Use
-[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.md)
+[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members.md)
 to retrieve all genes in a specific group:
 
 ``` r

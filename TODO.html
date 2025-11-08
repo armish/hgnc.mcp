@@ -107,7 +107,7 @@
 <li>Optional response caching (in-memory for session via memoise)</li>
 </ul></li>
 <li>
-<label><input type="checkbox" checked><code><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info()</a></code> - GET <code>/info</code> endpoint</label>
+<label><input type="checkbox" checked><code><a href="reference/hgnc_rest_info.html">hgnc_rest_info()</a></code> - GET <code>/info</code> endpoint</label>
 <ul><li>Returns: <code>lastModified</code>, searchable fields, stored fields</li>
 <li>Use for cache invalidation decisions</li>
 <li>Cached with memoise for fast repeated calls</li>
@@ -250,7 +250,7 @@
 <li>
 <p><label><input type="checkbox">Endpoints needed:</label></p>
 <ul><li>
-<code>/tools/info</code> → <code><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info()</a></code>
+<code>/tools/info</code> → <code><a href="reference/hgnc_rest_info.html">hgnc_rest_info()</a></code>
 </li>
 <li>
 <code>/tools/find</code> → <code><a href="reference/hgnc_find.html">hgnc_find()</a></code>
@@ -268,7 +268,7 @@
 <code>/tools/xrefs</code> → <code><a href="reference/hgnc_xrefs.html">hgnc_xrefs()</a></code>
 </li>
 <li>
-<code>/tools/group_members</code> → <code><a href="reference/hgnc_group_members_uncached.html">hgnc_group_members()</a></code>
+<code>/tools/group_members</code> → <code><a href="reference/hgnc_group_members.html">hgnc_group_members()</a></code>
 </li>
 <li>
 <code>/tools/search_groups</code> → <code><a href="reference/hgnc_search_groups.html">hgnc_search_groups()</a></code>
@@ -571,7 +571,7 @@
 <p><strong>Goal</strong>: Deliver a working MCP server with core normalization capabilities.</p>
 <div class="section level3">
 <h3 id="mvp-checklist">MVP Checklist<a class="anchor" aria-label="anchor" href="#mvp-checklist"></a></h3>
-<p><strong>Phase 1 (Core Functions)</strong>: - [x] REST client with rate limiting - [x] <code><a href="reference/hgnc_find.html">hgnc_find()</a></code>, <code><a href="reference/hgnc_fetch.html">hgnc_fetch()</a></code>, <code><a href="reference/hgnc_resolve_symbol.html">hgnc_resolve_symbol()</a></code> - [x] <code><a href="reference/hgnc_normalize_list.html">hgnc_normalize_list()</a></code> (batch, using cache) - [x] <code><a href="reference/hgnc_xrefs.html">hgnc_xrefs()</a></code> - [x] <code><a href="reference/hgnc_group_members_uncached.html">hgnc_group_members()</a></code> - [x] <code><a href="reference/hgnc_changes.html">hgnc_changes()</a></code> - [x] <code><a href="reference/hgnc_validate_panel.html">hgnc_validate_panel()</a></code></p>
+<p><strong>Phase 1 (Core Functions)</strong>: - [x] REST client with rate limiting - [x] <code><a href="reference/hgnc_find.html">hgnc_find()</a></code>, <code><a href="reference/hgnc_fetch.html">hgnc_fetch()</a></code>, <code><a href="reference/hgnc_resolve_symbol.html">hgnc_resolve_symbol()</a></code> - [x] <code><a href="reference/hgnc_normalize_list.html">hgnc_normalize_list()</a></code> (batch, using cache) - [x] <code><a href="reference/hgnc_xrefs.html">hgnc_xrefs()</a></code> - [x] <code><a href="reference/hgnc_group_members.html">hgnc_group_members()</a></code> - [x] <code><a href="reference/hgnc_changes.html">hgnc_changes()</a></code> - [x] <code><a href="reference/hgnc_validate_panel.html">hgnc_validate_panel()</a></code></p>
 <p><strong>Phase 2 (MCP Server)</strong>: - [x] Plumber API with all MVP tools - [x] MCP integration via <code>plumber2mcp</code> - [x] Resources: <code>gene/*</code>, <code>group/*</code>, <code>snapshot</code>, <code>changes/*</code> - [x] Prompts: All 4 workflow templates (normalize, compliance, changes, gene sets)</p>
 <p><strong>Phase 4 (Launch-Ready)</strong>: - [ ] Basic documentation (README + function docs) - [ ] Docker image - [ ] Example client config - [ ] Unit tests for MVP functions</p>
 <p><strong>Ship MVP when</strong>: All above items complete, server runs, and one end-to-end workflow (normalize gene list) works from an MCP client.</p>
@@ -624,7 +624,7 @@
 <h2 id="getting-started-next-immediate-steps">Getting Started: Next Immediate Steps<a class="anchor" aria-label="anchor" href="#getting-started-next-immediate-steps"></a></h2>
 <ol style="list-style-type: decimal"><li>✅ Review and finalize this TODO.md</li>
 <li>⬜ Set up HGNC REST API client skeleton (<code>R/hgnc_rest_client.R</code>)</li>
-<li>⬜ Implement <code><a href="reference/hgnc_rest_info_uncached.html">hgnc_rest_info()</a></code> and test against live API</li>
+<li>⬜ Implement <code><a href="reference/hgnc_rest_info.html">hgnc_rest_info()</a></code> and test against live API</li>
 <li>⬜ Add rate limiting to base client</li>
 <li>⬜ Implement <code><a href="reference/hgnc_find.html">hgnc_find()</a></code> and <code><a href="reference/hgnc_fetch.html">hgnc_fetch()</a></code> with tests</li>
 <li>⬜ Build <code><a href="reference/hgnc_resolve_symbol.html">hgnc_resolve_symbol()</a></code> on top of find/fetch</li>
