@@ -16,9 +16,30 @@ This R package provides tools for accessing HGNC gene nomenclature data, includi
 
 ## Installation
 
+### Install from GitHub
+
 ```r
-# Install from GitHub (once available)
-# remotes::install_github("yourusername/hgnc.mcp")
+# Install the latest version from GitHub
+remotes::install_github("armish/hgnc.mcp")
+```
+
+### Install from source
+
+If you've cloned the repository locally:
+
+```r
+# First, generate documentation (required before installation)
+source("generate-docs.R")
+
+# Then install the package
+devtools::install(".")
+```
+
+Alternatively, you can generate documentation manually:
+
+```r
+roxygen2::roxygenise()
+devtools::install(".")
 ```
 
 ## Data Management

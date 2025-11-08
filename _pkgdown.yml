@@ -47,6 +47,12 @@ navbar:
       aria-label: GitHub
 
 reference:
+  - title: "Overview"
+    desc: >
+      Package overview and introduction
+    contents:
+      - hgnc.mcp-package
+
   - title: "Data Management"
     desc: >
       Functions for downloading, caching, and managing HGNC data
@@ -62,6 +68,7 @@ reference:
     desc: >
       Low-level functions for interacting with the HGNC REST API
     contents:
+      - hgnc_rest_info
       - hgnc_rest_info_uncached
       - hgnc_rest_get
       - reset_rate_limiter
