@@ -1,0 +1,683 @@
+# hgnc.mcp Implementation Roadmap
+
+## Vision
+
+Create an MCP server that eliminates “gene name headaches” by providing
+reliable HGNC nomenclature services to LLM copilots, notebooks, and
+bioinformatics pipelines. The server will expose HGNC data through three
+MCP primitives:
+
+- **Tools**: API-shaped actions (search, normalize, validate)
+- **Resources**: Read-only gene/group cards for context injection
+- **Prompts**: Pre-wired workflow templates
+
+## Architecture Overview
+
+The implementation will leverage both:
+
+1.  **Local cached data** (`hgnc_complete_set.txt`) - for fast bulk
+    operations, offline work, and dictionary lookups
+2.  **HGNC REST API** - for real-time queries, updates, and precise
+    searches
+
+### Data Strategy Decision Matrix
+
+| Operation               | Source                             | Rationale               |
+|-------------------------|------------------------------------|-------------------------|
+| Bulk normalize/validate | Local cache                        | Fast, no rate limits    |
+| Single gene lookup      | REST API preferred, cache fallback | Most current data       |
+| Group queries           | REST API                           | Dynamic, authoritative  |
+| Change tracking         | REST API                           | Requires date filtering |
+| Autocomplete            | Local cache first                  | Speed critical          |
+| Cross-references        | Either (prefer cache)              | Static data             |
+
+------------------------------------------------------------------------
+
+## Status: Completed ✓
+
+R package scaffolding (`hgnc.mcp`)
+
+Smart data caching system with versioning
+
+Cache management functions (`load_hgnc_data`, `download_hgnc_data`,
+etc.)
+
+Unit tests for cache functions
+
+Documentation (README, roxygen)
+
+------------------------------------------------------------------------
+
+## Phase 1: HGNC REST API Client \[MVP Foundation\]
+
+Build a robust R client for the HGNC REST API with rate limiting and
+caching.
+
+### 1.1 Core REST Client Infrastructure ✓
+
+**File**: `R/hgnc_rest_client.R`
+
+[`hgnc_rest_get()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_get.md) -
+Base HTTP client with:
+
+- Rate limiting (≤10 req/sec) using sliding window algorithm
+- User-Agent header identifying hgnc.mcp package
+- Error handling & retries with exponential backoff (httr::RETRY)
+- JSON parsing with helpful error messages
+- Optional response caching (in-memory for session via memoise)
+
+[`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md) -
+GET `/info` endpoint
+
+- Returns: `lastModified`, searchable fields, stored fields
+- Use for cache invalidation decisions
+- Cached with memoise for fast repeated calls
+
+Session-level cache for repeated queries
+
+- [`clear_hgnc_cache()`](https://armish.github.io/hgnc.mcp/reference/clear_hgnc_cache.md)
+  to manually clear cache
+- [`reset_rate_limiter()`](https://armish.github.io/hgnc.mcp/reference/reset_rate_limiter.md)
+  for testing
+
+Tests for REST client in `tests/testthat/test-hgnc_rest_client.R`
+
+- Rate limiting tests
+- Live API integration tests
+- Caching behavior tests
+- Error handling tests
+
+**Dependencies added**: `httr`, `memoise`, `lubridate`, `curl` (testing)
+
+### 1.2 Essential Lookup Tools ✓
+
+**File**: `R/hgnc_tools.R`
+
+Implement the minimal viable tool set:
+
+**`hgnc_find(query, filters = NULL)`**
+
+- Wraps `/search` endpoint
+- Search across symbol, alias, prev_symbol, name
+- Return hits with scores and match reasons
+- Support filters: status, locus_type, etc.
+
+**`hgnc_fetch(field, term)`**
+
+- Wraps `/fetch/{field}/{term}`
+- Common fields: `hgnc_id`, `symbol`, `entrez_id`, `ensembl_gene_id`
+- Return full gene “card” with all stored fields
+
+**`hgnc_resolve_symbol(symbol, mode = "lenient")`**
+
+- `strict`: exact approved symbol only
+- `lenient`: search symbol\|alias\|prev, then fetch by hgnc_id
+- Return: approved symbol, status, confidence, candidates if ambiguous
+- Handle case normalization (HGNC uses uppercase)
+
+**`hgnc_xrefs(id_or_symbol)`**
+
+- Extract cross-references from gene record
+- Return: NCBI Gene, Ensembl, UniProt, OMIM, CCDS, MANE Select
+- Useful for dataset harmonization
+
+Tests for lookup functions
+
+Documentation and usage examples in `EXAMPLES.md`
+
+### 1.3 Batch Operations (Using Cached Data) ✓
+
+**File**: `R/hgnc_batch.R`
+
+**`hgnc_normalize_list(symbols, return_fields, status = "Approved", dedupe = TRUE, index = NULL)`**
+
+- Batch resolver using local cache for speed
+- Upper-case, trim, dedupe by HGNC ID
+- Flag invalid/withdrawn
+- Return clean table ready for downstream use
+- Emit warnings/reports for problematic entries
+- Support for reusing pre-built index for efficiency
+
+Helper:
+[`build_symbol_index()`](https://armish.github.io/hgnc.mcp/reference/build_symbol_index.md) -
+Create in-memory lookup from cached data
+
+- Index by: symbol, alias_symbol, prev_symbol
+- Map to hgnc_id for fast resolution
+- Handles ambiguous matches
+
+Tests for batch operations
+
+- Unit tests with mock data
+- Integration tests with cached data
+- Edge case handling (duplicates, ambiguous, withdrawn, empty)
+
+### 1.4 Groups & Collections ✓
+
+**File**: `R/hgnc_groups.R`
+
+**`hgnc_group_members(group_id_or_name)`**
+
+- Use REST API `/fetch/gene_group/{id}`
+- Return members with IDs and xrefs
+- Cache results (groups don’t change often)
+
+**`hgnc_search_groups(query)`**
+
+- Find gene groups by keyword
+- Return group IDs, names, descriptions
+
+Tests for group functions
+
+### 1.5 Change Tracking & Validation ✓
+
+**File**: `R/hgnc_changes.R`
+
+**`hgnc_changes(since, fields = c("symbol", "name", "status"))`**
+
+- Query genes with date\_\* fields ≥ since
+- Return before/after values where available
+- Useful for watchlists and compliance
+- Supports multiple change types: all, symbol, name, status, modified
+
+**`hgnc_validate_panel(items, policy = "HGNC")`**
+
+- QA gene lists against HGNC policy
+- Report: non-approved, withdrawn, duplicates
+- Suggest replacements with rationale and dates
+- Use prev_symbol/alias_symbol for mapping
+- Comprehensive validation with human-readable reports
+
+Tests for validation functions in `tests/testthat/test-hgnc_changes.R`
+
+Documentation and examples in `EXAMPLES.md`
+
+------------------------------------------------------------------------
+
+## Phase 2: MCP Server Implementation \[Core Deliverable\]
+
+Integrate with plumber2mcp to expose HGNC tools via MCP protocol.
+
+### 2.1 Plumber API Definitions
+
+**File**: `inst/plumber/hgnc_api.R`
+
+Create Plumber endpoints that wrap our HGNC functions:
+
+Setup plumber router
+
+Define endpoints for each tool:
+
+``` r
+#* @post /tools/find
+#* @param query:str The search query
+#* @param filters:object Optional filters
+endpoint_find <- function(query, filters = NULL) {
+  hgnc_find(query, filters)
+}
+```
+
+Endpoints needed:
+
+- `/tools/info` →
+  [`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md)
+- `/tools/find` →
+  [`hgnc_find()`](https://armish.github.io/hgnc.mcp/reference/hgnc_find.md)
+- `/tools/fetch` →
+  [`hgnc_fetch()`](https://armish.github.io/hgnc.mcp/reference/hgnc_fetch.md)
+- `/tools/resolve_symbol` →
+  [`hgnc_resolve_symbol()`](https://armish.github.io/hgnc.mcp/reference/hgnc_resolve_symbol.md)
+- `/tools/normalize_list` →
+  [`hgnc_normalize_list()`](https://armish.github.io/hgnc.mcp/reference/hgnc_normalize_list.md)
+- `/tools/xrefs` →
+  [`hgnc_xrefs()`](https://armish.github.io/hgnc.mcp/reference/hgnc_xrefs.md)
+- `/tools/group_members` →
+  [`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.md)
+- `/tools/search_groups` →
+  [`hgnc_search_groups()`](https://armish.github.io/hgnc.mcp/reference/hgnc_search_groups.md)
+- `/tools/changes` →
+  [`hgnc_changes()`](https://armish.github.io/hgnc.mcp/reference/hgnc_changes.md)
+- `/tools/validate_panel` →
+  [`hgnc_validate_panel()`](https://armish.github.io/hgnc.mcp/reference/hgnc_validate_panel.md)
+
+Error handling and validation
+
+OpenAPI documentation via Plumber decorators
+
+### 2.2 MCP Integration with plumber2mcp ✓
+
+**File**: `R/mcp_server.R`
+
+**`start_hgnc_mcp_server(port = 8080, ...)`**
+
+- Initialize plumber API
+- Apply `pr_mcp()` from plumber2mcp
+- Start server
+- Print connection info
+
+Server configuration and startup script
+
+Documentation for running the server
+
+**File**: `inst/scripts/run_server.R` (executable script)
+
+Standalone server launcher
+
+Command-line argument parsing (port, cache settings, etc.)
+
+### 2.3 MCP Resources Implementation ✓
+
+Resources provide read-only context injection.
+
+**Implementation Note**: As of this implementation, `plumber2mcp` does
+not support resource templates with dynamic URI parameters (e.g.,
+`{hgnc_id}`). We implemented a hybrid approach using tool endpoints that
+provide resource-like functionality.
+
+**`get_gene_card` tool** (replaces `resource://hgnc/gene/{hgnc_id}`)
+
+- Minimal gene card: symbol, name, location, status, aliases,
+  prev_symbols, xrefs, groups, MANE
+- Format as structured JSON/markdown/text for LLM context
+- Function: `hgnc_get_gene_card(hgnc_id, format)`
+
+**`get_group_card` tool** (replaces
+`resource://hgnc/group/{id_or_slug}`)
+
+- Group summary + members
+- Include group description and size
+- Function:
+  `hgnc_get_group_card(group_id_or_name, format, include_members)`
+
+**`snapshot` resource endpoint**
+
+- Metadata for cached snapshot (URL, date, columns, row count)
+- Useful for provenance
+- Endpoint: `GET /resources/snapshot`
+- Function: `hgnc_get_snapshot_metadata(format)`
+
+**`get_changes_summary` tool** (replaces
+`resource://hgnc/changes/since/{ISO_date}`)
+
+- Compact change log (IDs, symbols, dates)
+- Function:
+  `hgnc_get_changes_summary(since, format, change_type, max_results)`
+
+**Files Created/Modified**: - `R/hgnc_resources.R` - New file with
+resource helper functions - `inst/plumber/hgnc_api.R` - Added resource
+endpoints - `R/mcp_server.R` - Updated documentation and startup info -
+`NAMESPACE` - Added exports for new resource functions
+
+**Future Enhancement**: When `plumber2mcp` adds support for resource
+templates, these tool-based resources can be migrated to proper
+parameterized resources using the `pr_mcp_resource()` function with URI
+templates.
+
+### 2.4 MCP Prompts (Workflow Templates) ✓
+
+Pre-configured multi-step workflows:
+
+**`normalize-gene-list`**
+
+- Args: gene_list, strictness, return_xrefs
+- Guides through normalizing gene symbols to approved HGNC nomenclature
+- Orchestrates find/resolve/fetch workflow
+- Returns structured guidance for tidy table + warnings
+
+**`check-nomenclature-compliance`**
+
+- Args: panel_text, file_uri
+- Validates gene panels against HGNC policy
+- Identifies non-approved symbols, withdrawn genes, duplicates
+- Returns report with replacement suggestions and rationale
+
+**`what-changed-since`**
+
+- Args: since (ISO date)
+- Generates human-readable nomenclature change reports
+- Categorizes changes by type (symbol, status, name)
+- Useful for governance and compliance tracking
+
+**`build-gene-set-from-group`**
+
+- Args: group_query
+- Discovers HGNC gene groups by keyword search
+- Builds reusable gene set definitions from members
+- Provides output in multiple formats (list, table, JSON)
+
+**Implementation Notes**: - Created `R/hgnc_prompts.R` with helper
+functions for generating prompt content - Registered prompts in
+`R/mcp_server.R` using conditional loading - Each prompt provides
+structured workflow guidance for multi-step tasks - Prompts help AI
+assistants understand how to use multiple tools together - Updated
+documentation in README and function roxygen comments
+
+**Current Status (2025-11-07)**: - Prompt functions are fully
+implemented and tested - Prompts are conditionally registered (will
+auto-enable when available) - Awaiting `plumber2mcp` NAMESPACE update to
+export `pr_mcp_prompt()` - The function exists in plumber2mcp with
+@export tag but NAMESPACE not regenerated - Once plumber2mcp is updated,
+prompts will work automatically without code changes
+
+------------------------------------------------------------------------
+
+## Phase 3: Enhanced Features \[Post-MVP\]
+
+### 3.1 Advanced Tools
+
+**`hgnc_autocomplete(prefix, limit = 20)`**
+
+- Fast type-ahead using local cache
+- Fallback to REST `/search/symbol/{prefix}*`
+- Optimize for UI responsiveness
+
+**`hgnc_download_snapshot(kind, format)`**
+
+- Expose bulk download functionality
+- Kinds: `hgnc_complete_set`, `withdrawn`
+- Formats: `tsv`, `json`
+- Return local cache path + version info
+
+**`hgnc_diff_snapshots(version_a, version_b)`**
+
+- Compare two cached versions
+- Report: added, removed, renamed, withdrawn
+- Useful for audit logs
+
+### 3.2 VGNC Orthologs (Optional)
+
+**`vgnc_orthologs(hgnc_id, species = NULL)`**
+
+- Query VGNC for vertebrate orthologs
+- Map back to human HGNC IDs
+- Cross-species reference tool
+
+### 3.3 Performance & Scalability
+
+Benchmark REST API rate limiting
+
+Optimize bulk operations with local cache
+
+Add persistent disk cache for REST responses (SQLite or similar)
+
+Implement smart cache invalidation using `/info` lastModified
+
+### 3.4 Extended Resources
+
+`resource://hgnc/locus_types` - Enumeration of valid locus types
+
+`resource://hgnc/statistics` - Dataset stats (counts by status, locus
+type)
+
+`resource://hgnc/help/{topic}` - Contextual help for tools
+
+------------------------------------------------------------------------
+
+## Phase 4: Polish & Distribution \[Production-Ready\]
+
+### 4.1 Documentation ✓
+
+Vignettes:
+
+- “Getting Started with hgnc.mcp”
+- “Normalizing Gene Lists for Clinical Panels”
+- “Running the MCP Server”
+- “Working with HGNC Gene Groups”
+
+Update README with:
+
+- MCP server setup instructions
+- Client connection examples
+- Real-world use cases
+- API reference links
+
+Function documentation complete with examples
+
+MCP tool/resource discovery documentation
+
+### 4.2 Testing & Quality
+
+Unit tests for all functions (\>80% coverage)
+
+Integration tests:
+
+- REST API interactions (use testthat with skip_on_cran)
+- MCP server endpoints
+- Batch operations with realistic data
+
+Mock HGNC responses for offline testing
+
+Snapshot tests for gene cards and reports
+
+Performance benchmarks
+
+### 4.3 DevOps & Deployment ✓
+
+Docker image for MCP server
+
+Docker Compose example with client
+
+CI/CD pipeline (GitHub Actions):
+
+- R CMD check (existing)
+- Unit tests (existing)
+- Integration tests (new)
+- Docker build (new)
+
+Example MCP client configurations:
+
+- Claude Desktop
+- Other MCP clients (generic examples)
+
+### 4.4 Distribution ✓
+
+Prepare for CRAN submission:
+
+- Package size checked (1.1 MB - well under limit)
+- Created cran-comments.md with submission notes
+- Created NEWS.md with changelog
+- Updated DESCRIPTION for CRAN compliance
+- Added DOI reference for HGNC database
+- Added URL and BugReports fields
+- Added ORCID for author
+
+GitHub repository setup:
+
+- README badges (R-CMD-check, codecov, Docker, lifecycle, license)
+- Contributing guidelines (CONTRIBUTING.md)
+- Issue templates (bug report, feature request)
+- PR template
+- Updated .Rbuildignore for distribution
+
+pkgdown website:
+
+- Created \_pkgdown.yml with full configuration
+- Set up reference documentation organization
+- Configured navbar and footer
+- Created pkgdown.yaml GitHub Actions workflow
+- Website will be available at <https://armish.github.io/hgnc.mcp/>
+
+Announcement blog post / tweet (when ready for release)
+
+------------------------------------------------------------------------
+
+## Implementation Notes & Best Practices
+
+### Rate Limiting Strategy
+
+HGNC requests ≤10 req/sec:
+
+- Implement token bucket or leaky bucket algorithm
+- Use [`httr::RETRY()`](https://httr.r-lib.org/reference/RETRY.html)
+  with exponential backoff
+- Session-level request counter
+- Consider `ratelimitr` package
+
+### ID-First Philosophy
+
+- Internally normalize to `HGNC:####` (or just numeric ID)
+- Treat symbol strings as presentation layer
+- Deduplicate by HGNC ID, not by symbol string
+- Store mappings: symbol → hgnc_id → canonical data
+
+### Ambiguity Handling
+
+When multiple matches found:
+
+- Return all candidates with match metadata:
+  - Matched via: symbol \| alias_symbol \| prev_symbol
+  - Score (if available)
+  - Status (Approved vs Withdrawn)
+  - Locus type and location for disambiguation
+- Let caller decide or prompt for selection
+
+### Field Coverage
+
+Include key stored fields in gene records:
+
+- Identifiers: `hgnc_id`, `symbol`, `name`
+- Status: `status`, `locus_type`, `location`
+- Aliases: `alias_symbol`, `prev_symbol`
+- Cross-refs: `entrez_id`, `ensembl_gene_id`, `uniprot_id`, `omim_id`,
+  `ccds_id`, `mane_select`, `agr`
+- Groups: `gene_group`, `gene_group_id`
+- Dates: `date_symbol_changed`, `date_name_changed`, `date_modified`,
+  `date_approved_reserved`
+
+### Caching Strategy
+
+1.  **In-memory session cache**: Frequent identical queries (use
+    `memoise`)
+2.  **Persistent disk cache**: Bulk data snapshots (already implemented)
+3.  **Optional SQLite cache**: REST API responses with TTL
+4.  **Cache invalidation**: Check `/info` lastModified vs cache
+    timestamp
+
+### Error Messages
+
+User-friendly errors with actionable guidance:
+
+- “Symbol ‘XYZ’ not found. Did you mean ‘XYZ1’? (approved symbol)”
+- “Gene ‘ABC’ is Withdrawn. Suggested replacement: ‘DEF’ (changed
+  2023-05-15)”
+- “Ambiguous: ‘KIT’ matches 3 genes. Specify HGNC ID or use filters.”
+
+------------------------------------------------------------------------
+
+## Minimal Viable Product (Ship First)
+
+**Goal**: Deliver a working MCP server with core normalization
+capabilities.
+
+### MVP Checklist
+
+**Phase 1 (Core Functions)**: - \[x\] REST client with rate limiting -
+\[x\]
+[`hgnc_find()`](https://armish.github.io/hgnc.mcp/reference/hgnc_find.md),
+[`hgnc_fetch()`](https://armish.github.io/hgnc.mcp/reference/hgnc_fetch.md),
+[`hgnc_resolve_symbol()`](https://armish.github.io/hgnc.mcp/reference/hgnc_resolve_symbol.md) -
+\[x\]
+[`hgnc_normalize_list()`](https://armish.github.io/hgnc.mcp/reference/hgnc_normalize_list.md)
+(batch, using cache) - \[x\]
+[`hgnc_xrefs()`](https://armish.github.io/hgnc.mcp/reference/hgnc_xrefs.md) -
+\[x\]
+[`hgnc_group_members()`](https://armish.github.io/hgnc.mcp/reference/hgnc_group_members_uncached.md) -
+\[x\]
+[`hgnc_changes()`](https://armish.github.io/hgnc.mcp/reference/hgnc_changes.md) -
+\[x\]
+[`hgnc_validate_panel()`](https://armish.github.io/hgnc.mcp/reference/hgnc_validate_panel.md)
+
+**Phase 2 (MCP Server)**: - \[x\] Plumber API with all MVP tools - \[x\]
+MCP integration via `plumber2mcp` - \[x\] Resources: `gene/*`,
+`group/*`, `snapshot`, `changes/*` - \[x\] Prompts: All 4 workflow
+templates (normalize, compliance, changes, gene sets)
+
+**Phase 4 (Launch-Ready)**: - \[ \] Basic documentation (README +
+function docs) - \[ \] Docker image - \[ \] Example client config - \[
+\] Unit tests for MVP functions
+
+**Ship MVP when**: All above items complete, server runs, and one
+end-to-end workflow (normalize gene list) works from an MCP client.
+
+------------------------------------------------------------------------
+
+## Future Ideas (Beyond MVP)
+
+Web UI dashboard for cache management and server status
+
+Scheduled cache refresh (cron job or background worker)
+
+Metrics/telemetry: query patterns, error rates, cache hit rates
+
+Multi-species support (MGI, RGD, etc.) via parallel servers
+
+Graph-based gene relationship explorer (families, pathways)
+
+Integration with other nomenclature resources (COSMIC, ClinVar)
+
+Batch job mode: process large files asynchronously
+
+------------------------------------------------------------------------
+
+## Success Metrics
+
+- **Functional**: MCP client can normalize 1000 gene symbols in \<5
+  seconds
+- **Reliability**: \>99% cache hit rate for common symbols after warmup
+- **Accuracy**: 100% agreement with HGNC for approved symbols
+- **Usability**: New user can start server and normalize a gene list in
+  \<5 minutes
+- **Adoption**: Used by ≥3 real bioinformatics workflows
+
+------------------------------------------------------------------------
+
+## Dependencies Summary
+
+**Already in DESCRIPTION**: - plumber, plumber2mcp, jsonlite, httr,
+rappdirs, readr
+
+**To add**: - `httr2` (modern HTTP client, or stick with httr) -
+`memoise` (session caching) - `ratelimitr` or custom rate limiting -
+`lubridate` (date handling for change tracking) - `dplyr`, `purrr` (data
+wrangling, optional but recommended) - `glue` (string formatting)
+
+**Optional**: - `DBI`, `RSQLite` (persistent REST cache) - `furrr`
+(parallel processing for batch ops) - `logger` (structured logging)
+
+------------------------------------------------------------------------
+
+## Timeline Estimate
+
+- **Phase 1**: 2-3 weeks (REST client + core tools)
+- **Phase 2**: 1-2 weeks (MCP server integration)
+- **MVP Launch**: ~1 month total
+- **Phase 3**: 2-3 weeks (enhanced features)
+- **Phase 4**: 1-2 weeks (polish, docs, distribution)
+
+**Total to production-ready**: ~2-3 months part-time
+
+------------------------------------------------------------------------
+
+## Getting Started: Next Immediate Steps
+
+1.  ✅ Review and finalize this TODO.md
+2.  ⬜ Set up HGNC REST API client skeleton (`R/hgnc_rest_client.R`)
+3.  ⬜ Implement
+    [`hgnc_rest_info()`](https://armish.github.io/hgnc.mcp/reference/hgnc_rest_info_uncached.md)
+    and test against live API
+4.  ⬜ Add rate limiting to base client
+5.  ⬜ Implement
+    [`hgnc_find()`](https://armish.github.io/hgnc.mcp/reference/hgnc_find.md)
+    and
+    [`hgnc_fetch()`](https://armish.github.io/hgnc.mcp/reference/hgnc_fetch.md)
+    with tests
+6.  ⬜ Build
+    [`hgnc_resolve_symbol()`](https://armish.github.io/hgnc.mcp/reference/hgnc_resolve_symbol.md)
+    on top of find/fetch
+
+**First concrete milestone**: Successfully resolve “BRCA1” → full gene
+record via REST API.
+
+------------------------------------------------------------------------
+
+*Last updated: 2025-11-06*
