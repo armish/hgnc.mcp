@@ -241,7 +241,7 @@ start_hgnc_mcp_server <- function(port = 8080,
   if (!quiet) {
     message("Applying MCP integration via plumber2mcp...")
   }
-  pr <- plumber2mcp::pr_mcp(pr)
+  pr <- plumber2mcp::pr_mcp(pr, transport = "http")
 
   # Configure Swagger UI
   if (swagger) {
