@@ -102,16 +102,19 @@ if (!quiet) {
   cat("Loading hgnc.mcp package...\n")
 }
 
-tryCatch({
-  library(hgnc.mcp)
-}, error = function(e) {
-  cat("Error: Could not load hgnc.mcp package.\n")
-  cat("Make sure the package is installed and in your library path.\n")
-  cat("\nYou can install it with:\n")
-  cat("  install.packages('devtools')\n")
-  cat("  devtools::install()\n")
-  quit(status = 1)
-})
+tryCatch(
+  {
+    library(hgnc.mcp)
+  },
+  error = function(e) {
+    cat("Error: Could not load hgnc.mcp package.\n")
+    cat("Make sure the package is installed and in your library path.\n")
+    cat("\nYou can install it with:\n")
+    cat("  install.packages('devtools')\n")
+    cat("  devtools::install()\n")
+    quit(status = 1)
+  }
+)
 
 # Handle cache operations if requested
 if (update_cache || check_cache) {
@@ -123,29 +126,37 @@ if (update_cache || check_cache) {
     if (!quiet) {
       cat("Forcing cache update...\n")
     }
-    tryCatch({
-      hgnc.mcp::download_hgnc_data(force = TRUE, verbose = !quiet)
-      if (!quiet) {
-        cat("[OK] Cache updated successfully\n\n")
+    tryCatch(
+      {
+        hgnc.mcp::download_hgnc_data(force = TRUE, verbose = !quiet)
+        if (!quiet) {
+          cat("[OK] Cache updated successfully\n\n")
+        }
+      },
+      error = function(e) {
+        cat("[X] Failed to update cache:", e$message, "\n")
+        cat(
+          "The server will start anyway and attempt to use existing cache.\n\n"
+        )
       }
-    }, error = function(e) {
-      cat("[X] Failed to update cache:", e$message, "\n")
-      cat("The server will start anyway and attempt to use existing cache.\n\n")
-    })
+    )
   } else if (check_cache) {
     if (!quiet) {
       cat("Checking cache status...\n")
     }
-    tryCatch({
-      # Try to load data; this will download if missing
-      data <- hgnc.mcp::load_hgnc_data(verbose = !quiet)
-      if (!quiet) {
-        cat(sprintf("[OK] Cache available with %d genes\n\n", nrow(data)))
+    tryCatch(
+      {
+        # Try to load data; this will download if missing
+        data <- hgnc.mcp::load_hgnc_data(verbose = !quiet)
+        if (!quiet) {
+          cat(sprintf("[OK] Cache available with %d genes\n\n", nrow(data)))
+        }
+      },
+      error = function(e) {
+        cat("[X] Failed to load cache:", e$message, "\n")
+        cat("Warning: Some tools may not work without cached data.\n\n")
       }
-    }, error = function(e) {
-      cat("[X] Failed to load cache:", e$message, "\n")
-      cat("Warning: Some tools may not work without cached data.\n\n")
-    })
+    )
   }
 }
 
@@ -157,22 +168,27 @@ if (!quiet) {
 }
 
 # Start the server
-tryCatch({
-  hgnc.mcp::start_hgnc_mcp_server(
-    port = port,
-    host = host,
-    swagger = swagger,
-    quiet = quiet
-  )
-}, error = function(e) {
-  cat("\n[X] Failed to start MCP server:\n")
-  cat("  ", e$message, "\n\n")
+tryCatch(
+  {
+    hgnc.mcp::start_hgnc_mcp_server(
+      port = port,
+      host = host,
+      swagger = swagger,
+      quiet = quiet
+    )
+  },
+  error = function(e) {
+    cat("\n[X] Failed to start MCP server:\n")
+    cat("  ", e$message, "\n\n")
 
-  # Provide helpful troubleshooting info
-  cat("Troubleshooting:\n")
-  cat("  1. Check if the port is already in use\n")
-  cat("  2. Ensure all dependencies are installed (run check_mcp_dependencies())\n")
-  cat("  3. Check the logs above for specific error messages\n")
+    # Provide helpful troubleshooting info
+    cat("Troubleshooting:\n")
+    cat("  1. Check if the port is already in use\n")
+    cat(
+      "  2. Ensure all dependencies are installed (run check_mcp_dependencies())\n"
+    )
+    cat("  3. Check the logs above for specific error messages\n")
 
-  quit(status = 1)
-})
+    quit(status = 1)
+  }
+)

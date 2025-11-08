@@ -60,10 +60,18 @@ hgnc_find <- function(query, filters = NULL, limit = 100) {
 
   # Add filters as query parameters if provided
   if (!is.null(filters) && length(filters) > 0) {
-    filter_params <- vapply(names(filters), function(name) {
-      value <- filters[[name]]
-      sprintf("%s:%s", name, utils::URLencode(as.character(value), reserved = TRUE))
-    }, character(1))
+    filter_params <- vapply(
+      names(filters),
+      function(name) {
+        value <- filters[[name]]
+        sprintf(
+          "%s:%s",
+          name,
+          utils::URLencode(as.character(value), reserved = TRUE)
+        )
+      },
+      character(1)
+    )
 
     # HGNC API uses + to combine filters
     filter_string <- paste(filter_params, collapse = "+AND+")
@@ -234,7 +242,11 @@ hgnc_fetch <- function(field, term) {
 #' }
 #'
 #' @export
-hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE) {
+hgnc_resolve_symbol <- function(
+  symbol,
+  mode = "lenient",
+  return_record = FALSE
+) {
   if (missing(symbol) || is.null(symbol) || nchar(symbol) == 0) {
     stop("'symbol' must be a non-empty string", call. = FALSE)
   }
@@ -274,7 +286,6 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
     }
 
     return(response)
-
   } else {
     # Lenient mode: search across symbol, alias, prev_symbol
     # Use the search endpoint which searches across multiple fields
@@ -292,9 +303,12 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
     }
 
     # Check for exact match on approved symbol first
-    exact_matches <- Filter(function(doc) {
-      isTRUE(toupper(doc$symbol %||% "") == symbol_upper)
-    }, search_result$docs)
+    exact_matches <- Filter(
+      function(doc) {
+        isTRUE(toupper(doc$symbol %||% "") == symbol_upper)
+      },
+      search_result$docs
+    )
 
     if (length(exact_matches) > 0) {
       doc <- exact_matches[[1]]
@@ -304,7 +318,11 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
         status = doc$status %||% NA_character_,
         confidence = "exact",
         hgnc_id = doc$hgnc_id %||% NA_character_,
-        candidates = if (length(exact_matches) > 1) exact_matches[-1] else list()
+        candidates = if (length(exact_matches) > 1) {
+          exact_matches[-1]
+        } else {
+          list()
+        }
       )
 
       if (return_record) {
@@ -315,14 +333,17 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
     }
 
     # Check for alias match
-    alias_matches <- Filter(function(doc) {
-      aliases <- doc$alias_symbol %||% character(0)
-      if (is.character(aliases)) {
-        any(toupper(aliases) == symbol_upper)
-      } else {
-        FALSE
-      }
-    }, search_result$docs)
+    alias_matches <- Filter(
+      function(doc) {
+        aliases <- doc$alias_symbol %||% character(0)
+        if (is.character(aliases)) {
+          any(toupper(aliases) == symbol_upper)
+        } else {
+          FALSE
+        }
+      },
+      search_result$docs
+    )
 
     if (length(alias_matches) > 0) {
       doc <- alias_matches[[1]]
@@ -332,7 +353,11 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
         status = doc$status %||% NA_character_,
         confidence = "alias",
         hgnc_id = doc$hgnc_id %||% NA_character_,
-        candidates = if (length(alias_matches) > 1) alias_matches[-1] else list()
+        candidates = if (length(alias_matches) > 1) {
+          alias_matches[-1]
+        } else {
+          list()
+        }
       )
 
       if (return_record) {
@@ -343,14 +368,17 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
     }
 
     # Check for previous symbol match
-    prev_matches <- Filter(function(doc) {
-      prev_symbols <- doc$prev_symbol %||% character(0)
-      if (is.character(prev_symbols)) {
-        any(toupper(prev_symbols) == symbol_upper)
-      } else {
-        FALSE
-      }
-    }, search_result$docs)
+    prev_matches <- Filter(
+      function(doc) {
+        prev_symbols <- doc$prev_symbol %||% character(0)
+        if (is.character(prev_symbols)) {
+          any(toupper(prev_symbols) == symbol_upper)
+        } else {
+          FALSE
+        }
+      },
+      search_result$docs
+    )
 
     if (length(prev_matches) > 0) {
       doc <- prev_matches[[1]]
@@ -378,7 +406,11 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
       status = doc$status %||% NA_character_,
       confidence = "fuzzy",
       hgnc_id = doc$hgnc_id %||% NA_character_,
-      candidates = if (search_result$numFound > 1) search_result$docs[-1] else list()
+      candidates = if (search_result$numFound > 1) {
+        search_result$docs[-1]
+      } else {
+        list()
+      }
     )
 
     if (return_record) {
@@ -437,7 +469,9 @@ hgnc_resolve_symbol <- function(symbol, mode = "lenient", return_record = FALSE)
 #'
 #' @export
 hgnc_xrefs <- function(id_or_symbol) {
-  if (missing(id_or_symbol) || is.null(id_or_symbol) || nchar(id_or_symbol) == 0) {
+  if (
+    missing(id_or_symbol) || is.null(id_or_symbol) || nchar(id_or_symbol) == 0
+  ) {
     stop("'id_or_symbol' must be a non-empty string", call. = FALSE)
   }
 
@@ -452,7 +486,11 @@ hgnc_xrefs <- function(id_or_symbol) {
 
     # If not found, try resolving as alias/prev_symbol
     if (result$numFound == 0) {
-      resolved <- hgnc_resolve_symbol(id_or_symbol, mode = "lenient", return_record = TRUE)
+      resolved <- hgnc_resolve_symbol(
+        id_or_symbol,
+        mode = "lenient",
+        return_record = TRUE
+      )
       if (!is.na(resolved$approved_symbol) && !is.null(resolved$record)) {
         # Use the resolved record
         result <- list(
@@ -464,7 +502,10 @@ hgnc_xrefs <- function(id_or_symbol) {
   }
 
   if (result$numFound == 0) {
-    warning(sprintf("Gene '%s' not found in HGNC database", id_or_symbol), call. = FALSE)
+    warning(
+      sprintf("Gene '%s' not found in HGNC database", id_or_symbol),
+      call. = FALSE
+    )
     return(NULL)
   }
 

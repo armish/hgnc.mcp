@@ -33,7 +33,10 @@ NULL
 #' }
 #'
 #' @export
-hgnc_get_gene_card <- function(hgnc_id, format = c("json", "markdown", "text")) {
+hgnc_get_gene_card <- function(
+  hgnc_id,
+  format = c("json", "markdown", "text")
+) {
   format <- match.arg(format)
 
   # Determine if input is HGNC ID or symbol
@@ -93,7 +96,6 @@ hgnc_get_gene_card <- function(hgnc_id, format = c("json", "markdown", "text")) 
       content = jsonlite::toJSON(content, auto_unbox = TRUE, pretty = TRUE),
       gene = gene
     ))
-
   } else if (format == "markdown") {
     # Return markdown-formatted card
     md <- c(
@@ -108,20 +110,12 @@ hgnc_get_gene_card <- function(hgnc_id, format = c("json", "markdown", "text")) 
 
     # Add aliases if present
     if (!is.null(gene$alias_symbol) && length(gene$alias_symbol) > 0) {
-      md <- c(md,
-        "## Aliases",
-        paste("-", gene$alias_symbol),
-        ""
-      )
+      md <- c(md, "## Aliases", paste("-", gene$alias_symbol), "")
     }
 
     # Add previous symbols if present
     if (!is.null(gene$prev_symbol) && length(gene$prev_symbol) > 0) {
-      md <- c(md,
-        "## Previous Symbols",
-        paste("-", gene$prev_symbol),
-        ""
-      )
+      md <- c(md, "## Previous Symbols", paste("-", gene$prev_symbol), "")
     }
 
     # Add cross-references
@@ -133,20 +127,21 @@ hgnc_get_gene_card <- function(hgnc_id, format = c("json", "markdown", "text")) 
       md <- c(md, sprintf("- **Ensembl:** %s", gene$ensembl_gene_id))
     }
     if (!is.null(gene$uniprot_ids) && length(gene$uniprot_ids) > 0) {
-      md <- c(md, sprintf("- **UniProt:** %s", paste(gene$uniprot_ids, collapse = ", ")))
+      md <- c(
+        md,
+        sprintf("- **UniProt:** %s", paste(gene$uniprot_ids, collapse = ", "))
+      )
     }
     if (!is.null(gene$omim_id) && length(gene$omim_id) > 0) {
-      md <- c(md, sprintf("- **OMIM:** %s", paste(gene$omim_id, collapse = ", ")))
+      md <- c(
+        md,
+        sprintf("- **OMIM:** %s", paste(gene$omim_id, collapse = ", "))
+      )
     }
 
     # Add gene groups
     if (!is.null(gene$gene_group) && length(gene$gene_group) > 0) {
-      md <- c(md,
-        "",
-        "## Gene Groups",
-        paste("-", gene$gene_group),
-        ""
-      )
+      md <- c(md, "", "## Gene Groups", paste("-", gene$gene_group), "")
     }
 
     content <- paste(md, collapse = "\n")
@@ -156,7 +151,6 @@ hgnc_get_gene_card <- function(hgnc_id, format = c("json", "markdown", "text")) 
       content = content,
       gene = gene
     ))
-
   } else {
     # Plain text summary
     text <- sprintf(
@@ -204,16 +198,21 @@ hgnc_get_gene_card <- function(hgnc_id, format = c("json", "markdown", "text")) 
 #' }
 #'
 #' @export
-hgnc_get_group_card <- function(group_id_or_name,
-                                 format = c("json", "markdown", "text"),
-                                 include_members = TRUE) {
+hgnc_get_group_card <- function(
+  group_id_or_name,
+  format = c("json", "markdown", "text"),
+  include_members = TRUE
+) {
   format <- match.arg(format)
 
   # Fetch group members
   result <- hgnc_group_members(group_id_or_name, use_cache = TRUE)
 
   if (is.null(result) || result$numFound == 0) {
-    stop(sprintf("Gene group '%s' not found or has no members", group_id_or_name))
+    stop(sprintf(
+      "Gene group '%s' not found or has no members",
+      group_id_or_name
+    ))
   }
 
   # Extract group info from first member
@@ -248,14 +247,17 @@ hgnc_get_group_card <- function(group_id_or_name,
     return(list(
       uri = uri,
       mimeType = "application/json",
-      content = jsonlite::toJSON(content_data, auto_unbox = TRUE, pretty = TRUE),
+      content = jsonlite::toJSON(
+        content_data,
+        auto_unbox = TRUE,
+        pretty = TRUE
+      ),
       group = list(
         id = group_id,
         name = group_name,
         member_count = result$numFound
       )
     ))
-
   } else if (format == "markdown") {
     md <- c(
       sprintf("# Gene Group: %s", group_name),
@@ -266,21 +268,21 @@ hgnc_get_group_card <- function(group_id_or_name,
     )
 
     if (include_members) {
-      md <- c(md,
-        "## Members",
-        ""
-      )
+      md <- c(md, "## Members", "")
 
       # Add table header
-      md <- c(md,
+      md <- c(
+        md,
         "| Symbol | Name | Status | Location |",
         "|--------|------|--------|----------|"
       )
 
       # Add member rows
       for (gene in result$docs) {
-        md <- c(md,
-          sprintf("| %s | %s | %s | %s |",
+        md <- c(
+          md,
+          sprintf(
+            "| %s | %s | %s | %s |",
             gene$symbol,
             gene$name,
             gene$status %||% "N/A",
@@ -301,7 +303,6 @@ hgnc_get_group_card <- function(group_id_or_name,
         member_count = result$numFound
       )
     ))
-
   } else {
     # Plain text
     text <- sprintf(
@@ -312,7 +313,9 @@ hgnc_get_group_card <- function(group_id_or_name,
     )
 
     if (include_members) {
-      text <- paste0(text, "\n\nMember Symbols:\n",
+      text <- paste0(
+        text,
+        "\n\nMember Symbols:\n",
         paste(sapply(result$docs, function(g) g$symbol), collapse = ", ")
       )
     }
@@ -410,7 +413,6 @@ hgnc_get_snapshot_metadata <- function(format = c("json", "markdown", "text")) {
       mimeType = "application/json",
       content = jsonlite::toJSON(content_data, auto_unbox = TRUE, pretty = TRUE)
     ))
-
   } else if (format == "markdown") {
     md <- c(
       "# HGNC Dataset Snapshot",
@@ -422,7 +424,10 @@ hgnc_get_snapshot_metadata <- function(format = c("json", "markdown", "text")) {
       "",
       "## Statistics",
       "",
-      sprintf("- **Total Genes:** %s", format(stats$total_genes, big.mark = ",")),
+      sprintf(
+        "- **Total Genes:** %s",
+        format(stats$total_genes, big.mark = ",")
+      ),
       sprintf("- **Approved:** %s", format(stats$approved, big.mark = ",")),
       sprintf("- **Withdrawn:** %s", format(stats$withdrawn, big.mark = ",")),
       "",
@@ -432,8 +437,10 @@ hgnc_get_snapshot_metadata <- function(format = c("json", "markdown", "text")) {
 
     # Add locus type counts
     for (i in seq_along(stats$locus_types)) {
-      md <- c(md,
-        sprintf("- **%s:** %s",
+      md <- c(
+        md,
+        sprintf(
+          "- **%s:** %s",
           names(stats$locus_types)[i],
           format(stats$locus_types[i], big.mark = ",")
         )
@@ -446,7 +453,6 @@ hgnc_get_snapshot_metadata <- function(format = c("json", "markdown", "text")) {
       mimeType = "text/markdown",
       content = content
     ))
-
   } else {
     # Plain text
     text <- sprintf(
@@ -496,10 +502,12 @@ hgnc_get_snapshot_metadata <- function(format = c("json", "markdown", "text")) {
 #' }
 #'
 #' @export
-hgnc_get_changes_summary <- function(since,
-                                      format = c("json", "markdown", "text"),
-                                      change_type = "all",
-                                      max_results = 100) {
+hgnc_get_changes_summary <- function(
+  since,
+  format = c("json", "markdown", "text"),
+  change_type = "all",
+  max_results = 100
+) {
   format <- match.arg(format)
 
   # Get changes
@@ -546,10 +554,13 @@ hgnc_get_changes_summary <- function(since,
     return(list(
       uri = uri,
       mimeType = "application/json",
-      content = jsonlite::toJSON(content_data, auto_unbox = TRUE, pretty = TRUE),
+      content = jsonlite::toJSON(
+        content_data,
+        auto_unbox = TRUE,
+        pretty = TRUE
+      ),
       changes = result
     ))
-
   } else if (format == "markdown") {
     md <- c(
       sprintf("# HGNC Changes Since %s", since),
@@ -561,13 +572,15 @@ hgnc_get_changes_summary <- function(since,
     )
 
     if (truncated) {
-      md <- c(md,
+      md <- c(
+        md,
         sprintf("*Note: Results limited to %d entries*", max_results),
         ""
       )
     }
 
-    md <- c(md,
+    md <- c(
+      md,
       "## Changes",
       "",
       "| HGNC ID | Symbol | Change Type | Date |",
@@ -576,8 +589,10 @@ hgnc_get_changes_summary <- function(since,
 
     for (i in seq_len(nrow(changes_df))) {
       row <- changes_df[i, ]
-      md <- c(md,
-        sprintf("| %s | %s | %s | %s |",
+      md <- c(
+        md,
+        sprintf(
+          "| %s | %s | %s | %s |",
           row$hgnc_id,
           row$symbol,
           row$change_type,
@@ -593,7 +608,6 @@ hgnc_get_changes_summary <- function(since,
       content = content,
       changes = result
     ))
-
   } else {
     # Plain text
     text <- sprintf(
@@ -605,14 +619,19 @@ hgnc_get_changes_summary <- function(since,
     )
 
     if (truncated) {
-      text <- paste0(text, sprintf("\n(Results limited to %d entries)\n", max_results))
+      text <- paste0(
+        text,
+        sprintf("\n(Results limited to %d entries)\n", max_results)
+      )
     }
 
     text <- paste0(text, "\nRecent Changes:\n")
     for (i in seq_len(min(10, nrow(changes_df)))) {
       row <- changes_df[i, ]
-      text <- paste0(text,
-        sprintf("- %s (%s): %s on %s\n",
+      text <- paste0(
+        text,
+        sprintf(
+          "- %s (%s): %s on %s\n",
           row$symbol,
           row$hgnc_id,
           row$change_type,

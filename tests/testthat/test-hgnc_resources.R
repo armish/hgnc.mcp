@@ -299,7 +299,11 @@ test_that("hgnc_get_group_card respects include_members parameter (live API)", {
   reset_rate_limiter()
 
   # With members
-  result_with <- hgnc_get_group_card(588, format = "json", include_members = TRUE)
+  result_with <- hgnc_get_group_card(
+    588,
+    format = "json",
+    include_members = TRUE
+  )
   content_with <- jsonlite::fromJSON(result_with$content)
   expect_true("members" %in% names(content_with))
   expect_true(!is.null(content_with$members))
@@ -307,9 +311,15 @@ test_that("hgnc_get_group_card respects include_members parameter (live API)", {
   reset_rate_limiter()
 
   # Without members
-  result_without <- hgnc_get_group_card(588, format = "json", include_members = FALSE)
+  result_without <- hgnc_get_group_card(
+    588,
+    format = "json",
+    include_members = FALSE
+  )
   content_without <- jsonlite::fromJSON(result_without$content)
-  expect_true(is.null(content_without$members) || length(content_without$members) == 0)
+  expect_true(
+    is.null(content_without$members) || length(content_without$members) == 0
+  )
 })
 
 test_that("hgnc_get_group_card markdown includes member table when include_members=TRUE (live API)", {
@@ -319,11 +329,18 @@ test_that("hgnc_get_group_card markdown includes member table when include_membe
 
   reset_rate_limiter()
 
-  result <- hgnc_get_group_card(588, format = "markdown", include_members = TRUE)
+  result <- hgnc_get_group_card(
+    588,
+    format = "markdown",
+    include_members = TRUE
+  )
 
   # Check for members section and table
   expect_match(result$content, "## Members")
-  expect_match(result$content, "\\| Symbol \\| Name \\| Status \\| Location \\|")
+  expect_match(
+    result$content,
+    "\\| Symbol \\| Name \\| Status \\| Location \\|"
+  )
 })
 
 test_that("hgnc_get_group_card handles group not found error (live API)", {
@@ -375,12 +392,15 @@ test_that("hgnc_get_snapshot_metadata requires valid format argument", {
 test_that("hgnc_get_snapshot_metadata errors when no cached data (if applicable)", {
   # This test checks error handling when cache is empty
   # Try calling the function and check the result
-  result <- tryCatch({
-    suppressWarnings(hgnc_get_snapshot_metadata())
-    "success"
-  }, error = function(e) {
-    e$message
-  })
+  result <- tryCatch(
+    {
+      suppressWarnings(hgnc_get_snapshot_metadata())
+      "success"
+    },
+    error = function(e) {
+      e$message
+    }
+  )
 
   if (result == "success") {
     skip("Cached data available, cannot test error condition")
@@ -394,12 +414,15 @@ test_that("hgnc_get_snapshot_metadata returns JSON format correctly (with cache)
   skip_on_cran()
 
   # Try to call the function - skip if no cache available
-  can_get_snapshot <- tryCatch({
-    suppressWarnings(hgnc_get_snapshot_metadata(format = "json"))
-    TRUE
-  }, error = function(e) {
-    FALSE
-  })
+  can_get_snapshot <- tryCatch(
+    {
+      suppressWarnings(hgnc_get_snapshot_metadata(format = "json"))
+      TRUE
+    },
+    error = function(e) {
+      FALSE
+    }
+  )
 
   if (!can_get_snapshot) {
     skip("No cached data available for testing")
@@ -433,12 +456,15 @@ test_that("hgnc_get_snapshot_metadata returns markdown format correctly (with ca
   skip_on_cran()
 
   # Try to call the function - skip if no cache available
-  can_get_snapshot <- tryCatch({
-    suppressWarnings(hgnc_get_snapshot_metadata(format = "markdown"))
-    TRUE
-  }, error = function(e) {
-    FALSE
-  })
+  can_get_snapshot <- tryCatch(
+    {
+      suppressWarnings(hgnc_get_snapshot_metadata(format = "markdown"))
+      TRUE
+    },
+    error = function(e) {
+      FALSE
+    }
+  )
 
   if (!can_get_snapshot) {
     skip("No cached data available for testing")
@@ -461,12 +487,15 @@ test_that("hgnc_get_snapshot_metadata returns text format correctly (with cache)
   skip_on_cran()
 
   # Try to call the function - skip if no cache available
-  can_get_snapshot <- tryCatch({
-    suppressWarnings(hgnc_get_snapshot_metadata(format = "text"))
-    TRUE
-  }, error = function(e) {
-    FALSE
-  })
+  can_get_snapshot <- tryCatch(
+    {
+      suppressWarnings(hgnc_get_snapshot_metadata(format = "text"))
+      TRUE
+    },
+    error = function(e) {
+      FALSE
+    }
+  )
 
   if (!can_get_snapshot) {
     skip("No cached data available for testing")
@@ -488,12 +517,15 @@ test_that("hgnc_get_snapshot_metadata includes statistics (with cache)", {
   skip_on_cran()
 
   # Try to call the function - skip if no cache available
-  can_get_snapshot <- tryCatch({
-    suppressWarnings(hgnc_get_snapshot_metadata(format = "json"))
-    TRUE
-  }, error = function(e) {
-    FALSE
-  })
+  can_get_snapshot <- tryCatch(
+    {
+      suppressWarnings(hgnc_get_snapshot_metadata(format = "json"))
+      TRUE
+    },
+    error = function(e) {
+      FALSE
+    }
+  )
 
   if (!can_get_snapshot) {
     skip("No cached data available for testing")
@@ -607,7 +639,11 @@ test_that("hgnc_get_changes_summary respects max_results parameter (live API)", 
 
   reset_rate_limiter()
 
-  result <- hgnc_get_changes_summary("2024-01-01", format = "json", max_results = 5)
+  result <- hgnc_get_changes_summary(
+    "2024-01-01",
+    format = "json",
+    max_results = 5
+  )
   content_parsed <- jsonlite::fromJSON(result$content)
 
   # Should show at most 5 results
@@ -626,7 +662,11 @@ test_that("hgnc_get_changes_summary includes truncation flag when limited (live 
   reset_rate_limiter()
 
   # Use a date that will likely have many changes
-  result <- hgnc_get_changes_summary("2020-01-01", format = "json", max_results = 5)
+  result <- hgnc_get_changes_summary(
+    "2020-01-01",
+    format = "json",
+    max_results = 5
+  )
   content_parsed <- jsonlite::fromJSON(result$content)
 
   expect_true("truncated" %in% names(content_parsed))
@@ -640,9 +680,11 @@ test_that("hgnc_get_changes_summary respects change_type parameter (live API)", 
 
   reset_rate_limiter()
 
-  result <- hgnc_get_changes_summary("2024-01-01",
-                                      format = "json",
-                                      change_type = "symbol")
+  result <- hgnc_get_changes_summary(
+    "2024-01-01",
+    format = "json",
+    change_type = "symbol"
+  )
   content_parsed <- jsonlite::fromJSON(result$content)
 
   expect_equal(content_parsed$change_type, "symbol")
@@ -655,7 +697,11 @@ test_that("hgnc_get_changes_summary change records have expected fields (live AP
 
   reset_rate_limiter()
 
-  result <- hgnc_get_changes_summary("2024-01-01", format = "json", max_results = 10)
+  result <- hgnc_get_changes_summary(
+    "2024-01-01",
+    format = "json",
+    max_results = 10
+  )
   content_parsed <- jsonlite::fromJSON(result$content)
 
   # Check if there are any changes
@@ -681,7 +727,10 @@ test_that("hgnc_get_changes_summary markdown includes table when changes exist (
   # The table should appear if numFound > 0
   if (grepl("Total Changes: [1-9]", result$content)) {
     expect_match(result$content, "## Changes")
-    expect_match(result$content, "\\| HGNC ID \\| Symbol \\| Change Type \\| Date \\|")
+    expect_match(
+      result$content,
+      "\\| HGNC ID \\| Symbol \\| Change Type \\| Date \\|"
+    )
   }
 })
 
@@ -707,11 +756,17 @@ test_that("gene card and group card work together (live API)", {
 
     reset_rate_limiter()
 
-    group_card <- hgnc_get_group_card(group_id, format = "json", include_members = TRUE)
+    group_card <- hgnc_get_group_card(
+      group_id,
+      format = "json",
+      include_members = TRUE
+    )
     group_data <- jsonlite::fromJSON(group_card$content)
 
     # Verify BRCA1 is a member of this group
-    expect_true(any(sapply(group_data$members, function(m) m$symbol == "BRCA1")))
+    expect_true(any(sapply(group_data$members, function(m) {
+      m$symbol == "BRCA1"
+    })))
   }
 })
 
@@ -721,16 +776,19 @@ test_that("snapshot and changes summary are consistent (with cache)", {
   skip_if_integration_tests()
 
   # Try to get snapshot metadata
-  tryCatch({
-    snapshot <- hgnc_get_snapshot_metadata(format = "json")
-    snapshot_data <- jsonlite::fromJSON(snapshot$content)
+  tryCatch(
+    {
+      snapshot <- hgnc_get_snapshot_metadata(format = "json")
+      snapshot_data <- jsonlite::fromJSON(snapshot$content)
 
-    # Verify snapshot has expected structure
-    expect_true("version" %in% names(snapshot_data))
-    expect_true("statistics" %in% names(snapshot_data))
-  }, error = function(e) {
-    skip("Cannot load snapshot metadata")
-  })
+      # Verify snapshot has expected structure
+      expect_true("version" %in% names(snapshot_data))
+      expect_true("statistics" %in% names(snapshot_data))
+    },
+    error = function(e) {
+      skip("Cannot load snapshot metadata")
+    }
+  )
 })
 
 # =============================================================================

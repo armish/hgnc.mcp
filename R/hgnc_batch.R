@@ -66,7 +66,9 @@ build_symbol_index <- function(hgnc_data = NULL) {
 
     # Get HGNC ID (handle both formats: "HGNC:####" and plain number)
     hgnc_id <- record$hgnc_id
-    if (is.na(hgnc_id) || is.null(hgnc_id)) next
+    if (is.na(hgnc_id) || is.null(hgnc_id)) {
+      next
+    }
 
     # Ensure hgnc_id is character
     hgnc_id <- as.character(hgnc_id)
@@ -83,7 +85,11 @@ build_symbol_index <- function(hgnc_data = NULL) {
     # Index alias symbols -> HGNC ID (may have multiple per gene, and multiple genes per alias)
     if (!is.na(record$alias_symbol) && nchar(record$alias_symbol) > 0) {
       # alias_symbol may be pipe-delimited
-      aliases <- strsplit(as.character(record$alias_symbol), "\\|", fixed = FALSE)[[1]]
+      aliases <- strsplit(
+        as.character(record$alias_symbol),
+        "\\|",
+        fixed = FALSE
+      )[[1]]
       aliases <- toupper(trimws(aliases))
 
       for (alias in aliases) {
@@ -101,7 +107,11 @@ build_symbol_index <- function(hgnc_data = NULL) {
     # Index previous symbols -> HGNC ID (may have multiple per gene, and multiple genes per prev)
     if (!is.na(record$prev_symbol) && nchar(record$prev_symbol) > 0) {
       # prev_symbol may be pipe-delimited
-      prevs <- strsplit(as.character(record$prev_symbol), "\\|", fixed = FALSE)[[1]]
+      prevs <- strsplit(
+        as.character(record$prev_symbol),
+        "\\|",
+        fixed = FALSE
+      )[[1]]
       prevs <- toupper(trimws(prevs))
 
       for (prev in prevs) {
@@ -117,9 +127,15 @@ build_symbol_index <- function(hgnc_data = NULL) {
     }
   }
 
-  message("Index complete: ", length(symbol_to_id), " symbols, ",
-          length(alias_to_id), " aliases, ",
-          length(prev_to_id), " previous symbols")
+  message(
+    "Index complete: ",
+    length(symbol_to_id),
+    " symbols, ",
+    length(alias_to_id),
+    " aliases, ",
+    length(prev_to_id),
+    " previous symbols"
+  )
 
   list(
     symbol_to_id = symbol_to_id,
@@ -205,14 +221,22 @@ build_symbol_index <- function(hgnc_data = NULL) {
 #' }
 #'
 #' @export
-hgnc_normalize_list <- function(symbols,
-                                 return_fields = c("symbol", "name", "hgnc_id",
-                                                  "status", "locus_type",
-                                                  "location", "alias_symbol",
-                                                  "prev_symbol"),
-                                 status = "Approved",
-                                 dedupe = TRUE,
-                                 index = NULL) {
+hgnc_normalize_list <- function(
+  symbols,
+  return_fields = c(
+    "symbol",
+    "name",
+    "hgnc_id",
+    "status",
+    "locus_type",
+    "location",
+    "alias_symbol",
+    "prev_symbol"
+  ),
+  status = "Approved",
+  dedupe = TRUE,
+  index = NULL
+) {
   if (missing(symbols) || is.null(symbols) || length(symbols) == 0) {
     stop("'symbols' must be a non-empty character vector", call. = FALSE)
   }
@@ -240,8 +264,10 @@ hgnc_normalize_list <- function(symbols,
 
     # Skip NA or empty
     if (is.na(original_symbol) || nchar(trimws(original_symbol)) == 0) {
-      warnings_list <- c(warnings_list,
-                        sprintf("Entry %d: Empty or NA symbol skipped", i))
+      warnings_list <- c(
+        warnings_list,
+        sprintf("Entry %d: Empty or NA symbol skipped", i)
+      )
       next
     }
 
@@ -258,7 +284,7 @@ hgnc_normalize_list <- function(symbols,
       hgnc_id <- index$symbol_to_id[[symbol_upper]]
       match_type <- "exact"
 
-    # Strategy 2: Try alias_symbol
+      # Strategy 2: Try alias_symbol
     } else if (symbol_upper %in% names(index$alias_to_id)) {
       candidate_ids <- index$alias_to_id[[symbol_upper]]
 
@@ -269,39 +295,57 @@ hgnc_normalize_list <- function(symbols,
         # Ambiguous: multiple genes share this alias
         ambiguous <- TRUE
         candidates <- candidate_ids
-        warnings_list <- c(warnings_list,
-                          sprintf("Entry %d: '%s' matches %d genes via alias (ambiguous): %s",
-                                 i, original_symbol, length(candidate_ids),
-                                 paste(candidate_ids, collapse = ", ")))
+        warnings_list <- c(
+          warnings_list,
+          sprintf(
+            "Entry %d: '%s' matches %d genes via alias (ambiguous): %s",
+            i,
+            original_symbol,
+            length(candidate_ids),
+            paste(candidate_ids, collapse = ", ")
+          )
+        )
       }
 
-    # Strategy 3: Try prev_symbol
+      # Strategy 3: Try prev_symbol
     } else if (symbol_upper %in% names(index$prev_to_id)) {
       candidate_ids <- index$prev_to_id[[symbol_upper]]
 
       if (length(candidate_ids) == 1) {
         hgnc_id <- candidate_ids[1]
         match_type <- "previous"
-        warnings_list <- c(warnings_list,
-                          sprintf("Entry %d: '%s' is a previous symbol (gene may have been renamed)",
-                                 i, original_symbol))
+        warnings_list <- c(
+          warnings_list,
+          sprintf(
+            "Entry %d: '%s' is a previous symbol (gene may have been renamed)",
+            i,
+            original_symbol
+          )
+        )
       } else {
         # Ambiguous: multiple genes had this as previous symbol
         ambiguous <- TRUE
         candidates <- candidate_ids
-        warnings_list <- c(warnings_list,
-                          sprintf("Entry %d: '%s' matches %d genes via previous symbol (ambiguous): %s",
-                                 i, original_symbol, length(candidate_ids),
-                                 paste(candidate_ids, collapse = ", ")))
+        warnings_list <- c(
+          warnings_list,
+          sprintf(
+            "Entry %d: '%s' matches %d genes via previous symbol (ambiguous): %s",
+            i,
+            original_symbol,
+            length(candidate_ids),
+            paste(candidate_ids, collapse = ", ")
+          )
+        )
       }
     }
 
     # Handle not found
     if (is.null(hgnc_id) && !ambiguous) {
       not_found <- c(not_found, original_symbol)
-      warnings_list <- c(warnings_list,
-                        sprintf("Entry %d: '%s' not found in HGNC database",
-                               i, original_symbol))
+      warnings_list <- c(
+        warnings_list,
+        sprintf("Entry %d: '%s' not found in HGNC database", i, original_symbol)
+      )
       next
     }
 
@@ -314,9 +358,10 @@ hgnc_normalize_list <- function(symbols,
     # Get full record
     gene_record <- index$id_to_record[[hgnc_id]]
     if (is.null(gene_record)) {
-      warnings_list <- c(warnings_list,
-                        sprintf("Entry %d: Gene record for HGNC ID '%s' not found",
-                               i, hgnc_id))
+      warnings_list <- c(
+        warnings_list,
+        sprintf("Entry %d: Gene record for HGNC ID '%s' not found", i, hgnc_id)
+      )
       next
     }
 
@@ -330,13 +375,26 @@ hgnc_normalize_list <- function(symbols,
       # Check if withdrawn
       if (gene_status == "Withdrawn") {
         withdrawn_list[[length(withdrawn_list) + 1]] <- gene_record
-        warnings_list <- c(warnings_list,
-                          sprintf("Entry %d: '%s' maps to withdrawn gene '%s' (HGNC:%s)",
-                                 i, original_symbol, gene_record$symbol %||% "NA", hgnc_id))
+        warnings_list <- c(
+          warnings_list,
+          sprintf(
+            "Entry %d: '%s' maps to withdrawn gene '%s' (HGNC:%s)",
+            i,
+            original_symbol,
+            gene_record$symbol %||% "NA",
+            hgnc_id
+          )
+        )
       } else {
-        warnings_list <- c(warnings_list,
-                          sprintf("Entry %d: '%s' has status '%s' (filtered out)",
-                                 i, original_symbol, gene_status))
+        warnings_list <- c(
+          warnings_list,
+          sprintf(
+            "Entry %d: '%s' has status '%s' (filtered out)",
+            i,
+            original_symbol,
+            gene_status
+          )
+        )
       }
       next
     }
@@ -346,9 +404,16 @@ hgnc_normalize_list <- function(symbols,
       if (hgnc_id %in% names(duplicate_tracking)) {
         # Duplicate found
         duplicate_tracking[[hgnc_id]] <- c(duplicate_tracking[[hgnc_id]], i)
-        warnings_list <- c(warnings_list,
-                          sprintf("Entry %d: '%s' is a duplicate of entry %d (same HGNC ID: %s)",
-                                 i, original_symbol, duplicate_tracking[[hgnc_id]][1], hgnc_id))
+        warnings_list <- c(
+          warnings_list,
+          sprintf(
+            "Entry %d: '%s' is a duplicate of entry %d (same HGNC ID: %s)",
+            i,
+            original_symbol,
+            duplicate_tracking[[hgnc_id]][1],
+            hgnc_id
+          )
+        )
         next
       } else {
         duplicate_tracking[[hgnc_id]] <- i
@@ -361,7 +426,10 @@ hgnc_normalize_list <- function(symbols,
 
   # Convert results to data frame
   if (length(results_list) > 0) {
-    results_df <- do.call(rbind.data.frame, c(results_list, stringsAsFactors = FALSE))
+    results_df <- do.call(
+      rbind.data.frame,
+      c(results_list, stringsAsFactors = FALSE)
+    )
 
     # Select requested fields
     if (length(return_fields) == 1 && return_fields == "all") {
@@ -370,7 +438,9 @@ hgnc_normalize_list <- function(symbols,
     } else {
       # Return only requested fields (include metadata fields)
       available_fields <- c(return_fields, "query_symbol", "match_type")
-      available_fields <- available_fields[available_fields %in% names(results_df)]
+      available_fields <- available_fields[
+        available_fields %in% names(results_df)
+      ]
       final_results <- results_df[, available_fields, drop = FALSE]
     }
   } else {
@@ -380,7 +450,10 @@ hgnc_normalize_list <- function(symbols,
 
   # Convert withdrawn list to data frame
   if (length(withdrawn_list) > 0) {
-    withdrawn_df <- do.call(rbind.data.frame, c(withdrawn_list, stringsAsFactors = FALSE))
+    withdrawn_df <- do.call(
+      rbind.data.frame,
+      c(withdrawn_list, stringsAsFactors = FALSE)
+    )
   } else {
     withdrawn_df <- data.frame()
   }
@@ -392,12 +465,22 @@ hgnc_normalize_list <- function(symbols,
     not_found = length(not_found),
     withdrawn = nrow(withdrawn_df),
     duplicates_removed = sum(lengths(duplicate_tracking) > 1),
-    match_types = if (nrow(final_results) > 0) table(final_results$match_type) else NULL
+    match_types = if (nrow(final_results) > 0) {
+      table(final_results$match_type)
+    } else {
+      NULL
+    }
   )
 
-  message("Normalization complete: ", summary_info$found, " found, ",
-          summary_info$not_found, " not found, ",
-          summary_info$withdrawn, " withdrawn")
+  message(
+    "Normalization complete: ",
+    summary_info$found,
+    " found, ",
+    summary_info$not_found,
+    " not found, ",
+    summary_info$withdrawn,
+    " withdrawn"
+  )
 
   # Return comprehensive results
   list(

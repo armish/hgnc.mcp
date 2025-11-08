@@ -26,9 +26,11 @@ cat(substr(prompt1, 1, 500))
 cat("\n...\n\n")
 
 # Verify key sections are present
-if (grepl("Gene List Normalization Workflow", prompt1) &&
+if (
+  grepl("Gene List Normalization Workflow", prompt1) &&
     grepl("normalize_list", prompt1) &&
-    grepl("BRCA1, tp53, EGFR, OLD_SYMBOL", prompt1)) {
+    grepl("BRCA1, tp53, EGFR, OLD_SYMBOL", prompt1)
+) {
   cat("✓ Normalize prompt contains expected content\n\n")
 } else {
   cat("✗ Normalize prompt is missing expected content\n\n")
@@ -48,9 +50,11 @@ cat(substr(prompt2, 1, 500))
 cat("\n...\n\n")
 
 # Verify key sections are present
-if (grepl("Nomenclature Compliance Check", prompt2) &&
+if (
+  grepl("Nomenclature Compliance Check", prompt2) &&
     grepl("validate_panel", prompt2) &&
-    grepl("BRCA1, BRCA2, TP53, OLD_SYMBOL", prompt2)) {
+    grepl("BRCA1, BRCA2, TP53, OLD_SYMBOL", prompt2)
+) {
   cat("✓ Compliance prompt contains expected content\n\n")
 } else {
   cat("✗ Compliance prompt is missing expected content\n\n")
@@ -67,9 +71,11 @@ cat(substr(prompt3, 1, 500))
 cat("\n...\n\n")
 
 # Verify key sections are present
-if (grepl("HGNC Nomenclature Changes Report", prompt3) &&
+if (
+  grepl("HGNC Nomenclature Changes Report", prompt3) &&
     grepl("changes", prompt3) &&
-    grepl("2024-01-01", prompt3)) {
+    grepl("2024-01-01", prompt3)
+) {
   cat("✓ Changes prompt contains expected content\n\n")
 } else {
   cat("✗ Changes prompt is missing expected content\n\n")
@@ -86,9 +92,11 @@ cat(substr(prompt4, 1, 500))
 cat("\n...\n\n")
 
 # Verify key sections are present
-if (grepl("Build Gene Set from HGNC Gene Group", prompt4) &&
+if (
+  grepl("Build Gene Set from HGNC Gene Group", prompt4) &&
     grepl("search_groups", prompt4) &&
-    grepl("kinase", prompt4)) {
+    grepl("kinase", prompt4)
+) {
   cat("✓ Gene set prompt contains expected content\n\n")
 } else {
   cat("✗ Gene set prompt is missing expected content\n\n")
@@ -103,8 +111,12 @@ prompt5b <- prompt_check_nomenclature_compliance()
 prompt5c <- prompt_what_changed_since()
 prompt5d <- prompt_build_gene_set_from_group()
 
-if (nchar(prompt5a) > 100 && nchar(prompt5b) > 100 &&
-    nchar(prompt5c) > 100 && nchar(prompt5d) > 100) {
+if (
+  nchar(prompt5a) > 100 &&
+    nchar(prompt5b) > 100 &&
+    nchar(prompt5c) > 100 &&
+    nchar(prompt5d) > 100
+) {
   cat("✓ All prompts generate valid output with default arguments\n\n")
 } else {
   cat("✗ Some prompts failed with default arguments\n\n")

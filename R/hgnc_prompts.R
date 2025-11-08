@@ -40,9 +40,11 @@ NULL
 #' }
 #'
 #' @export
-prompt_normalize_gene_list <- function(gene_list = "",
-                                       strictness = "lenient",
-                                       return_xrefs = FALSE) {
+prompt_normalize_gene_list <- function(
+  gene_list = "",
+  strictness = "lenient",
+  return_xrefs = FALSE
+) {
   # Convert gene_list to character if needed
   if (is.list(gene_list)) {
     gene_list <- paste(unlist(gene_list), collapse = ", ")
@@ -135,10 +137,18 @@ Begin by parsing the gene list and proceeding through the workflow systematicall
     ifelse(nchar(gene_list) > 0, gene_list, "[No gene list provided yet]"),
     strictness,
     ifelse(return_xrefs, "Yes", "No"),
-    ifelse(nchar(gene_list) > 0, "", "\n[Skip this step if no symbols were not_found]"),
+    ifelse(
+      nchar(gene_list) > 0,
+      "",
+      "\n[Skip this step if no symbols were not_found]"
+    ),
     strictness,
     ifelse(return_xrefs, "", " (Optional)"),
-    ifelse(return_xrefs, "", "\nSince return_xrefs is FALSE, skip fetching cross-references."),
+    ifelse(
+      return_xrefs,
+      "",
+      "\nSince return_xrefs is FALSE, skip fetching cross-references."
+    ),
     ifelse(return_xrefs, "\n- External IDs (if requested)", "")
   )
 
@@ -175,19 +185,26 @@ Begin by parsing the gene list and proceeding through the workflow systematicall
 #' }
 #'
 #' @export
-prompt_check_nomenclature_compliance <- function(panel_text = "",
-                                                 file_uri = NULL) {
+prompt_check_nomenclature_compliance <- function(
+  panel_text = "",
+  file_uri = NULL
+) {
   has_text <- nchar(panel_text) > 0
   has_file <- !is.null(file_uri) && nchar(file_uri) > 0
 
   source_section <- if (has_text && has_file) {
-    sprintf("## Input Panel (Text)\n%s\n\n## Alternative File Source\n%s\n\n**Note**: Both text and file provided. Prefer text input unless instructed otherwise.",
-            panel_text, file_uri)
+    sprintf(
+      "## Input Panel (Text)\n%s\n\n## Alternative File Source\n%s\n\n**Note**: Both text and file provided. Prefer text input unless instructed otherwise.",
+      panel_text,
+      file_uri
+    )
   } else if (has_text) {
     sprintf("## Input Panel (Text)\n%s", panel_text)
   } else if (has_file) {
-    sprintf("## Input Panel (File)\n%s\n\n**Action Required**: Read the file content first to extract gene symbols.",
-            file_uri)
+    sprintf(
+      "## Input Panel (File)\n%s\n\n**Action Required**: Read the file content first to extract gene symbols.",
+      file_uri
+    )
   } else {
     "## Input Panel\n[No panel provided yet - request from user]"
   }
@@ -616,14 +633,18 @@ Note: Group membership may change over time as new genes are added.
 %s
 
 Begin by searching for gene groups matching the query.",
-    ifelse(nchar(group_query) > 0,
-           sprintf("\"%s\"", group_query),
-           "[No query provided yet - request from user]"),
+    ifelse(
+      nchar(group_query) > 0,
+      sprintf("\"%s\"", group_query),
+      "[No query provided yet - request from user]"
+    ),
     group_query,
     group_query,
-    ifelse(nchar(group_query) > 0,
-           "",
-           "\n**Note**: No query provided. Start by asking the user what type of gene group they're interested in (e.g., \"kinases\", \"transcription factors\", \"immunoglobulins\").")
+    ifelse(
+      nchar(group_query) > 0,
+      "",
+      "\n**Note**: No query provided. Start by asking the user what type of gene group they're interested in (e.g., \"kinases\", \"transcription factors\", \"immunoglobulins\")."
+    )
   )
 
   return(prompt_text)

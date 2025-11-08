@@ -24,16 +24,19 @@ library(hgnc.mcp)
 #* @response 500 Internal server error
 #* @tag Tools
 endpoint_info <- function(res) {
-  tryCatch({
-    result <- hgnc_rest_info()
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_rest_info()
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Search for Genes in HGNC Database
@@ -69,16 +72,19 @@ endpoint_find <- function(req, res, query = NULL, filters = NULL, limit = 100) {
     ))
   }
 
-  tryCatch({
-    result <- hgnc_find(query = query, filters = filters, limit = limit)
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_find(query = query, filters = filters, limit = limit)
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Fetch Gene Records by Field Value
@@ -111,16 +117,19 @@ endpoint_fetch <- function(req, res, field = NULL, term = NULL) {
     ))
   }
 
-  tryCatch({
-    result <- hgnc_fetch(field = field, term = term)
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_fetch(field = field, term = term)
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Resolve Gene Symbol to Approved Symbol
@@ -136,7 +145,13 @@ endpoint_fetch <- function(req, res, field = NULL, term = NULL) {
 #* @response 400 Bad request - missing or invalid parameters
 #* @response 500 Internal server error
 #* @tag Tools
-endpoint_resolve_symbol <- function(req, res, symbol = NULL, mode = "lenient", return_record = FALSE) {
+endpoint_resolve_symbol <- function(
+  req,
+  res,
+  symbol = NULL,
+  mode = "lenient",
+  return_record = FALSE
+) {
   # Validate symbol parameter
   if (is.null(symbol) || nchar(trimws(as.character(symbol))) == 0) {
     res$status <- 400
@@ -161,20 +176,23 @@ endpoint_resolve_symbol <- function(req, res, symbol = NULL, mode = "lenient", r
     return_record <- FALSE
   }
 
-  tryCatch({
-    result <- hgnc_resolve_symbol(
-      symbol = symbol,
-      mode = mode,
-      return_record = return_record
-    )
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_resolve_symbol(
+        symbol = symbol,
+        mode = mode,
+        return_record = return_record
+      )
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Normalize Gene Symbol List
@@ -191,13 +209,23 @@ endpoint_resolve_symbol <- function(req, res, symbol = NULL, mode = "lenient", r
 #* @response 400 Bad request - missing or invalid parameters
 #* @response 500 Internal server error
 #* @tag Tools
-endpoint_normalize_list <- function(req, res, symbols = NULL,
-                                    return_fields = c("symbol", "name", "hgnc_id",
-                                                     "status", "locus_type",
-                                                     "location", "alias_symbol",
-                                                     "prev_symbol"),
-                                    status = "Approved",
-                                    dedupe = TRUE) {
+endpoint_normalize_list <- function(
+  req,
+  res,
+  symbols = NULL,
+  return_fields = c(
+    "symbol",
+    "name",
+    "hgnc_id",
+    "status",
+    "locus_type",
+    "location",
+    "alias_symbol",
+    "prev_symbol"
+  ),
+  status = "Approved",
+  dedupe = TRUE
+) {
   # Validate symbols parameter
   if (is.null(symbols) || length(symbols) == 0) {
     res$status <- 400
@@ -213,22 +241,25 @@ endpoint_normalize_list <- function(req, res, symbols = NULL,
     dedupe <- TRUE
   }
 
-  tryCatch({
-    result <- hgnc_normalize_list(
-      symbols = symbols,
-      return_fields = return_fields,
-      status = status,
-      dedupe = dedupe,
-      index = NULL  # Will build fresh index each time
-    )
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_normalize_list(
+        symbols = symbols,
+        return_fields = return_fields,
+        status = status,
+        dedupe = dedupe,
+        index = NULL # Will build fresh index each time
+      )
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Extract Cross-References from Gene Record
@@ -253,25 +284,31 @@ endpoint_xrefs <- function(req, res, id_or_symbol = NULL) {
     ))
   }
 
-  tryCatch({
-    result <- hgnc_xrefs(id_or_symbol = id_or_symbol)
+  tryCatch(
+    {
+      result <- hgnc_xrefs(id_or_symbol = id_or_symbol)
 
-    if (is.null(result)) {
-      res$status <- 404
+      if (is.null(result)) {
+        res$status <- 404
+        return(list(
+          error = "Not found",
+          message = sprintf(
+            "Gene '%s' not found in HGNC database",
+            id_or_symbol
+          )
+        ))
+      }
+
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
       return(list(
-        error = "Not found",
-        message = sprintf("Gene '%s' not found in HGNC database", id_or_symbol)
+        error = "Internal server error",
+        message = e$message
       ))
     }
-
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  )
 }
 
 #* Get Members of a Gene Group
@@ -286,7 +323,12 @@ endpoint_xrefs <- function(req, res, id_or_symbol = NULL) {
 #* @response 400 Bad request - missing or invalid parameters
 #* @response 500 Internal server error
 #* @tag Tools
-endpoint_group_members <- function(req, res, group_id_or_name = NULL, use_cache = TRUE) {
+endpoint_group_members <- function(
+  req,
+  res,
+  group_id_or_name = NULL,
+  use_cache = TRUE
+) {
   # Validate parameter
   if (is.null(group_id_or_name)) {
     res$status <- 400
@@ -302,19 +344,22 @@ endpoint_group_members <- function(req, res, group_id_or_name = NULL, use_cache 
     use_cache <- TRUE
   }
 
-  tryCatch({
-    result <- hgnc_group_members(
-      group_id_or_name = group_id_or_name,
-      use_cache = use_cache
-    )
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_group_members(
+        group_id_or_name = group_id_or_name,
+        use_cache = use_cache
+      )
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Search for Gene Groups
@@ -349,16 +394,19 @@ endpoint_search_groups <- function(req, res, query = NULL, limit = 100) {
     ))
   }
 
-  tryCatch({
-    result <- hgnc_search_groups(query = query, limit = limit)
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_search_groups(query = query, limit = limit)
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Track Gene Nomenclature Changes
@@ -375,10 +423,14 @@ endpoint_search_groups <- function(req, res, query = NULL, limit = 100) {
 #* @response 400 Bad request - missing or invalid parameters
 #* @response 500 Internal server error
 #* @tag Tools
-endpoint_changes <- function(req, res, since = NULL,
-                            fields = c("symbol", "name", "status"),
-                            change_type = "all",
-                            use_cache = TRUE) {
+endpoint_changes <- function(
+  req,
+  res,
+  since = NULL,
+  fields = c("symbol", "name", "status"),
+  change_type = "all",
+  use_cache = TRUE
+) {
   # Validate since parameter
   if (is.null(since)) {
     res$status <- 400
@@ -394,7 +446,10 @@ endpoint_changes <- function(req, res, since = NULL,
     res$status <- 400
     return(list(
       error = "Bad request",
-      message = sprintf("'change_type' must be one of: %s", paste(valid_change_types, collapse = ", "))
+      message = sprintf(
+        "'change_type' must be one of: %s",
+        paste(valid_change_types, collapse = ", ")
+      )
     ))
   }
 
@@ -404,21 +459,24 @@ endpoint_changes <- function(req, res, since = NULL,
     use_cache <- TRUE
   }
 
-  tryCatch({
-    result <- hgnc_changes(
-      since = since,
-      fields = fields,
-      change_type = change_type,
-      use_cache = use_cache
-    )
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_changes(
+        since = since,
+        fields = fields,
+        change_type = change_type,
+        use_cache = use_cache
+      )
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Validate Gene Panel Against HGNC Policy
@@ -436,10 +494,14 @@ endpoint_changes <- function(req, res, since = NULL,
 #* @response 400 Bad request - missing or invalid parameters
 #* @response 500 Internal server error
 #* @tag Tools
-endpoint_validate_panel <- function(req, res, items = NULL,
-                                   policy = "HGNC",
-                                   suggest_replacements = TRUE,
-                                   include_dates = TRUE) {
+endpoint_validate_panel <- function(
+  req,
+  res,
+  items = NULL,
+  policy = "HGNC",
+  suggest_replacements = TRUE,
+  include_dates = TRUE
+) {
   # Validate items parameter
   if (is.null(items) || length(items) == 0) {
     res$status <- 400
@@ -469,22 +531,25 @@ endpoint_validate_panel <- function(req, res, items = NULL,
     include_dates <- TRUE
   }
 
-  tryCatch({
-    result <- hgnc_validate_panel(
-      items = items,
-      policy = policy,
-      suggest_replacements = suggest_replacements,
-      include_dates = include_dates,
-      index = NULL  # Will build fresh index each time
-    )
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_validate_panel(
+        items = items,
+        policy = policy,
+        suggest_replacements = suggest_replacements,
+        include_dates = include_dates,
+        index = NULL # Will build fresh index each time
+      )
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Get Gene Card Resource
@@ -520,25 +585,28 @@ endpoint_get_gene_card <- function(req, res, hgnc_id = NULL, format = "json") {
     ))
   }
 
-  tryCatch({
-    result <- hgnc_get_gene_card(hgnc_id = hgnc_id, format = format)
-    return(result)
-  }, error = function(e) {
-    # Check if it's a "not found" error
-    if (grepl("not found", e$message, ignore.case = TRUE)) {
-      res$status <- 404
-      return(list(
-        error = "Not found",
-        message = e$message
-      ))
-    } else {
-      res$status <- 500
-      return(list(
-        error = "Internal server error",
-        message = e$message
-      ))
+  tryCatch(
+    {
+      result <- hgnc_get_gene_card(hgnc_id = hgnc_id, format = format)
+      return(result)
+    },
+    error = function(e) {
+      # Check if it's a "not found" error
+      if (grepl("not found", e$message, ignore.case = TRUE)) {
+        res$status <- 404
+        return(list(
+          error = "Not found",
+          message = e$message
+        ))
+      } else {
+        res$status <- 500
+        return(list(
+          error = "Internal server error",
+          message = e$message
+        ))
+      }
     }
-  })
+  )
 }
 
 #* Get Group Card Resource
@@ -556,8 +624,13 @@ endpoint_get_gene_card <- function(req, res, hgnc_id = NULL, format = "json") {
 #* @response 404 Group not found
 #* @response 500 Internal server error
 #* @tag Resources
-endpoint_get_group_card <- function(req, res, group_id_or_name = NULL,
-                                     format = "json", include_members = TRUE) {
+endpoint_get_group_card <- function(
+  req,
+  res,
+  group_id_or_name = NULL,
+  format = "json",
+  include_members = TRUE
+) {
   # Validate group_id_or_name parameter
   if (is.null(group_id_or_name)) {
     res$status <- 400
@@ -582,29 +655,32 @@ endpoint_get_group_card <- function(req, res, group_id_or_name = NULL,
     include_members <- TRUE
   }
 
-  tryCatch({
-    result <- hgnc_get_group_card(
-      group_id_or_name = group_id_or_name,
-      format = format,
-      include_members = include_members
-    )
-    return(result)
-  }, error = function(e) {
-    # Check if it's a "not found" error
-    if (grepl("not found", e$message, ignore.case = TRUE)) {
-      res$status <- 404
-      return(list(
-        error = "Not found",
-        message = e$message
-      ))
-    } else {
-      res$status <- 500
-      return(list(
-        error = "Internal server error",
-        message = e$message
-      ))
+  tryCatch(
+    {
+      result <- hgnc_get_group_card(
+        group_id_or_name = group_id_or_name,
+        format = format,
+        include_members = include_members
+      )
+      return(result)
+    },
+    error = function(e) {
+      # Check if it's a "not found" error
+      if (grepl("not found", e$message, ignore.case = TRUE)) {
+        res$status <- 404
+        return(list(
+          error = "Not found",
+          message = e$message
+        ))
+      } else {
+        res$status <- 500
+        return(list(
+          error = "Internal server error",
+          message = e$message
+        ))
+      }
     }
-  })
+  )
 }
 
 #* Get Snapshot Metadata Resource
@@ -627,16 +703,19 @@ endpoint_get_snapshot_metadata <- function(res, format = "json") {
     ))
   }
 
-  tryCatch({
-    result <- hgnc_get_snapshot_metadata(format = format)
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_get_snapshot_metadata(format = format)
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }
 
 #* Get Changes Summary Resource
@@ -653,8 +732,14 @@ endpoint_get_snapshot_metadata <- function(res, format = "json") {
 #* @response 400 Bad request - missing or invalid parameters
 #* @response 500 Internal server error
 #* @tag Resources
-endpoint_get_changes_summary <- function(req, res, since = NULL, format = "json",
-                                          change_type = "all", max_results = 100) {
+endpoint_get_changes_summary <- function(
+  req,
+  res,
+  since = NULL,
+  format = "json",
+  change_type = "all",
+  max_results = 100
+) {
   # Validate since parameter
   if (is.null(since)) {
     res$status <- 400
@@ -679,7 +764,10 @@ endpoint_get_changes_summary <- function(req, res, since = NULL, format = "json"
     res$status <- 400
     return(list(
       error = "Bad request",
-      message = sprintf("'change_type' must be one of: %s", paste(valid_change_types, collapse = ", "))
+      message = sprintf(
+        "'change_type' must be one of: %s",
+        paste(valid_change_types, collapse = ", ")
+      )
     ))
   }
 
@@ -693,19 +781,22 @@ endpoint_get_changes_summary <- function(req, res, since = NULL, format = "json"
     ))
   }
 
-  tryCatch({
-    result <- hgnc_get_changes_summary(
-      since = since,
-      format = format,
-      change_type = change_type,
-      max_results = max_results
-    )
-    return(result)
-  }, error = function(e) {
-    res$status <- 500
-    return(list(
-      error = "Internal server error",
-      message = e$message
-    ))
-  })
+  tryCatch(
+    {
+      result <- hgnc_get_changes_summary(
+        since = since,
+        format = format,
+        change_type = change_type,
+        max_results = max_results
+      )
+      return(result)
+    },
+    error = function(e) {
+      res$status <- 500
+      return(list(
+        error = "Internal server error",
+        message = e$message
+      ))
+    }
+  )
 }

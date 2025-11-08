@@ -95,20 +95,26 @@
 #' }
 #'
 #' @export
-start_hgnc_mcp_server <- function(port = 8080,
-                                   host = "0.0.0.0",
-                                   swagger = TRUE,
-                                   quiet = FALSE,
-                                   ...) {
+start_hgnc_mcp_server <- function(
+  port = 8080,
+  host = "0.0.0.0",
+  swagger = TRUE,
+  quiet = FALSE,
+  ...
+) {
   # Load required packages
   if (!requireNamespace("plumber", quietly = TRUE)) {
-    stop("Package 'plumber' is required but not installed. ",
-         "Install it with: install.packages('plumber')")
+    stop(
+      "Package 'plumber' is required but not installed. ",
+      "Install it with: install.packages('plumber')"
+    )
   }
 
   if (!requireNamespace("plumber2mcp", quietly = TRUE)) {
-    stop("Package 'plumber2mcp' is required but not installed. ",
-         "Install it with: remotes::install_github('armish/plumber2mcp')")
+    stop(
+      "Package 'plumber2mcp' is required but not installed. ",
+      "Install it with: remotes::install_github('armish/plumber2mcp')"
+    )
   }
 
   # Locate the Plumber API file
@@ -118,8 +124,10 @@ start_hgnc_mcp_server <- function(port = 8080,
     # Try local path if package not installed
     api_file <- file.path(getwd(), "inst", "plumber", "hgnc_api.R")
     if (!file.exists(api_file)) {
-      stop("Could not locate HGNC Plumber API file. ",
-           "Please ensure the package is properly installed.")
+      stop(
+        "Could not locate HGNC Plumber API file. ",
+        "Please ensure the package is properly installed."
+      )
     }
   }
 
@@ -150,90 +158,98 @@ start_hgnc_mcp_server <- function(port = 8080,
 
     # Prompt 1: Normalize Gene List
     pr <- pr_mcp_prompt_fn(
-    pr,
-    name = "normalize-gene-list",
-    description = "Guide through normalizing a gene symbol list to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.",
-    arguments = list(
-      list(
-        name = "gene_list",
-        description = "Comma-separated or newline-separated list of gene symbols to normalize",
-        required = TRUE
+      pr,
+      name = "normalize-gene-list",
+      description = "Guide through normalizing a gene symbol list to approved HGNC nomenclature. Helps with batch symbol resolution, handling aliases/previous symbols, and optionally fetching cross-references.",
+      arguments = list(
+        list(
+          name = "gene_list",
+          description = "Comma-separated or newline-separated list of gene symbols to normalize",
+          required = TRUE
+        ),
+        list(
+          name = "strictness",
+          description = "Resolution mode: 'lenient' (allows aliases/prev symbols) or 'strict' (approved only)",
+          required = FALSE
+        ),
+        list(
+          name = "return_xrefs",
+          description = "Whether to include cross-references (Entrez, Ensembl, etc.) - true/false",
+          required = FALSE
+        )
       ),
-      list(
-        name = "strictness",
-        description = "Resolution mode: 'lenient' (allows aliases/prev symbols) or 'strict' (approved only)",
-        required = FALSE
+      func = function(
+        gene_list = "",
+        strictness = "lenient",
+        return_xrefs = FALSE
+      ) {
+        prompt_normalize_gene_list(gene_list, strictness, return_xrefs)
+      }
+    )
+
+    # Prompt 2: Check Nomenclature Compliance
+    pr <- pr_mcp_prompt_fn(
+      pr,
+      name = "check-nomenclature-compliance",
+      description = "Validate a gene panel against HGNC nomenclature policy. Identifies non-approved symbols, withdrawn genes, duplicates, and provides replacement suggestions with rationale.",
+      arguments = list(
+        list(
+          name = "panel_text",
+          description = "Gene panel as text (symbols separated by commas, newlines, etc.)",
+          required = FALSE
+        ),
+        list(
+          name = "file_uri",
+          description = "URI to a file containing the gene panel (alternative to panel_text)",
+          required = FALSE
+        )
       ),
-      list(
-        name = "return_xrefs",
-        description = "Whether to include cross-references (Entrez, Ensembl, etc.) - true/false",
-        required = FALSE
-      )
-    ),
-    func = function(gene_list = "", strictness = "lenient", return_xrefs = FALSE) {
-      prompt_normalize_gene_list(gene_list, strictness, return_xrefs)
-    }
-  )
+      func = function(panel_text = "", file_uri = NULL) {
+        prompt_check_nomenclature_compliance(panel_text, file_uri)
+      }
+    )
 
-  # Prompt 2: Check Nomenclature Compliance
-  pr <- pr_mcp_prompt_fn(
-    pr,
-    name = "check-nomenclature-compliance",
-    description = "Validate a gene panel against HGNC nomenclature policy. Identifies non-approved symbols, withdrawn genes, duplicates, and provides replacement suggestions with rationale.",
-    arguments = list(
-      list(
-        name = "panel_text",
-        description = "Gene panel as text (symbols separated by commas, newlines, etc.)",
-        required = FALSE
+    # Prompt 3: What Changed Since
+    pr <- pr_mcp_prompt_fn(
+      pr,
+      name = "what-changed-since",
+      description = "Generate a human-readable summary of HGNC nomenclature changes since a specific date. Useful for governance, compliance tracking, and watchlist monitoring.",
+      arguments = list(
+        list(
+          name = "since",
+          description = "ISO 8601 date (YYYY-MM-DD) from which to track changes. Defaults to 30 days ago if not provided.",
+          required = FALSE
+        )
       ),
-      list(
-        name = "file_uri",
-        description = "URI to a file containing the gene panel (alternative to panel_text)",
-        required = FALSE
-      )
-    ),
-    func = function(panel_text = "", file_uri = NULL) {
-      prompt_check_nomenclature_compliance(panel_text, file_uri)
-    }
-  )
+      func = function(since = NULL) {
+        prompt_what_changed_since(since)
+      }
+    )
 
-  # Prompt 3: What Changed Since
-  pr <- pr_mcp_prompt_fn(
-    pr,
-    name = "what-changed-since",
-    description = "Generate a human-readable summary of HGNC nomenclature changes since a specific date. Useful for governance, compliance tracking, and watchlist monitoring.",
-    arguments = list(
-      list(
-        name = "since",
-        description = "ISO 8601 date (YYYY-MM-DD) from which to track changes. Defaults to 30 days ago if not provided.",
-        required = FALSE
-      )
-    ),
-    func = function(since = NULL) {
-      prompt_what_changed_since(since)
-    }
-  )
-
-  # Prompt 4: Build Gene Set from Group
-  pr <- pr_mcp_prompt_fn(
-    pr,
-    name = "build-gene-set-from-group",
-    description = "Discover an HGNC gene group by keyword search and build a reusable gene set definition from its members. Provides output in multiple formats (list, table, JSON) with metadata for reproducibility.",
-    arguments = list(
-      list(
-        name = "group_query",
-        description = "Search query for finding gene groups (e.g., 'kinase', 'zinc finger', 'immunoglobulin')",
-        required = TRUE
-      )
-    ),
-    func = function(group_query = "") {
-      prompt_build_gene_set_from_group(group_query)
-    }
-  )
+    # Prompt 4: Build Gene Set from Group
+    pr <- pr_mcp_prompt_fn(
+      pr,
+      name = "build-gene-set-from-group",
+      description = "Discover an HGNC gene group by keyword search and build a reusable gene set definition from its members. Provides output in multiple formats (list, table, JSON) with metadata for reproducibility.",
+      arguments = list(
+        list(
+          name = "group_query",
+          description = "Search query for finding gene groups (e.g., 'kinase', 'zinc finger', 'immunoglobulin')",
+          required = TRUE
+        )
+      ),
+      func = function(group_query = "") {
+        prompt_build_gene_set_from_group(group_query)
+      }
+    )
   } else {
     if (!quiet) {
-      message("Note: MCP prompts not available yet (pr_mcp_prompt not exported in plumber2mcp)")
-      message("      Prompts will be enabled automatically when plumber2mcp is updated.")
+      message(
+        "Note: MCP prompts not available yet (pr_mcp_prompt not exported in plumber2mcp)"
+      )
+      message(
+        "      Prompts will be enabled automatically when plumber2mcp is updated."
+      )
     }
   }
 
@@ -260,13 +276,22 @@ start_hgnc_mcp_server <- function(port = 8080,
     cat(sprintf("Port:    %d\n", port))
     cat("\n")
     cat("API Endpoints:\n")
-    cat(sprintf("  Base URL:    http://%s:%d\n",
-                if (host == "0.0.0.0") "localhost" else host, port))
-    cat(sprintf("  MCP Endpoint: http://%s:%d/mcp\n",
-                if (host == "0.0.0.0") "localhost" else host, port))
+    cat(sprintf(
+      "  Base URL:    http://%s:%d\n",
+      if (host == "0.0.0.0") "localhost" else host,
+      port
+    ))
+    cat(sprintf(
+      "  MCP Endpoint: http://%s:%d/mcp\n",
+      if (host == "0.0.0.0") "localhost" else host,
+      port
+    ))
     if (swagger) {
-      cat(sprintf("  Swagger UI:  http://%s:%d/__docs__/\n",
-                  if (host == "0.0.0.0") "localhost" else host, port))
+      cat(sprintf(
+        "  Swagger UI:  http://%s:%d/__docs__/\n",
+        if (host == "0.0.0.0") "localhost" else host,
+        port
+      ))
     }
     cat("\n")
     cat("Available Tools: 10\n")
@@ -359,7 +384,9 @@ check_mcp_dependencies <- function() {
   if (all_ok) {
     message("\n[OK] All MCP server dependencies are installed!")
   } else {
-    message("\n[X] Some dependencies are missing. Please install them to run the MCP server.")
+    message(
+      "\n[X] Some dependencies are missing. Please install them to run the MCP server."
+    )
   }
 
   invisible(all_ok)

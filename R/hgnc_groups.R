@@ -74,7 +74,10 @@ hgnc_group_members_uncached <- function(group_id_or_name) {
     search_results <- hgnc_search_groups(group_term)
 
     if (search_results$numFound == 0) {
-      warning(sprintf("No gene groups found matching '%s'", group_id_or_name), call. = FALSE)
+      warning(
+        sprintf("No gene groups found matching '%s'", group_id_or_name),
+        call. = FALSE
+      )
       return(list(
         numFound = 0,
         docs = list(),
@@ -88,38 +91,46 @@ hgnc_group_members_uncached <- function(group_id_or_name) {
   }
 
   # Build endpoint for fetching by gene_group_id
-  endpoint <- paste0("fetch/gene_group_id/", utils::URLencode(group_term, reserved = TRUE))
+  endpoint <- paste0(
+    "fetch/gene_group_id/",
+    utils::URLencode(group_term, reserved = TRUE)
+  )
 
   # Make request
-  tryCatch({
-    result <- hgnc_rest_get(endpoint)
+  tryCatch(
+    {
+      result <- hgnc_rest_get(endpoint)
 
-    # Extract response
-    if (!is.null(result$response)) {
-      response <- list(
-        numFound = result$response$numFound %||% 0,
-        docs = result$response$docs %||% list(),
-        group_id_or_name = group_id_or_name
-      )
-      return(response)
+      # Extract response
+      if (!is.null(result$response)) {
+        response <- list(
+          numFound = result$response$numFound %||% 0,
+          docs = result$response$docs %||% list(),
+          group_id_or_name = group_id_or_name
+        )
+        return(response)
+      }
+
+      # Fallback if response structure is different
+      return(result)
+    },
+    error = function(e) {
+      # Handle case where group doesn't exist
+      if (grepl("404|not found", e$message, ignore.case = TRUE)) {
+        warning(
+          sprintf("Gene group '%s' not found", group_id_or_name),
+          call. = FALSE
+        )
+        return(list(
+          numFound = 0,
+          docs = list(),
+          group_id_or_name = group_id_or_name
+        ))
+      }
+      # Re-throw other errors
+      stop(e$message, call. = FALSE)
     }
-
-    # Fallback if response structure is different
-    return(result)
-
-  }, error = function(e) {
-    # Handle case where group doesn't exist
-    if (grepl("404|not found", e$message, ignore.case = TRUE)) {
-      warning(sprintf("Gene group '%s' not found", group_id_or_name), call. = FALSE)
-      return(list(
-        numFound = 0,
-        docs = list(),
-        group_id_or_name = group_id_or_name
-      ))
-    }
-    # Re-throw other errors
-    stop(e$message, call. = FALSE)
-  })
+  )
 }
 
 # Create cached version using memoise
@@ -134,7 +145,9 @@ hgnc_group_members <- function(group_id_or_name, use_cache = TRUE) {
   if (use_cache) {
     # Use memoised version
     if (!exists("hgnc_group_members_memo", envir = .hgnc_env)) {
-      .hgnc_env$hgnc_group_members_memo <- memoise::memoise(hgnc_group_members_uncached)
+      .hgnc_env$hgnc_group_members_memo <- memoise::memoise(
+        hgnc_group_members_uncached
+      )
     }
     .hgnc_env$hgnc_group_members_memo(group_id_or_name)
   } else {
@@ -208,7 +221,8 @@ hgnc_search_groups <- function(query, limit = 100) {
   endpoint <- paste0(
     "search/gene_group:",
     utils::URLencode(query, reserved = TRUE),
-    "?rows=", limit
+    "?rows=",
+    limit
   )
 
   # Make request
@@ -246,8 +260,12 @@ hgnc_search_groups <- function(query, limit = 100) {
 
             group_info <- list(
               id = group_ids[[i]],
-              name = if (i <= length(group_names)) group_names[[i]] else NA_character_,
-              description = NA_character_  # Not available in search results
+              name = if (i <= length(group_names)) {
+                group_names[[i]]
+              } else {
+                NA_character_
+              },
+              description = NA_character_ # Not available in search results
             )
 
             groups_list <- c(groups_list, list(group_info))

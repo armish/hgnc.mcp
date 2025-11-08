@@ -60,7 +60,11 @@ is_hgnc_cache_fresh <- function(max_age_days = 30) {
   }
 
   metadata <- readRDS(metadata_path)
-  cache_age <- as.numeric(difftime(Sys.time(), metadata$download_time, units = "days"))
+  cache_age <- as.numeric(difftime(
+    Sys.time(),
+    metadata$download_time,
+    units = "days"
+  ))
 
   cache_age < max_age_days
 }
@@ -94,7 +98,10 @@ download_hgnc_data <- function(url = .HGNC_DATA_URL, force = FALSE) {
   response <- httr::GET(url, httr::write_disk(cache_path, overwrite = TRUE))
 
   if (httr::http_error(response)) {
-    stop("Failed to download HGNC data. HTTP status: ", httr::status_code(response))
+    stop(
+      "Failed to download HGNC data. HTTP status: ",
+      httr::status_code(response)
+    )
   }
 
   # Save metadata
@@ -168,7 +175,11 @@ get_hgnc_cache_info <- function() {
   list(
     cache_path = cache_path,
     download_time = metadata$download_time,
-    age_days = as.numeric(difftime(Sys.time(), metadata$download_time, units = "days")),
+    age_days = as.numeric(difftime(
+      Sys.time(),
+      metadata$download_time,
+      units = "days"
+    )),
     file_size_mb = round(file_info$size / 1024^2, 2),
     url = metadata$url
   )

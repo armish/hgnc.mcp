@@ -136,9 +136,18 @@ test_that("build_symbol_index normalizes to uppercase", {
 # =============================================================================
 
 test_that("hgnc_normalize_list requires non-empty input", {
-  expect_error(hgnc_normalize_list(), "'symbols' must be a non-empty character vector")
-  expect_error(hgnc_normalize_list(NULL), "'symbols' must be a non-empty character vector")
-  expect_error(hgnc_normalize_list(character(0)), "'symbols' must be a non-empty character vector")
+  expect_error(
+    hgnc_normalize_list(),
+    "'symbols' must be a non-empty character vector"
+  )
+  expect_error(
+    hgnc_normalize_list(NULL),
+    "'symbols' must be a non-empty character vector"
+  )
+  expect_error(
+    hgnc_normalize_list(character(0)),
+    "'symbols' must be a non-empty character vector"
+  )
 })
 
 test_that("hgnc_normalize_list returns expected structure", {
@@ -243,7 +252,7 @@ test_that("hgnc_normalize_list deduplicates by default", {
   result <- suppressMessages(hgnc_normalize_list(symbols, dedupe = TRUE))
 
   expect_equal(result$summary$total_input, 4)
-  expect_equal(result$summary$found, 2)  # Only 2 unique genes
+  expect_equal(result$summary$found, 2) # Only 2 unique genes
   expect_gt(result$summary$duplicates_removed, 0)
 
   # Check that warnings mention duplicates
@@ -311,7 +320,13 @@ test_that("hgnc_normalize_list accepts custom return fields", {
   ))
 
   # Check that only requested fields are returned (plus metadata)
-  expected_fields <- c("symbol", "name", "hgnc_id", "query_symbol", "match_type")
+  expected_fields <- c(
+    "symbol",
+    "name",
+    "hgnc_id",
+    "query_symbol",
+    "match_type"
+  )
   expect_true(all(expected_fields %in% names(result$results)))
 })
 
@@ -350,7 +365,11 @@ test_that("hgnc_normalize_list handles test data correctly", {
     prev_symbol = c(NA, "OLDGENE2", NA),
     name = c("Gene 1", "Gene 2", "Gene 3"),
     status = c("Approved", "Approved", "Withdrawn"),
-    locus_type = c("gene with protein product", "gene with protein product", "unknown"),
+    locus_type = c(
+      "gene with protein product",
+      "gene with protein product",
+      "unknown"
+    ),
     location = c("1p", "2q", "3p"),
     stringsAsFactors = FALSE
   )
@@ -385,7 +404,7 @@ test_that("hgnc_normalize_list handles test data correctly", {
   expect_equal(result$summary$found, 1)
   expect_equal(result$results$symbol[1], "GENE2")
   expect_equal(result$results$match_type[1], "previous")
-  expect_gt(length(result$warnings), 0)  # Should warn about previous symbol
+  expect_gt(length(result$warnings), 0) # Should warn about previous symbol
 
   # Test withdrawn gene filtering
   result <- suppressMessages(hgnc_normalize_list(
@@ -394,7 +413,7 @@ test_that("hgnc_normalize_list handles test data correctly", {
     index = index
   ))
 
-  expect_equal(result$summary$found, 0)  # Should be filtered out
+  expect_equal(result$summary$found, 0) # Should be filtered out
   expect_equal(result$summary$withdrawn, 1)
   expect_equal(nrow(result$withdrawn), 1)
 })

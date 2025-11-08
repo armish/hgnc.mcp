@@ -54,16 +54,18 @@ test_that("hgnc_find works with filters (live API)", {
 
   reset_rate_limiter()
 
-  result <- hgnc_find("kinase",
-                      filters = list(status = "Approved"),
-                      limit = 10)
+  result <- hgnc_find("kinase", filters = list(status = "Approved"), limit = 10)
 
   expect_type(result, "list")
   expect_gt(result$numFound, 0)
 
   # Check that results have Approved status
   if (result$numFound > 0) {
-    statuses <- vapply(result$docs, function(doc) doc$status %||% NA_character_, character(1))
+    statuses <- vapply(
+      result$docs,
+      function(doc) doc$status %||% NA_character_,
+      character(1)
+    )
     # At least some should be Approved (exact filter behavior may vary)
     expect_true(any(statuses == "Approved", na.rm = TRUE))
   }
@@ -105,8 +107,14 @@ test_that("hgnc_find handles no results gracefully (live API)", {
 test_that("hgnc_fetch requires field and term", {
   expect_error(hgnc_fetch(), "Both 'field' and 'term' are required")
   expect_error(hgnc_fetch("symbol"), "Both 'field' and 'term' are required")
-  expect_error(hgnc_fetch(field = "symbol", term = NULL), "'term' must be a non-empty value")
-  expect_error(hgnc_fetch(field = "", term = "BRCA1"), "'field' must be a non-empty string")
+  expect_error(
+    hgnc_fetch(field = "symbol", term = NULL),
+    "'term' must be a non-empty value"
+  )
+  expect_error(
+    hgnc_fetch(field = "", term = "BRCA1"),
+    "'field' must be a non-empty string"
+  )
 })
 
 test_that("hgnc_fetch by symbol returns expected structure (live API)", {
@@ -326,7 +334,9 @@ test_that("hgnc_resolve_symbol lenient mode structure is correct (live API)", {
   expect_true("candidates" %in% names(result))
 
   # Confidence should be one of the expected values
-  expect_true(result$confidence %in% c("exact", "alias", "previous", "fuzzy", "not_found"))
+  expect_true(
+    result$confidence %in% c("exact", "alias", "previous", "fuzzy", "not_found")
+  )
 })
 
 # =============================================================================

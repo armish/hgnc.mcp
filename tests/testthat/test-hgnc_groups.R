@@ -103,7 +103,11 @@ test_that("hgnc_search_groups returns unique groups (live API)", {
 
   if (result$numFound > 1) {
     # Extract all group IDs
-    group_ids <- vapply(result$groups, function(g) as.character(g$id), character(1))
+    group_ids <- vapply(
+      result$groups,
+      function(g) as.character(g$id),
+      character(1)
+    )
 
     # Check for uniqueness
     expect_equal(length(group_ids), length(unique(group_ids)))
@@ -234,8 +238,11 @@ test_that("hgnc_group_members gene records contain group information (live API)"
     first_gene <- result$docs[[1]]
 
     # Genes should have gene_group and gene_group_id fields
-    expect_true("gene_group" %in% names(first_gene) ||
-                "gene_group_id" %in% names(first_gene))
+    expect_true(
+      "gene_group" %in%
+        names(first_gene) ||
+        "gene_group_id" %in% names(first_gene)
+    )
   }
 })
 
@@ -295,7 +302,11 @@ test_that("workflow: find group, get members, extract symbols (live API)", {
 
     # 3. Extract gene symbols
     if (members$numFound > 0) {
-      symbols <- vapply(members$docs, function(doc) doc$symbol %||% NA_character_, character(1))
+      symbols <- vapply(
+        members$docs,
+        function(doc) doc$symbol %||% NA_character_,
+        character(1)
+      )
 
       expect_type(symbols, "character")
       expect_gt(length(symbols), 0)

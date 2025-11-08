@@ -78,7 +78,10 @@ test_that("hgnc_changes() filters by change type", {
   result_all <- hgnc_changes(since = "2023-01-01", change_type = "all")
   result_symbol <- hgnc_changes(since = "2023-01-01", change_type = "symbol")
   result_name <- hgnc_changes(since = "2023-01-01", change_type = "name")
-  result_modified <- hgnc_changes(since = "2023-01-01", change_type = "modified")
+  result_modified <- hgnc_changes(
+    since = "2023-01-01",
+    change_type = "modified"
+  )
 
   expect_type(result_all, "list")
   expect_type(result_symbol, "list")
@@ -104,8 +107,9 @@ test_that("hgnc_changes() includes requested fields", {
 
   if (nrow(result$changes) > 0) {
     # Should include requested fields (if available in data)
-    expect_true("symbol" %in% names(result$changes) ||
-                "name" %in% names(result$changes))
+    expect_true(
+      "symbol" %in% names(result$changes) || "name" %in% names(result$changes)
+    )
   }
 })
 
@@ -144,7 +148,10 @@ test_that("hgnc_validate_panel() returns expected structure", {
   result <- hgnc_validate_panel(items)
 
   expect_type(result, "list")
-  expect_named(result, c("valid", "issues", "summary", "report", "replacements"))
+  expect_named(
+    result,
+    c("valid", "issues", "summary", "report", "replacements")
+  )
 
   expect_s3_class(result$valid, "data.frame")
   expect_s3_class(result$issues, "data.frame")
@@ -163,7 +170,7 @@ test_that("hgnc_validate_panel() validates approved symbols correctly", {
   result <- hgnc_validate_panel(items)
 
   # All should be valid (assuming these are current approved symbols)
-  expect_gte(nrow(result$valid), 3)  # At least 3 should be valid
+  expect_gte(nrow(result$valid), 3) # At least 3 should be valid
   expect_equal(result$summary$total_items, 4)
 })
 

@@ -153,10 +153,22 @@ test_that("all prompts return non-empty strings", {
 
 test_that("prompts contain workflow guidance keywords", {
   prompts <- list(
-    list(fn = prompt_normalize_gene_list, keywords = c("Step", "workflow", "normalize")),
-    list(fn = prompt_check_nomenclature_compliance, keywords = c("Step", "validate", "compliance")),
-    list(fn = prompt_what_changed_since, keywords = c("Step", "changes", "since")),
-    list(fn = prompt_build_gene_set_from_group, keywords = c("Step", "group", "gene set"))
+    list(
+      fn = prompt_normalize_gene_list,
+      keywords = c("Step", "workflow", "normalize")
+    ),
+    list(
+      fn = prompt_check_nomenclature_compliance,
+      keywords = c("Step", "validate", "compliance")
+    ),
+    list(
+      fn = prompt_what_changed_since,
+      keywords = c("Step", "changes", "since")
+    ),
+    list(
+      fn = prompt_build_gene_set_from_group,
+      keywords = c("Step", "group", "gene set")
+    )
   )
 
   for (prompt_info in prompts) {

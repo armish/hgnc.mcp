@@ -235,7 +235,11 @@ test_that("prompt_normalize_gene_list respects return_xrefs parameter", {
   expect_type(result_with_xrefs, "character")
 
   # When xrefs are requested, the prompt should mention them
-  expect_match(result_with_xrefs, "cross.*reference|xref|entrez|ensembl", ignore.case = TRUE)
+  expect_match(
+    result_with_xrefs,
+    "cross.*reference|xref|entrez|ensembl",
+    ignore.case = TRUE
+  )
 })
 
 # =============================================================================
@@ -251,8 +255,10 @@ test_that("Plumber API file exists in expected location", {
     api_file <- file.path(getwd(), "inst", "plumber", "hgnc_api.R")
   }
 
-  expect_true(file.exists(api_file),
-              info = "hgnc_api.R should exist in inst/plumber/")
+  expect_true(
+    file.exists(api_file),
+    info = "hgnc_api.R should exist in inst/plumber/"
+  )
 })
 
 test_that("Plumber API file is readable and contains expected endpoints", {

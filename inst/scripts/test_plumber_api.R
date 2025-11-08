@@ -23,28 +23,34 @@ if (!file.exists(api_file)) {
 }
 
 # Create the plumber API object
-tryCatch({
-  pr <- plumb(api_file)
-  cat("✓ API loaded successfully\n")
+tryCatch(
+  {
+    pr <- plumb(api_file)
+    cat("✓ API loaded successfully\n")
 
-  # List all endpoints
-  cat("\nAvailable endpoints:\n")
-  endpoints <- pr$endpoints
-  for (path in names(endpoints)) {
-    for (method_data in endpoints[[path]]) {
-      if (!is.null(method_data$verbs)) {
-        cat(sprintf("  %s %s\n", paste(method_data$verbs, collapse = ","), path))
+    # List all endpoints
+    cat("\nAvailable endpoints:\n")
+    endpoints <- pr$endpoints
+    for (path in names(endpoints)) {
+      for (method_data in endpoints[[path]]) {
+        if (!is.null(method_data$verbs)) {
+          cat(sprintf(
+            "  %s %s\n",
+            paste(method_data$verbs, collapse = ","),
+            path
+          ))
+        }
       }
     }
+
+    cat("\n✓ All tests passed!\n")
+    cat("\nTo start the server, run:\n")
+    cat("  pr <- plumber::plumb('inst/plumber/hgnc_api.R')\n")
+    cat("  pr$run(port = 8080)\n")
+  },
+  error = function(e) {
+    cat("✗ Error loading API:\n")
+    cat("  ", e$message, "\n")
+    quit(status = 1)
   }
-
-  cat("\n✓ All tests passed!\n")
-  cat("\nTo start the server, run:\n")
-  cat("  pr <- plumber::plumb('inst/plumber/hgnc_api.R')\n")
-  cat("  pr$run(port = 8080)\n")
-
-}, error = function(e) {
-  cat("✗ Error loading API:\n")
-  cat("  ", e$message, "\n")
-  quit(status = 1)
-})
+)

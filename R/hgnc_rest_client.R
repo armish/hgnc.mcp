@@ -25,7 +25,9 @@ rate_limit_wait <- function() {
 
   # Remove requests older than 1 second
   one_second_ago <- current_time - 1
-  rl$request_times <- rl$request_times[rl$request_times > as.numeric(one_second_ago)]
+  rl$request_times <- rl$request_times[
+    rl$request_times > as.numeric(one_second_ago)
+  ]
 
   # If we've hit the limit, wait until the oldest request is >1 second old
   if (length(rl$request_times) >= rl$max_requests_per_second) {
@@ -40,7 +42,9 @@ rate_limit_wait <- function() {
 
     # Clean up again after waiting
     one_second_ago <- current_time - 1
-    rl$request_times <- rl$request_times[rl$request_times > as.numeric(one_second_ago)]
+    rl$request_times <- rl$request_times[
+      rl$request_times > as.numeric(one_second_ago)
+    ]
   }
 
   # Record this request
@@ -81,12 +85,13 @@ rate_limit_wait <- function() {
 #' }
 #'
 #' @export
-hgnc_rest_get <- function(endpoint,
-                          base_url = "https://rest.genenames.org",
-                          timeout = 30,
-                          max_retries = 3,
-                          parse_json = TRUE) {
-
+hgnc_rest_get <- function(
+  endpoint,
+  base_url = "https://rest.genenames.org",
+  timeout = 30,
+  max_retries = 3,
+  parse_json = TRUE
+) {
   # Apply rate limiting
   rate_limit_wait()
 
@@ -95,78 +100,98 @@ hgnc_rest_get <- function(endpoint,
 
   # Set User-Agent header
   pkg_version <- utils::packageVersion("hgnc.mcp")
-  user_agent <- sprintf("hgnc.mcp/%s (R package; https://github.com/armish/hgnc.mcp)", pkg_version)
+  user_agent <- sprintf(
+    "hgnc.mcp/%s (R package; https://github.com/armish/hgnc.mcp)",
+    pkg_version
+  )
 
   # Make request with retries
-  tryCatch({
-    response <- httr::RETRY(
-      "GET",
-      url,
-      httr::add_headers(
-        "User-Agent" = user_agent,
-        "Accept" = "application/json"
-      ),
-      httr::timeout(timeout),
-      times = max_retries,
-      pause_base = 1,
-      pause_cap = 60,
-      quiet = FALSE
-    )
-
-    # Check for HTTP errors
-    if (httr::http_error(response)) {
-      status_code <- httr::status_code(response)
-      error_msg <- sprintf(
-        "HGNC API request failed [%s]: %s",
-        status_code,
-        url
+  tryCatch(
+    {
+      response <- httr::RETRY(
+        "GET",
+        url,
+        httr::add_headers(
+          "User-Agent" = user_agent,
+          "Accept" = "application/json"
+        ),
+        httr::timeout(timeout),
+        times = max_retries,
+        pause_base = 1,
+        pause_cap = 60,
+        quiet = FALSE
       )
 
-      # Try to extract error message from response
-      tryCatch({
-        content <- httr::content(response, as = "text", encoding = "UTF-8")
-        parsed <- jsonlite::fromJSON(content, simplifyVector = FALSE)
-        if (!is.null(parsed$message)) {
-          error_msg <- sprintf("%s - %s", error_msg, parsed$message)
-        }
-      }, error = function(e) {
-        # If we can't parse the error, just use the basic message
-      })
+      # Check for HTTP errors
+      if (httr::http_error(response)) {
+        status_code <- httr::status_code(response)
+        error_msg <- sprintf(
+          "HGNC API request failed [%s]: %s",
+          status_code,
+          url
+        )
 
-      stop(error_msg, call. = FALSE)
-    }
+        # Try to extract error message from response
+        tryCatch(
+          {
+            content <- httr::content(response, as = "text", encoding = "UTF-8")
+            parsed <- jsonlite::fromJSON(content, simplifyVector = FALSE)
+            if (!is.null(parsed$message)) {
+              error_msg <- sprintf("%s - %s", error_msg, parsed$message)
+            }
+          },
+          error = function(e) {
+            # If we can't parse the error, just use the basic message
+          }
+        )
 
-    # Parse JSON if requested
-    if (parse_json) {
-      content_text <- httr::content(response, as = "text", encoding = "UTF-8")
-
-      if (nchar(content_text) == 0) {
-        stop("HGNC API returned empty response", call. = FALSE)
+        stop(error_msg, call. = FALSE)
       }
 
-      tryCatch({
-        parsed <- jsonlite::fromJSON(content_text, simplifyVector = FALSE)
-        return(parsed)
-      }, error = function(e) {
+      # Parse JSON if requested
+      if (parse_json) {
+        content_text <- httr::content(response, as = "text", encoding = "UTF-8")
+
+        if (nchar(content_text) == 0) {
+          stop("HGNC API returned empty response", call. = FALSE)
+        }
+
+        tryCatch(
+          {
+            parsed <- jsonlite::fromJSON(content_text, simplifyVector = FALSE)
+            return(parsed)
+          },
+          error = function(e) {
+            stop(
+              sprintf(
+                "Failed to parse JSON response from HGNC API: %s",
+                e$message
+              ),
+              call. = FALSE
+            )
+          }
+        )
+      } else {
+        return(response)
+      }
+    },
+    error = function(e) {
+      # Re-throw with more context if it's a connection error
+      if (
+        grepl(
+          "Could not resolve host|Timeout|Connection",
+          e$message,
+          ignore.case = TRUE
+        )
+      ) {
         stop(
-          sprintf("Failed to parse JSON response from HGNC API: %s", e$message),
+          sprintf("Network error connecting to HGNC API: %s", e$message),
           call. = FALSE
         )
-      })
-    } else {
-      return(response)
+      }
+      stop(e$message, call. = FALSE)
     }
-
-  }, error = function(e) {
-    # Re-throw with more context if it's a connection error
-    if (grepl("Could not resolve host|Timeout|Connection", e$message, ignore.case = TRUE)) {
-      stop(
-        sprintf("Network error connecting to HGNC API: %s", e$message),
-        call. = FALSE
-      )
-    }
-    stop(e$message, call. = FALSE)
-  })
+  )
 }
 
 #' Get HGNC REST API Information

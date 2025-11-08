@@ -26,7 +26,7 @@ test_that("rate limiter prevents exceeding 10 req/sec", {
 
   # 15 requests should take at least 0.5 seconds (since we can do 10/sec)
   # We expect this to take ~0.5-1 second
-  expect_gte(elapsed, 0.4)  # Allow some timing variance
+  expect_gte(elapsed, 0.4) # Allow some timing variance
 
   # Reset for other tests
   reset_rate_limiter()
@@ -135,7 +135,9 @@ test_that("hgnc_rest_get can fetch info endpoint (live API)", {
   result <- hgnc_rest_get("info")
 
   expect_type(result, "list")
-  expect_true(!is.null(result$responseHeader) || !is.null(result$searchableFields))
+  expect_true(
+    !is.null(result$responseHeader) || !is.null(result$searchableFields)
+  )
 })
 
 test_that("hgnc_rest_get handles bad endpoints gracefully", {
@@ -155,7 +157,10 @@ test_that("hgnc_rest_get sets User-Agent header", {
   # This is hard to test without mocking, but we can at least verify
   # the function doesn't error when building the header
   pkg_version <- utils::packageVersion("hgnc.mcp")
-  user_agent <- sprintf("hgnc.mcp/%s (R package; https://github.com/armish/hgnc.mcp)", pkg_version)
+  user_agent <- sprintf(
+    "hgnc.mcp/%s (R package; https://github.com/armish/hgnc.mcp)",
+    pkg_version
+  )
 
   expect_type(user_agent, "character")
   expect_match(user_agent, "hgnc\\.mcp")

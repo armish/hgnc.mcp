@@ -65,46 +65,69 @@
 #' }
 #'
 #' @export
-hgnc_changes <- function(since,
-                        fields = c("symbol", "name", "status"),
-                        change_type = c("all", "symbol", "name", "status", "modified"),
-                        use_cache = TRUE) {
-
+hgnc_changes <- function(
+  since,
+  fields = c("symbol", "name", "status"),
+  change_type = c("all", "symbol", "name", "status", "modified"),
+  use_cache = TRUE
+) {
   if (missing(since) || is.null(since)) {
-    stop("'since' parameter is required (Date, POSIXct, or character in YYYY-MM-DD format)", call. = FALSE)
+    stop(
+      "'since' parameter is required (Date, POSIXct, or character in YYYY-MM-DD format)",
+      call. = FALSE
+    )
   }
 
   # Parse and validate the date
-  since_date <- tryCatch({
-    if (inherits(since, "Date")) {
-      since
-    } else if (inherits(since, "POSIXct") || inherits(since, "POSIXt")) {
-      as.Date(since)
-    } else if (is.character(since)) {
-      as.Date(since)
-    } else {
-      stop("'since' must be a Date, POSIXct, or character string")
+  since_date <- tryCatch(
+    {
+      if (inherits(since, "Date")) {
+        since
+      } else if (inherits(since, "POSIXct") || inherits(since, "POSIXt")) {
+        as.Date(since)
+      } else if (is.character(since)) {
+        as.Date(since)
+      } else {
+        stop("'since' must be a Date, POSIXct, or character string")
+      }
+    },
+    error = function(e) {
+      stop(
+        sprintf(
+          "Invalid date format for 'since': %s. Use YYYY-MM-DD format.",
+          since
+        ),
+        call. = FALSE
+      )
     }
-  }, error = function(e) {
-    stop(sprintf("Invalid date format for 'since': %s. Use YYYY-MM-DD format.", since), call. = FALSE)
-  })
+  )
 
   change_type <- match.arg(change_type)
 
   # Always use cached data (REST API doesn't support date filtering well)
   if (!use_cache) {
-    message("Note: REST API date filtering is limited. Using cached data instead.")
+    message(
+      "Note: REST API date filtering is limited. Using cached data instead."
+    )
   }
 
   message("Loading HGNC data to track changes since ", since_date, "...")
   hgnc_data <- load_hgnc_data()
 
   # Ensure date fields are available and parse them
-  date_fields <- c("date_modified", "date_symbol_changed", "date_name_changed", "date_approved_reserved")
+  date_fields <- c(
+    "date_modified",
+    "date_symbol_changed",
+    "date_name_changed",
+    "date_approved_reserved"
+  )
   available_date_fields <- intersect(date_fields, names(hgnc_data))
 
   if (length(available_date_fields) == 0) {
-    warning("No date fields found in HGNC data. Cannot track changes.", call. = FALSE)
+    warning(
+      "No date fields found in HGNC data. Cannot track changes.",
+      call. = FALSE
+    )
     return(list(
       changes = data.frame(),
       summary = list(total = 0, since = since_date),
@@ -121,7 +144,8 @@ hgnc_changes <- function(since,
   }
 
   # Filter based on change type
-  changed_genes_idx <- switch(change_type,
+  changed_genes_idx <- switch(
+    change_type,
     "all" = {
       # Any date field >= since_date
       idx <- rep(FALSE, nrow(hgnc_data))
@@ -135,7 +159,8 @@ hgnc_changes <- function(since,
     "symbol" = {
       # Symbol changed
       if ("date_symbol_changed" %in% names(hgnc_data)) {
-        !is.na(hgnc_data$date_symbol_changed) & hgnc_data$date_symbol_changed >= since_date
+        !is.na(hgnc_data$date_symbol_changed) &
+          hgnc_data$date_symbol_changed >= since_date
       } else {
         rep(FALSE, nrow(hgnc_data))
       }
@@ -143,7 +168,8 @@ hgnc_changes <- function(since,
     "name" = {
       # Name changed
       if ("date_name_changed" %in% names(hgnc_data)) {
-        !is.na(hgnc_data$date_name_changed) & hgnc_data$date_name_changed >= since_date
+        !is.na(hgnc_data$date_name_changed) &
+          hgnc_data$date_name_changed >= since_date
       } else {
         rep(FALSE, nrow(hgnc_data))
       }
@@ -190,16 +216,22 @@ hgnc_changes <- function(since,
   # Add breakdown by change type if we have the date fields
   if (nrow(results) > 0) {
     if ("date_symbol_changed" %in% names(results)) {
-      summary_info$symbol_changes <- sum(!is.na(results$date_symbol_changed) &
-                                         results$date_symbol_changed >= since_date)
+      summary_info$symbol_changes <- sum(
+        !is.na(results$date_symbol_changed) &
+          results$date_symbol_changed >= since_date
+      )
     }
     if ("date_name_changed" %in% names(results)) {
-      summary_info$name_changes <- sum(!is.na(results$date_name_changed) &
-                                       results$date_name_changed >= since_date)
+      summary_info$name_changes <- sum(
+        !is.na(results$date_name_changed) &
+          results$date_name_changed >= since_date
+      )
     }
     if ("date_modified" %in% names(results)) {
-      summary_info$modified <- sum(!is.na(results$date_modified) &
-                                   results$date_modified >= since_date)
+      summary_info$modified <- sum(
+        !is.na(results$date_modified) &
+          results$date_modified >= since_date
+      )
     }
     if ("status" %in% names(results)) {
       summary_info$by_status <- table(results$status)
@@ -305,12 +337,13 @@ hgnc_changes <- function(since,
 #' }
 #'
 #' @export
-hgnc_validate_panel <- function(items,
-                                policy = "HGNC",
-                                suggest_replacements = TRUE,
-                                include_dates = TRUE,
-                                index = NULL) {
-
+hgnc_validate_panel <- function(
+  items,
+  policy = "HGNC",
+  suggest_replacements = TRUE,
+  include_dates = TRUE,
+  index = NULL
+) {
   if (missing(items) || is.null(items) || length(items) == 0) {
     stop("'items' must be a non-empty character vector", call. = FALSE)
   }
@@ -369,7 +402,7 @@ hgnc_validate_panel <- function(items,
       match_type <- "exact"
       gene_record <- index$id_to_record[[hgnc_id]]
 
-    # 2. Try alias
+      # 2. Try alias
     } else if (item_upper %in% names(index$alias_to_id)) {
       candidate_ids <- index$alias_to_id[[item_upper]]
 
@@ -379,8 +412,11 @@ hgnc_validate_panel <- function(items,
         gene_record <- index$id_to_record[[hgnc_id]]
 
         # This is an issue: using alias instead of approved symbol
-        issue_msg <- sprintf("'%s' is an alias. Approved symbol: '%s'",
-                           original_item, gene_record$symbol %||% "Unknown")
+        issue_msg <- sprintf(
+          "'%s' is an alias. Approved symbol: '%s'",
+          original_item,
+          gene_record$symbol %||% "Unknown"
+        )
         issues_list[[length(issues_list) + 1]] <- list(
           position = i,
           input = original_item,
@@ -402,8 +438,11 @@ hgnc_validate_panel <- function(items,
         }
       } else {
         # Ambiguous
-        issue_msg <- sprintf("'%s' is ambiguous (matches %d genes via alias)",
-                           original_item, length(candidate_ids))
+        issue_msg <- sprintf(
+          "'%s' is ambiguous (matches %d genes via alias)",
+          original_item,
+          length(candidate_ids)
+        )
         issues_list[[length(issues_list) + 1]] <- list(
           position = i,
           input = original_item,
@@ -415,7 +454,7 @@ hgnc_validate_panel <- function(items,
         next
       }
 
-    # 3. Try previous symbol
+      # 3. Try previous symbol
     } else if (item_upper %in% names(index$prev_to_id)) {
       candidate_ids <- index$prev_to_id[[item_upper]]
 
@@ -426,13 +465,23 @@ hgnc_validate_panel <- function(items,
 
         # This is an issue: using outdated symbol
         date_info <- ""
-        if (include_dates && !is.null(gene_record$date_symbol_changed) &&
-            !is.na(gene_record$date_symbol_changed)) {
-          date_info <- sprintf(" (changed on %s)", gene_record$date_symbol_changed)
+        if (
+          include_dates &&
+            !is.null(gene_record$date_symbol_changed) &&
+            !is.na(gene_record$date_symbol_changed)
+        ) {
+          date_info <- sprintf(
+            " (changed on %s)",
+            gene_record$date_symbol_changed
+          )
         }
 
-        issue_msg <- sprintf("'%s' is a previous symbol. Current symbol: '%s'%s",
-                           original_item, gene_record$symbol %||% "Unknown", date_info)
+        issue_msg <- sprintf(
+          "'%s' is a previous symbol. Current symbol: '%s'%s",
+          original_item,
+          gene_record$symbol %||% "Unknown",
+          date_info
+        )
         issues_list[[length(issues_list) + 1]] <- list(
           position = i,
           input = original_item,
@@ -441,7 +490,11 @@ hgnc_validate_panel <- function(items,
           message = issue_msg,
           approved_symbol = gene_record$symbol %||% NA_character_,
           hgnc_id = hgnc_id,
-          date_changed = if (include_dates) gene_record$date_symbol_changed %||% NA else NA
+          date_changed = if (include_dates) {
+            gene_record$date_symbol_changed %||% NA
+          } else {
+            NA
+          }
         )
 
         if (suggest_replacements) {
@@ -451,13 +504,20 @@ hgnc_validate_panel <- function(items,
             suggested = gene_record$symbol %||% NA_character_,
             rationale = sprintf("Symbol was changed%s", date_info),
             match_type = "previous",
-            date_changed = if (include_dates) gene_record$date_symbol_changed %||% NA else NA
+            date_changed = if (include_dates) {
+              gene_record$date_symbol_changed %||% NA
+            } else {
+              NA
+            }
           )
         }
       } else {
         # Ambiguous
-        issue_msg <- sprintf("'%s' is ambiguous (matches %d genes via previous symbol)",
-                           original_item, length(candidate_ids))
+        issue_msg <- sprintf(
+          "'%s' is ambiguous (matches %d genes via previous symbol)",
+          original_item,
+          length(candidate_ids)
+        )
         issues_list[[length(issues_list) + 1]] <- list(
           position = i,
           input = original_item,
@@ -468,7 +528,6 @@ hgnc_validate_panel <- function(items,
         )
         next
       }
-
     } else {
       # Not found
       issue_msg <- sprintf("'%s' not found in HGNC database", original_item)
@@ -498,8 +557,11 @@ hgnc_validate_panel <- function(items,
     gene_status <- gene_record$status %||% NA_character_
 
     if (!is.na(gene_status) && gene_status == "Withdrawn") {
-      issue_msg <- sprintf("'%s' maps to withdrawn gene '%s'",
-                         original_item, gene_record$symbol %||% "Unknown")
+      issue_msg <- sprintf(
+        "'%s' maps to withdrawn gene '%s'",
+        original_item,
+        gene_record$symbol %||% "Unknown"
+      )
       issues_list[[length(issues_list) + 1]] <- list(
         position = i,
         input = original_item,
@@ -527,8 +589,12 @@ hgnc_validate_panel <- function(items,
     # Check for duplicates (same HGNC ID)
     if (hgnc_id %in% seen_hgnc_ids) {
       first_position <- match(hgnc_id, seen_hgnc_ids)
-      issue_msg <- sprintf("'%s' is a duplicate of position %d (same HGNC ID: %s)",
-                         original_item, first_position, hgnc_id)
+      issue_msg <- sprintf(
+        "'%s' is a duplicate of position %d (same HGNC ID: %s)",
+        original_item,
+        first_position,
+        hgnc_id
+      )
       issues_list[[length(issues_list) + 1]] <- list(
         position = i,
         input = original_item,
@@ -605,31 +671,58 @@ hgnc_validate_panel <- function(items,
     report_lines <- c(report_lines, "Detailed issues:")
     for (i in seq_len(nrow(issues_df))) {
       issue <- issues_df[i, ]
-      report_lines <- c(report_lines,
-                       sprintf("  [%s] Position %d: %s",
-                              toupper(issue$severity), issue$position, issue$message))
+      report_lines <- c(
+        report_lines,
+        sprintf(
+          "  [%s] Position %d: %s",
+          toupper(issue$severity),
+          issue$position,
+          issue$message
+        )
+      )
     }
   } else {
-    report_lines <- c(report_lines, "No issues found. All symbols are valid approved HGNC symbols.")
+    report_lines <- c(
+      report_lines,
+      "No issues found. All symbols are valid approved HGNC symbols."
+    )
   }
 
   if (suggest_replacements && length(replacements_list) > 0) {
     report_lines <- c(report_lines, "", "Suggested replacements:")
     for (repl in replacements_list) {
       if (!is.na(repl$suggested)) {
-        report_lines <- c(report_lines,
-                         sprintf("  Position %d: '%s' -> '%s' (%s)",
-                                repl$position, repl$input, repl$suggested, repl$rationale))
+        report_lines <- c(
+          report_lines,
+          sprintf(
+            "  Position %d: '%s' -> '%s' (%s)",
+            repl$position,
+            repl$input,
+            repl$suggested,
+            repl$rationale
+          )
+        )
       } else {
-        report_lines <- c(report_lines,
-                         sprintf("  Position %d: '%s' - %s",
-                                repl$position, repl$input, repl$rationale))
+        report_lines <- c(
+          report_lines,
+          sprintf(
+            "  Position %d: '%s' - %s",
+            repl$position,
+            repl$input,
+            repl$rationale
+          )
+        )
       }
     }
   }
 
-  message("Validation complete: ", summary_info$valid, " valid, ",
-          summary_info$issues, " issues")
+  message(
+    "Validation complete: ",
+    summary_info$valid,
+    " valid, ",
+    summary_info$issues,
+    " issues"
+  )
 
   list(
     valid = valid_df,
