@@ -1,0 +1,243 @@
+# Build and test Docker image for HGNC MCP Server
+name: Docker Build
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: hgnc-mcp:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test server startup configuration
+        run: |
+          echo "Testing server startup logic..."
+          docker run --rm hgnc-mcp:test Rscript /usr/local/lib/R/site-library/hgnc.mcp/scripts/test_server_start.R
+
+      - name: Test Docker image
+        run: |
+          echo "Starting container for testing..."
+          docker run -d \
+            --name hgnc-mcp-test \
+            -p 8080:8080 \
+            hgnc-mcp:test
+
+          echo "Waiting for server to start..."
+          timeout=60
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            if docker exec hgnc-mcp-test Rscript -e "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))" 2>/dev/null; then
+              echo "Server is ready!"
+              break
+            fi
+            sleep 2
+            elapsed=$((elapsed + 2))
+          done
+
+          if [ $elapsed -ge $timeout ]; then
+            echo "Server failed to start within ${timeout}s"
+            docker logs hgnc-mcp-test
+            exit 1
+          fi
+
+          echo "Testing server endpoints..."
+
+          # Test Swagger UI
+          if ! curl -f -s http://localhost:8080/__docs__/ > /dev/null; then
+            echo "Failed to access Swagger UI"
+            docker logs hgnc-mcp-test
+            exit 1
+          fi
+          echo "✓ Swagger UI accessible"
+
+          # Test info endpoint (GET request)
+          if ! curl -f -s http://localhost:8080/tools/info > /dev/null; then
+            echo "Failed to call info endpoint"
+            docker logs hgnc-mcp-test
+            exit 1
+          fi
+          echo "✓ Info endpoint working"
+
+          echo "All tests passed!"
+
+          # Clean up
+          docker stop hgnc-mcp-test
+          docker rm hgnc-mcp-test
+
+      - name: Build and push Docker image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+      - name: Generate artifact attestation
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.meta.outputs.digest }}
+          push-to-registry: true
+
+  docker-compose-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Docker Compose
+        run: |
+          echo "Testing docker-compose.yml..."
+          docker compose config
+
+          echo "Building and starting services (force rebuild)..."
+          docker compose build --no-cache
+          docker compose up -d
+
+          echo "Waiting for health check..."
+          timeout=90
+          elapsed=0
+          while [ $elapsed -lt $timeout ]; do
+            if docker compose ps | grep -q "healthy"; then
+              echo "Service is healthy!"
+              break
+            fi
+            sleep 3
+            elapsed=$((elapsed + 3))
+          done
+
+          if [ $elapsed -ge $timeout ]; then
+            echo "Service failed health check"
+            docker compose logs
+            exit 1
+          fi
+
+          echo "Running test client..."
+          docker compose --profile test up hgnc-test-client
+
+          echo "Cleaning up..."
+          docker compose down -v
+
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: hgnc-mcp:test
+          cache-from: type=gha
+
+      - name: Run integration tests
+        run: |
+          echo "Starting server for integration tests..."
+          docker run -d \
+            --name hgnc-mcp-integration \
+            -p 8080:8080 \
+            hgnc-mcp:test
+
+          # Wait for server
+          for i in {1..30}; do
+            if curl -f -s http://localhost:8080/__docs__/ > /dev/null; then
+              break
+            fi
+            sleep 2
+          done
+
+          echo "Running integration test suite..."
+
+          # Test various endpoints
+          echo "Testing find endpoint..."
+          curl -X POST http://localhost:8080/tools/find \
+            -H "Content-Type: application/json" \
+            -d '{"query": "BRCA1"}' \
+            -f -s -o /dev/null || (docker logs hgnc-mcp-integration && exit 1)
+
+          echo "Testing fetch endpoint..."
+          curl -X POST http://localhost:8080/tools/fetch \
+            -H "Content-Type: application/json" \
+            -d '{"field": "symbol", "term": "TP53"}' \
+            -f -s -o /dev/null || (docker logs hgnc-mcp-integration && exit 1)
+
+          echo "Testing resolve_symbol endpoint..."
+          curl -X POST http://localhost:8080/tools/resolve_symbol \
+            -H "Content-Type: application/json" \
+            -d '{"symbol": "EGFR"}' \
+            -f -s -o /dev/null || (docker logs hgnc-mcp-integration && exit 1)
+
+          echo "All integration tests passed!"
+
+          # Clean up
+          docker stop hgnc-mcp-integration
+          docker rm hgnc-mcp-integration

@@ -1,0 +1,58 @@
+# Git
+.git
+.github
+.gitignore
+
+# R package build artifacts
+*.tar.gz
+*.Rcheck
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# Documentation builds
+docs/
+man/*.html
+
+# Testing
+tests/testthat/_snaps
+coverage/
+*.gcov
+*.gcda
+*.gcno
+
+# Cache and data (will be downloaded at runtime)
+.cache/
+*.rds
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# CI/CD
+.github/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+tmp/
+temp/
+
+# Documentation source (keep only built vignettes)
+README.md
+TESTING_*.md
+TODO.md
+EXAMPLES.md

@@ -1,0 +1,57 @@
+services:
+  # HGNC MCP Server
+  hgnc-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hgnc-mcp:latest
+    container_name: hgnc-mcp-server
+    ports:
+      - "8080:8080"
+    environment:
+      - HGNC_CACHE_DIR=/home/hgnc/.cache/hgnc
+      - R_LIBS_USER=/usr/local/lib/R/site-library
+    volumes:
+      # Persist cache data across container restarts
+      - hgnc-cache:/home/hgnc/.cache/hgnc
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "Rscript", "-e", "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - hgnc-network
+
+  # Example: Simple client container with curl for testing
+  hgnc-test-client:
+    image: curlimages/curl:latest
+    container_name: hgnc-test-client
+    depends_on:
+      hgnc-mcp-server:
+        condition: service_healthy
+    networks:
+      - hgnc-network
+    command: >
+      sh -c "
+        echo 'Testing HGNC MCP Server...';
+        echo '';
+        echo '1. Checking server health:';
+        curl -s http://hgnc-mcp-server:8080/__docs__/ | head -n 5;
+        echo '';
+        echo '2. Testing info endpoint:';
+        curl -s -X POST http://hgnc-mcp-server:8080/tools/info | head -n 20;
+        echo '';
+        echo 'Server is running! Access Swagger UI at http://localhost:8080/__docs__/';
+      "
+    profiles:
+      - test
+
+volumes:
+  hgnc-cache:
+    driver: local
+
+networks:
+  hgnc-network:
+    driver: bridge

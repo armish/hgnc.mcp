@@ -1,0 +1,103 @@
+# Advanced Docker Compose example with multiple deployment scenarios
+# Usage:
+#   docker-compose -f examples/docker/docker-compose.advanced.yml up
+
+services:
+  # Production-ready HGNC MCP Server with monitoring
+  hgnc-mcp-server:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: hgnc-mcp:latest
+    container_name: hgnc-mcp-server
+    ports:
+      - "${HGNC_PORT:-8080}:8080"
+    environment:
+      - HGNC_CACHE_DIR=/home/hgnc/.cache/hgnc
+      - R_LIBS_USER=/usr/local/lib/R/site-library
+      - TZ=UTC
+    volumes:
+      # Persist cache data
+      - hgnc-cache:/home/hgnc/.cache/hgnc
+      # Optional: Mount custom cache data
+      # - ./data:/home/hgnc/.cache/hgnc:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "Rscript", "-e", "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - hgnc-network
+    labels:
+      - "com.hgnc.service=mcp-server"
+      - "com.hgnc.version=0.1.0"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+
+  # Nginx reverse proxy for production deployments
+  nginx-proxy:
+    image: nginx:alpine
+    container_name: hgnc-nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - nginx-cache:/var/cache/nginx
+      # Uncomment for HTTPS
+      # - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      hgnc-mcp-server:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - hgnc-network
+    profiles:
+      - production
+
+  # Development server with hot reload
+  hgnc-mcp-dev:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      target: builder
+    container_name: hgnc-mcp-dev
+    ports:
+      - "8080:8080"
+    environment:
+      - HGNC_CACHE_DIR=/home/hgnc/.cache/hgnc
+      - R_LIBS_USER=/usr/local/lib/R/site-library
+    volumes:
+      # Mount source code for development
+      - ../../R:/build/R:ro
+      - ../../inst:/build/inst:ro
+      - ../../DESCRIPTION:/build/DESCRIPTION:ro
+      - ../../NAMESPACE:/build/NAMESPACE:ro
+      - hgnc-cache:/home/hgnc/.cache/hgnc
+    command: >
+      sh -c "
+        R CMD INSTALL /build &&
+        Rscript -e 'hgnc.mcp::start_hgnc_mcp_server(host=\"0.0.0.0\", port=8080, swagger=TRUE)'
+      "
+    networks:
+      - hgnc-network
+    profiles:
+      - dev
+
+volumes:
+  hgnc-cache:
+    driver: local
+  nginx-cache:
+    driver: local
+
+networks:
+  hgnc-network:
+    driver: bridge

@@ -186,6 +186,284 @@ http://localhost:8080/__docs__/
 
 This provides detailed information about each endpoint, request/response formats, and allows you to test the API directly from your browser.
 
+## Deployment
+
+The HGNC MCP server can be deployed in several ways depending on your needs.
+
+### Docker Deployment
+
+The easiest way to deploy the server is using Docker:
+
+#### Quick Start with Docker
+
+```bash
+# Pull the pre-built image
+docker pull ghcr.io/armish/hgnc.mcp:latest
+
+# Run the container
+docker run -d \
+  --name hgnc-mcp-server \
+  -p 8080:8080 \
+  -v hgnc-cache:/home/hgnc/.cache/hgnc \
+  ghcr.io/armish/hgnc.mcp:latest
+
+# Access the server
+open http://localhost:8080/__docs__/
+```
+
+#### Build from Source
+
+```bash
+# Clone the repository
+git clone https://github.com/armish/hgnc.mcp.git
+cd hgnc.mcp
+
+# Build the Docker image
+docker build -t hgnc-mcp:latest .
+
+# Run the container
+docker run -d \
+  --name hgnc-mcp-server \
+  -p 8080:8080 \
+  -v hgnc-cache:/home/hgnc/.cache/hgnc \
+  hgnc-mcp:latest
+```
+
+#### Docker Compose
+
+For a more complete setup with persistent storage:
+
+```bash
+# Start the server and supporting services
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Test the server
+docker compose --profile test up hgnc-test-client
+
+# Stop the server
+docker compose down
+```
+
+> **Note**: This uses the modern `docker compose` command (Docker Compose V2). If you have the legacy standalone version, use `docker-compose` (with a hyphen) instead.
+
+See [examples/docker/README.md](examples/docker/README.md) for advanced Docker deployment options, including:
+- Production deployment with Nginx reverse proxy
+- Development setup with hot reload
+- Resource limits and health checks
+- TLS/HTTPS configuration
+
+### Production Deployment
+
+For production environments, we recommend:
+
+1. **Use Docker** - The provided Dockerfile uses multi-stage builds and runs as a non-root user
+2. **Set up a reverse proxy** - Use Nginx or similar for TLS, rate limiting, and load balancing
+3. **Persistent cache** - Mount a volume for the HGNC data cache
+4. **Health monitoring** - The container includes health checks; integrate with your monitoring system
+5. **Resource limits** - Set appropriate CPU and memory limits (recommended: 2 CPU, 4GB RAM)
+
+Example production docker-compose configuration:
+
+```yaml
+services:
+  hgnc-mcp-server:
+    image: ghcr.io/armish/hgnc.mcp:latest
+    ports:
+      - "127.0.0.1:8080:8080"  # Only expose to localhost
+    volumes:
+      - hgnc-cache:/home/hgnc/.cache/hgnc
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "Rscript", "-e", "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
+
+### Cloud Deployment
+
+The Docker image can be deployed to any cloud platform that supports containers:
+
+#### AWS ECS / Fargate
+
+```bash
+# Tag for AWS ECR
+docker tag hgnc-mcp:latest <account-id>.dkr.ecr.<region>.amazonaws.com/hgnc-mcp:latest
+
+# Push to ECR
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/hgnc-mcp:latest
+
+# Deploy using ECS task definition
+```
+
+#### Google Cloud Run
+
+```bash
+# Tag for Google Container Registry
+docker tag hgnc-mcp:latest gcr.io/<project-id>/hgnc-mcp:latest
+
+# Push to GCR
+docker push gcr.io/<project-id>/hgnc-mcp:latest
+
+# Deploy to Cloud Run
+gcloud run deploy hgnc-mcp \
+  --image gcr.io/<project-id>/hgnc-mcp:latest \
+  --port 8080 \
+  --memory 4Gi \
+  --cpu 2
+```
+
+#### Azure Container Instances
+
+```bash
+# Create resource group
+az group create --name hgnc-mcp-rg --location eastus
+
+# Deploy container
+az container create \
+  --resource-group hgnc-mcp-rg \
+  --name hgnc-mcp-server \
+  --image ghcr.io/armish/hgnc.mcp:latest \
+  --ports 8080 \
+  --cpu 2 \
+  --memory 4
+```
+
+### Kubernetes
+
+For Kubernetes deployments, see the example manifests in `examples/kubernetes/` (coming soon).
+
+### Local Development
+
+For local development without Docker:
+
+```bash
+# Clone the repository
+git clone https://github.com/armish/hgnc.mcp.git
+cd hgnc.mcp
+
+# Install dependencies
+R -e "install.packages('remotes'); remotes::install_deps()"
+
+# Install the package
+R CMD INSTALL .
+
+# Start the server
+Rscript inst/scripts/run_server.R --port 8080
+```
+
+### CI/CD Integration
+
+The repository includes GitHub Actions workflows for:
+- **R CMD check** - Package validation across multiple platforms
+- **Test coverage** - Automated testing with coverage reports
+- **Docker build** - Multi-platform Docker image builds (amd64, arm64)
+
+See `.github/workflows/` for workflow configurations.
+
+To use these workflows in your fork:
+1. Enable GitHub Actions in your repository settings
+2. Add any required secrets (e.g., `CODECOV_TOKEN`)
+3. Push to trigger the workflows
+
+### Configuration Options
+
+The server can be configured via command-line arguments or environment variables:
+
+| Option | Environment Variable | Default | Description |
+|--------|---------------------|---------|-------------|
+| `--port` | `MCP_SERVER_PORT` | 8080 | Server port |
+| `--host` | `MCP_SERVER_HOST` | 0.0.0.0 | Server host |
+| `--no-swagger` | - | false | Disable Swagger UI |
+| `--check-cache` | - | false | Check cache before starting |
+| `--update-cache` | - | false | Force cache update |
+| - | `HGNC_CACHE_DIR` | Platform default | Cache directory |
+
+Example with environment variables:
+
+```bash
+export HGNC_CACHE_DIR=/data/hgnc
+export MCP_SERVER_PORT=9090
+Rscript inst/scripts/run_server.R
+```
+
+### Security Considerations
+
+When deploying the HGNC MCP server:
+
+1. **Network Access**: By default, the server binds to `0.0.0.0` (all interfaces). For production, bind to `127.0.0.1` and use a reverse proxy
+2. **Rate Limiting**: The server includes internal rate limiting for HGNC API calls, but consider adding external rate limiting via reverse proxy
+3. **Authentication**: The MCP server does not include authentication. Use a reverse proxy with authentication if needed
+4. **TLS**: Always use TLS/HTTPS in production. Configure this at the reverse proxy level
+5. **Resource Limits**: Set appropriate CPU and memory limits to prevent resource exhaustion
+6. **Updates**: Regularly update the Docker image to get security patches and HGNC data updates
+
+### Monitoring
+
+Monitor the following for production deployments:
+
+- **Health endpoint**: `GET /__docs__/` - Returns 200 if server is healthy
+- **Container health**: Docker/Kubernetes health checks are configured
+- **Resource usage**: Monitor CPU and memory usage
+- **Cache freshness**: Check `get_hgnc_cache_info()` for cache age
+- **Error rates**: Monitor server logs for errors
+
+Example health check script:
+
+```bash
+#!/bin/bash
+# health_check.sh
+if curl -f -s http://localhost:8080/__docs__/ > /dev/null; then
+  echo "Server is healthy"
+  exit 0
+else
+  echo "Server is unhealthy"
+  exit 1
+fi
+```
+
+### Troubleshooting
+
+Common deployment issues:
+
+**Port already in use:**
+```bash
+# Find what's using the port
+lsof -i :8080
+# Use a different port
+docker run -p 9090:8080 hgnc-mcp:latest
+```
+
+**Out of memory:**
+```bash
+# Increase Docker memory limit
+docker update --memory="4g" hgnc-mcp-server
+```
+
+**Cache not persisting:**
+```bash
+# Verify volume exists
+docker volume inspect hgnc-cache
+# Check mount point
+docker inspect hgnc-mcp-server | grep Mounts -A 10
+```
+
+For more deployment examples and troubleshooting, see:
+- [Docker deployment guide](examples/docker/README.md)
+- [MCP client configuration](examples/mcp-clients/README.md)
+- [GitHub Issues](https://github.com/armish/hgnc.mcp/issues)
+
 ## Usage Examples
 
 ### Basic Gene Lookups

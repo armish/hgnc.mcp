@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "hgnc": {
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "hgnc.mcp::start_hgnc_mcp_server(port=8080, host='127.0.0.1', swagger=TRUE)"
+      ],
+      "env": {
+        "HGNC_CACHE_DIR": "${HOME}/.cache/hgnc"
+      }
+    }
+  }
+}
