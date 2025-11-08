@@ -53,16 +53,16 @@ reference:
     contents:
       - load_hgnc_data
       - download_hgnc_data
-      - clear_hgnc_cache
       - get_hgnc_cache_info
       - is_hgnc_cache_fresh
-      - get_hgnc_cache_path
+      - get_hgnc_cache_dir
+      - clear_hgnc_cache
 
   - title: "REST API Client"
     desc: >
       Low-level functions for interacting with the HGNC REST API
     contents:
-      - hgnc_rest_info
+      - hgnc_rest_info_uncached
       - hgnc_rest_get
       - reset_rate_limiter
 
@@ -86,6 +86,7 @@ reference:
     desc: >
       Discover and explore HGNC gene groups
     contents:
+      - hgnc_group_members_uncached
       - hgnc_group_members
       - hgnc_search_groups
 
@@ -116,14 +117,10 @@ reference:
     desc: >
       Workflow templates for multi-step tasks
     contents:
-      - hgnc_prompt_normalize
-      - hgnc_prompt_compliance
-      - hgnc_prompt_changes
-      - hgnc_prompt_gene_set
-
-  - title: "Package Information"
-    contents:
-      - hgnc.mcp-package
+      - prompt_normalize_gene_list
+      - prompt_check_nomenclature_compliance
+      - prompt_what_changed_since
+      - prompt_build_gene_set_from_group
 
 articles:
   - title: "Getting Started"
