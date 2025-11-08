@@ -1,5 +1,13 @@
 # hgnc.mcp
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/armish/hgnc.mcp/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/armish/hgnc.mcp/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/armish/hgnc.mcp/branch/main/graph/badge.svg)](https://app.codecov.io/gh/armish/hgnc.mcp?branch=main)
+[![Docker Build](https://github.com/armish/hgnc.mcp/actions/workflows/docker-build.yaml/badge.svg)](https://github.com/armish/hgnc.mcp/actions/workflows/docker-build.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+<!-- badges: end -->
+
 MCP (Model Context Protocol) Server for HGNC (HUGO Gene Nomenclature Committee) Gene Nomenclature Resources.
 
 ## Overview

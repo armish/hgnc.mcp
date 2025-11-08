@@ -1,0 +1,152 @@
+url: https://armish.github.io/hgnc.mcp/
+template:
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#0054AD"
+    border-radius: 0.5rem
+    btn-border-radius: 0.25rem
+
+home:
+  title: "HGNC MCP Server - Gene Nomenclature for AI Assistants"
+  description: >
+    MCP server providing HGNC gene nomenclature services to LLM copilots
+    and bioinformatics pipelines. Normalize gene symbols, validate panels,
+    and track nomenclature changes with ease.
+
+navbar:
+  structure:
+    left: [intro, reference, articles, tutorials, news]
+    right: [search, github, docker]
+  components:
+    home: ~
+    reference:
+      text: Reference
+      href: reference/index.html
+    articles:
+      text: Articles
+      menu:
+      - text: Getting Started
+        href: articles/getting-started.html
+      - text: Normalizing Gene Lists
+        href: articles/normalizing-gene-lists.html
+      - text: Working with Gene Groups
+        href: articles/gene-groups.html
+      - text: Running the MCP Server
+        href: articles/running-mcp-server.html
+    news:
+      text: Changelog
+      href: news/index.html
+    docker:
+      icon: fa-docker
+      href: https://github.com/armish/hgnc.mcp/pkgs/container/hgnc.mcp
+      aria-label: Docker Hub
+    github:
+      icon: fa-github
+      href: https://github.com/armish/hgnc.mcp
+      aria-label: GitHub
+
+reference:
+  - title: "Data Management"
+    desc: >
+      Functions for downloading, caching, and managing HGNC data
+    contents:
+      - load_hgnc_data
+      - download_hgnc_data
+      - get_hgnc_cache_info
+      - is_hgnc_cache_fresh
+      - get_hgnc_cache_dir
+      - clear_hgnc_cache
+
+  - title: "REST API Client"
+    desc: >
+      Low-level functions for interacting with the HGNC REST API
+    contents:
+      - hgnc_rest_info_uncached
+      - hgnc_rest_get
+      - reset_rate_limiter
+
+  - title: "Gene Lookup and Resolution"
+    desc: >
+      Search for genes, resolve symbols, and extract information
+    contents:
+      - hgnc_find
+      - hgnc_fetch
+      - hgnc_resolve_symbol
+      - hgnc_xrefs
+
+  - title: "Batch Operations"
+    desc: >
+      Efficiently process lists of genes using local cache
+    contents:
+      - hgnc_normalize_list
+      - build_symbol_index
+
+  - title: "Gene Groups and Families"
+    desc: >
+      Discover and explore HGNC gene groups
+    contents:
+      - hgnc_group_members_uncached
+      - hgnc_group_members
+      - hgnc_search_groups
+
+  - title: "Change Tracking and Validation"
+    desc: >
+      Track nomenclature changes and validate gene panels
+    contents:
+      - hgnc_changes
+      - hgnc_validate_panel
+
+  - title: "MCP Server"
+    desc: >
+      Start and configure the Model Context Protocol server
+    contents:
+      - start_hgnc_mcp_server
+      - check_mcp_dependencies
+
+  - title: "MCP Resources"
+    desc: >
+      Resource functions for context injection
+    contents:
+      - hgnc_resources
+      - hgnc_get_gene_card
+      - hgnc_get_group_card
+      - hgnc_get_snapshot_metadata
+      - hgnc_get_changes_summary
+
+  - title: "MCP Prompts"
+    desc: >
+      Workflow templates for multi-step tasks
+    contents:
+      - hgnc_prompts
+      - prompt_normalize_gene_list
+      - prompt_check_nomenclature_compliance
+      - prompt_what_changed_since
+      - prompt_build_gene_set_from_group
+
+articles:
+  - title: "Getting Started"
+    navbar: ~
+    contents:
+      - getting-started
+  - title: "Tutorials"
+    navbar: Tutorials
+    contents:
+      - normalizing-gene-lists
+      - gene-groups
+      - running-mcp-server
+
+footer:
+  structure:
+    left: developed_by
+    right: built_with
+  components:
+    developed_by: |
+      hgnc.mcp is developed by [Bulent Arman Aksoy](https://aksoy.org).
+    built_with: |
+      Built with [pkgdown](https://pkgdown.r-lib.org/).
+      HGNC data from [genenames.org](https://www.genenames.org/).
+
+authors:
+  Bulent Arman Aksoy:
+    href: "https://aksoy.org"

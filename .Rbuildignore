@@ -3,3 +3,16 @@
 ^EXAMPLES\.md$
 ^TODO\.md$
 ^codecov\.yml$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
+^\.git$
+^\.gitignore$
+^.*\.Rproj$
+^\.Rproj\.user$
+^Dockerfile$
+^docker-compose\.yml$
+^examples/docker$
+^examples/mcp-clients$
+^cran-comments\.md$
+^CRAN-SUBMISSION$
