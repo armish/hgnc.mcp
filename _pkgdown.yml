@@ -108,6 +108,7 @@ reference:
     desc: >
       Resource functions for context injection
     contents:
+      - hgnc_resources
       - hgnc_get_gene_card
       - hgnc_get_group_card
       - hgnc_get_snapshot_metadata
@@ -117,6 +118,7 @@ reference:
     desc: >
       Workflow templates for multi-step tasks
     contents:
+      - hgnc_prompts
       - prompt_normalize_gene_list
       - prompt_check_nomenclature_compliance
       - prompt_what_changed_since
