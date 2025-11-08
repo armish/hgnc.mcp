@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/armish/hgnc.mcp/discussions
+    about: Please use GitHub Discussions for questions and general discussion
+  - name: HGNC Official Resources
+    url: https://www.genenames.org/
+    about: Official HGNC website and resources

@@ -1,0 +1,84 @@
+name: Bug Report
+description: File a bug report to help us improve
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug
+      placeholder: Tell us what you see!
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reprex
+    attributes:
+      label: Minimal reproducible example
+      description: |
+        Please provide a minimal reproducible example (reprex) that demonstrates the bug.
+        Include all necessary code and data to reproduce the issue.
+      placeholder: |
+        ```r
+        library(hgnc.mcp)
+        # Your code here
+        ```
+      render: r
+    validations:
+      required: true
+
+  - type: textarea
+    id: session-info
+    attributes:
+      label: Session Info
+      description: |
+        Please paste the output of `sessionInfo()` here.
+        This helps us understand your R environment.
+      placeholder: |
+        ```r
+        sessionInfo()
+        ```
+      render: r
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Which component is affected?
+      multiple: true
+      options:
+        - Data caching
+        - HGNC REST API client
+        - Gene lookup/resolution
+        - Batch operations
+        - Gene groups
+        - MCP server
+        - Docker deployment
+        - Documentation
+        - Other
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true

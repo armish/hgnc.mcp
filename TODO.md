@@ -380,21 +380,32 @@ Pre-configured multi-step workflows:
   - Claude Desktop
   - Other MCP clients (generic examples)
 
-### 4.4 Distribution
+### 4.4 Distribution ✓
 
-- [ ] Prepare for CRAN submission:
-  - Check package size (cached data implications)
-  - Ensure all examples are runnable
-  - Address any R CMD check warnings
+- [x] Prepare for CRAN submission:
+  - Package size checked (1.1 MB - well under limit)
+  - Created cran-comments.md with submission notes
+  - Created NEWS.md with changelog
+  - Updated DESCRIPTION for CRAN compliance
+  - Added DOI reference for HGNC database
+  - Added URL and BugReports fields
+  - Added ORCID for author
 
-- [ ] GitHub repository setup:
-  - README badges
-  - Contributing guidelines
-  - Issue templates
-  - Release workflow
+- [x] GitHub repository setup:
+  - README badges (R-CMD-check, codecov, Docker, lifecycle, license)
+  - Contributing guidelines (CONTRIBUTING.md)
+  - Issue templates (bug report, feature request)
+  - PR template
+  - Updated .Rbuildignore for distribution
 
-- [ ] pkgdown website
-- [ ] Announcement blog post / tweet
+- [x] pkgdown website:
+  - Created _pkgdown.yml with full configuration
+  - Set up reference documentation organization
+  - Configured navbar and footer
+  - Created pkgdown.yaml GitHub Actions workflow
+  - Website will be available at https://armish.github.io/hgnc.mcp/
+
+- [ ] Announcement blog post / tweet (when ready for release)
 
 ---
 

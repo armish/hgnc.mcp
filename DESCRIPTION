@@ -1,16 +1,18 @@
 Package: hgnc.mcp
 Title: MCP Server for HGNC Gene Nomenclature Resources
 Version: 0.1.0
-Author: Bulent Arman Aksoy
-Maintainer: Bulent Arman Aksoy <arman@aksoy.org>
 Authors@R:
-    person("Bulent Arman", "Aksoy", , "arman@aksoy.org", role = c("aut", "cre"))
+    person("Bulent Arman", "Aksoy", , "arman@aksoy.org", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-6567-6214"))
 Description: Provides tools for accessing HGNC (HUGO Gene Nomenclature
     Committee) gene nomenclature resources. Includes functions for searching,
     resolving, and validating gene symbols using local cached data and the
-    HGNC REST API. MCP (Model Context Protocol) server functionality planned
-    for future release.
+    HGNC REST API. Also provides a Model Context Protocol (MCP) server that
+    exposes these tools to AI assistants and other MCP-compatible clients.
+    The HGNC database is described in Braschi et al. (2019) <doi:10.1093/nar/gky930>.
 License: MIT + file LICENSE
+URL: https://armish.github.io/hgnc.mcp/, https://github.com/armish/hgnc.mcp
+BugReports: https://github.com/armish/hgnc.mcp/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
@@ -29,6 +31,8 @@ Suggests:
     curl,
     covr,
     knitr,
-    rmarkdown
+    rmarkdown,
+    pkgdown
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+Language: en-US
