@@ -306,7 +306,7 @@ Now that you’re familiar with the basics, you can:
   [`?hgnc_normalize_list`](https://armish.github.io/hgnc.mcp/reference/hgnc_normalize_list.md),
   etc.
 - Package help:
-  [`help(package = "hgnc.mcp")`](https://rdrr.io/pkg/hgnc.mcp/man)
+  [`help(package = "hgnc.mcp")`](https://armish.github.io/hgnc.mcp/reference)
 - Examples: See `EXAMPLES.md` in the package repository
 - Issues: Report bugs at
   <https://github.com/yourusername/hgnc.mcp/issues>
