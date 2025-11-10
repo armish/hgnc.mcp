@@ -86,6 +86,7 @@ Example configuration:
         "-v",
         "hgnc-cache:/home/hgnc/.cache/hgnc",
         "ghcr.io/armish/hgnc.mcp:latest",
+        "/usr/local/bin/hgnc-mcp-server",
         "--stdio"
       ]
     }
@@ -204,7 +205,7 @@ For stdio mode (testing with Docker):
 ```bash
 # Test stdio mode with Docker
 echo '{"jsonrpc":"2.0","method":"initialize","params":{},"id":1}' | \
-  docker run --rm -i ghcr.io/armish/hgnc.mcp:latest --stdio
+  docker run --rm -i ghcr.io/armish/hgnc.mcp:latest /usr/local/bin/hgnc-mcp-server --stdio
 ```
 
 ## Other MCP Clients
@@ -310,7 +311,7 @@ You can run multiple server instances (e.g., different versions or configuration
     },
     "hgnc-docker": {
       "command": "docker",
-      "args": ["run", "--rm", "-i", "ghcr.io/armish/hgnc.mcp:latest", "--stdio"]
+      "args": ["run", "--rm", "-i", "ghcr.io/armish/hgnc.mcp:latest", "/usr/local/bin/hgnc-mcp-server", "--stdio"]
     }
   }
 }
