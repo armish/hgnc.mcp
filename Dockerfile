@@ -31,6 +31,7 @@ ENV PATH=/opt/conda/envs/hgnc-mcp/bin:$PATH \
     CONDA_DEFAULT_ENV=hgnc-mcp \
     CONDA_PREFIX=/opt/conda/envs/hgnc-mcp
 
+
 # Install additional R packages not available in conda-forge via CRAN
 # These are typically test/development packages not needed for runtime
 RUN Rscript -e "install.packages(c('covr'), repos='https://cloud.r-project.org/', dependencies=TRUE)"
