@@ -77,7 +77,7 @@ USER root
 RUN install -m 755 /build/inst/scripts/run_server.R /usr/local/bin/hgnc-mcp-server
 USER hgnc
 
-# Entry point - use the run_server.R script for flexibility
-# This allows passing arguments like --stdio to docker run
-ENTRYPOINT ["/opt/conda/envs/hgnc-mcp/bin/Rscript", "/usr/local/bin/hgnc-mcp-server"]
-CMD []
+# Entry point - use Rscript as entrypoint for flexibility
+# Default CMD runs the server, but can be overridden for testing
+ENTRYPOINT ["/opt/conda/envs/hgnc-mcp/bin/Rscript"]
+CMD ["/usr/local/bin/hgnc-mcp-server"]
