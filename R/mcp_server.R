@@ -4,12 +4,17 @@
 #' the plumber2mcp integration. This exposes HGNC nomenclature tools through
 #' the MCP protocol for use by LLM copilots and other MCP clients.
 #'
-#' @param port Integer. Port number to run the server on (default: 8080)
-#' @param host Character. Host address to bind to (default: "0.0.0.0")
+#' @param port Integer. Port number to run the server on (default: 8080).
+#'   Only used when transport is "http".
+#' @param host Character. Host address to bind to (default: "0.0.0.0").
+#'   Only used when transport is "http".
+#' @param transport Character. Transport mode: "http" for HTTP/SSE transport
+#'   or "stdio" for standard input/output (default: "http"). Use "stdio" for
+#'   desktop clients like Claude Desktop.
 #' @param swagger Logical. Whether to enable Swagger UI documentation
-#'   (default: TRUE)
+#'   (default: TRUE). Only used when transport is "http".
 #' @param quiet Logical. If TRUE, suppress startup messages (default: FALSE)
-#' @param ... Additional arguments passed to `pr$run()`
+#' @param ... Additional arguments passed to `pr$run()` (for HTTP transport)
 #'
 #' @return The plumber router object (invisibly), for advanced use cases
 #'
@@ -64,8 +69,7 @@
 #' complex nomenclature tasks.
 #'
 #' @section MCP Client Configuration:
-#' To connect an MCP client (e.g., Claude Desktop), add the following to
-#' your MCP configuration file:
+#' For HTTP transport, add to your MCP configuration file:
 #'
 #' ```json
 #' {
@@ -77,9 +81,25 @@
 #' }
 #' ```
 #'
+#' For stdio transport (recommended for desktop clients), use:
+#'
+#' ```json
+#' {
+#'   "mcpServers": {
+#'     "hgnc": {
+#'       "command": "Rscript",
+#'       "args": ["-e", "hgnc.mcp::start_hgnc_mcp_server(transport='stdio')"]
+#'     }
+#'   }
+#' }
+#' ```
+#'
 #' @examples
 #' \dontrun{
-#' # Start server on default port 8080
+#' # Start server with stdio transport (for Claude Desktop)
+#' start_hgnc_mcp_server(transport = "stdio")
+#'
+#' # Start HTTP server on default port 8080
 #' start_hgnc_mcp_server()
 #'
 #' # Start on custom port
@@ -98,10 +118,18 @@
 start_hgnc_mcp_server <- function(
   port = 8080,
   host = "0.0.0.0",
+  transport = "http",
   swagger = TRUE,
   quiet = FALSE,
   ...
 ) {
+  # Validate transport parameter
+  if (!transport %in% c("http", "stdio")) {
+    stop(
+      "Invalid transport mode '", transport, "'. ",
+      "Must be 'http' or 'stdio'."
+    )
+  }
   # Load required packages
   if (!requireNamespace("plumber", quietly = TRUE)) {
     stop(
@@ -255,15 +283,17 @@ start_hgnc_mcp_server <- function(
 
   # Apply MCP integration
   if (!quiet) {
-    message("Applying MCP integration via plumber2mcp...")
+    message(sprintf("Applying MCP integration via plumber2mcp (transport: %s)...", transport))
   }
-  pr <- plumber2mcp::pr_mcp(pr, transport = "http")
+  pr <- plumber2mcp::pr_mcp(pr, transport = transport)
 
-  # Configure Swagger UI
-  if (swagger) {
-    pr <- plumber::pr_set_docs(pr, docs = "swagger")
-  } else {
-    pr <- plumber::pr_set_docs(pr, docs = FALSE)
+  # Configure Swagger UI (only for HTTP transport)
+  if (transport == "http") {
+    if (swagger) {
+      pr <- plumber::pr_set_docs(pr, docs = "swagger")
+    } else {
+      pr <- plumber::pr_set_docs(pr, docs = FALSE)
+    }
   }
 
   # Print startup information
@@ -272,27 +302,34 @@ start_hgnc_mcp_server <- function(
     cat("========================================\n")
     cat("HGNC MCP Server Starting\n")
     cat("========================================\n")
-    cat(sprintf("Host:    %s\n", host))
-    cat(sprintf("Port:    %d\n", port))
-    cat("\n")
-    cat("API Endpoints:\n")
-    cat(sprintf(
-      "  Base URL:    http://%s:%d\n",
-      if (host == "0.0.0.0") "localhost" else host,
-      port
-    ))
-    cat(sprintf(
-      "  MCP Endpoint: http://%s:%d/mcp\n",
-      if (host == "0.0.0.0") "localhost" else host,
-      port
-    ))
-    if (swagger) {
+    cat(sprintf("Transport: %s\n", transport))
+
+    if (transport == "http") {
+      cat(sprintf("Host:      %s\n", host))
+      cat(sprintf("Port:      %d\n", port))
+      cat("\n")
+      cat("API Endpoints:\n")
       cat(sprintf(
-        "  Swagger UI:  http://%s:%d/__docs__/\n",
+        "  Base URL:     http://%s:%d\n",
         if (host == "0.0.0.0") "localhost" else host,
         port
       ))
+      cat(sprintf(
+        "  MCP Endpoint: http://%s:%d/mcp\n",
+        if (host == "0.0.0.0") "localhost" else host,
+        port
+      ))
+      if (swagger) {
+        cat(sprintf(
+          "  Swagger UI:   http://%s:%d/__docs__/\n",
+          if (host == "0.0.0.0") "localhost" else host,
+          port
+        ))
+      }
+    } else {
+      cat("Mode:      stdio (standard input/output)\n")
     }
+
     cat("\n")
     cat("Available Tools: 10\n")
     cat("  - info, find, fetch, resolve_symbol\n")
@@ -317,27 +354,47 @@ start_hgnc_mcp_server <- function(
       cat("  (Prompts pending plumber2mcp update)\n")
     }
     cat("\n")
-    cat("MCP Client Configuration:\n")
-    cat("  Add to your MCP config file:\n")
-    cat("  {\n")
-    cat('    "mcpServers": {\n')
-    cat('      "hgnc": {\n')
-    cat(sprintf('        "url": "http://localhost:%d/mcp"\n', port))
-    cat('      }\n')
-    cat('    }\n')
-    cat("  }\n")
-    cat("\n")
-    cat("Press Ctrl+C to stop the server\n")
+
+    if (transport == "http") {
+      cat("MCP Client Configuration:\n")
+      cat("  Add to your MCP config file:\n")
+      cat("  {\n")
+      cat('    "mcpServers": {\n')
+      cat('      "hgnc": {\n')
+      cat(sprintf('        "url": "http://localhost:%d/mcp"\n', port))
+      cat('      }\n')
+      cat('    }\n')
+      cat("  }\n")
+      cat("\n")
+      cat("Press Ctrl+C to stop the server\n")
+    } else {
+      cat("Ready for stdio communication.\n")
+      cat("Use this with MCP clients like Claude Desktop.\n")
+    }
+
     cat("========================================\n")
     cat("\n")
   }
 
-  # Start the server
-  pr$run(
-    host = host,
-    port = port,
-    ...
-  )
+  # Start the server based on transport mode
+  if (transport == "http") {
+    # Start HTTP server
+    pr$run(
+      host = host,
+      port = port,
+      ...
+    )
+  } else {
+    # For stdio, plumber2mcp handles the stdio loop internally
+    # Just return the router - plumber2mcp will handle stdio communication
+    # when pr_mcp(transport="stdio") is set
+    if (!quiet) {
+      message("Starting stdio server...")
+    }
+    # The stdio server should run immediately when pr is returned
+    # plumber2mcp::pr_mcp with transport="stdio" sets up the stdio loop
+    invisible(pr)
+  }
 
   invisible(pr)
 }

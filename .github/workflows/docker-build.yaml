@@ -84,7 +84,7 @@ jobs:
       - name: Test server startup configuration
         run: |
           echo "Testing server startup logic..."
-          docker run --rm hgnc-mcp:test /opt/conda/envs/hgnc-mcp/bin/Rscript /opt/conda/envs/hgnc-mcp/lib/R/library/hgnc.mcp/scripts/test_server_start.R
+          docker run --rm hgnc-mcp:test /opt/conda/envs/hgnc-mcp/lib/R/library/hgnc.mcp/scripts/test_server_start.R
 
       - name: Test Docker image
         run: |
