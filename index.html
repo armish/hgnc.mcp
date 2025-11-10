@@ -297,11 +297,37 @@
 <div class="section level3">
 <h3 id="docker-deployment">Docker Deployment<a class="anchor" aria-label="anchor" href="#docker-deployment"></a>
 </h3>
-<p>The easiest way to deploy the server is using Docker:</p>
+<p>The easiest way to deploy the server is using Docker. Pre-built images are <strong>publicly available</strong> on GitHub Container Registry and support multiple architectures.</p>
+<div class="section level4">
+<h4 id="available-images">Available Images<a class="anchor" aria-label="anchor" href="#available-images"></a>
+</h4>
+<ul>
+<li>
+<strong>Registry</strong>: <code>ghcr.io/armish/hgnc.mcp</code>
+</li>
+<li>
+<strong>Platforms</strong>: <code>linux/amd64</code>, <code>linux/arm64</code>
+</li>
+<li>
+<strong>Tags</strong>:
+<ul>
+<li>
+<code>latest</code> - Latest stable release from main branch</li>
+<li>
+<code>main</code> - Latest commit on main branch</li>
+<li>
+<code>v*</code> - Specific version tags (e.g., <code>v1.0.0</code>)</li>
+<li>
+<code>pr-*</code> - Pull request builds for testing</li>
+</ul>
+</li>
+</ul>
+<p>Images are automatically built and published on every push to the main branch via GitHub Actions.</p>
+</div>
 <div class="section level4">
 <h4 id="quick-start-with-docker">Quick Start with Docker<a class="anchor" aria-label="anchor" href="#quick-start-with-docker"></a>
 </h4>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Pull the pre-built image</span></span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Pull the pre-built image (supports both amd64 and arm64)</span></span>
 <span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">docker</span> pull ghcr.io/armish/hgnc.mcp:latest</span>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Run the container</span></span>
