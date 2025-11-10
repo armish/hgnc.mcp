@@ -221,12 +221,24 @@ The HGNC MCP server can be deployed in several ways depending on your needs.
 
 ### Docker Deployment
 
-The easiest way to deploy the server is using Docker:
+The easiest way to deploy the server is using Docker. Pre-built images are **publicly available** on GitHub Container Registry and support multiple architectures.
+
+#### Available Images
+
+- **Registry**: `ghcr.io/armish/hgnc.mcp`
+- **Platforms**: `linux/amd64`, `linux/arm64`
+- **Tags**:
+  - `latest` - Latest stable release from main branch
+  - `main` - Latest commit on main branch
+  - `v*` - Specific version tags (e.g., `v1.0.0`)
+  - `pr-*` - Pull request builds for testing
+
+Images are automatically built and published on every push to the main branch via GitHub Actions.
 
 #### Quick Start with Docker
 
 ```bash
-# Pull the pre-built image
+# Pull the pre-built image (supports both amd64 and arm64)
 docker pull ghcr.io/armish/hgnc.mcp:latest
 
 # Run the container

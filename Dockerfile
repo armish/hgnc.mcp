@@ -1,25 +1,39 @@
-# Multi-stage build for HGNC MCP Server
-FROM r-base:4.3.2
+# Multi-stage build for HGNC MCP Server using Miniconda
+# This approach uses pre-compiled conda packages from conda-forge, avoiding
+# cross-compilation issues with QEMU for ARM64 builds
+FROM continuumio/miniconda3:latest
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libxml2-dev \
-    libfontconfig1-dev \
-    libharfbuzz-dev \
-    libfribidi-dev \
-    libfreetype6-dev \
-    libpng-dev \
-    libtiff5-dev \
-    libjpeg-dev \
-    libsodium-dev \
+# Install mamba for faster package resolution and installation
+RUN conda install -n base -c conda-forge mamba -y && \
+    conda clean --all -f -y
+
+# Create conda environment with R and dependencies from conda-forge
+# Install only packages available in conda-forge; others will be installed via CRAN
+RUN mamba create -n hgnc-mcp -c conda-forge -y \
+    r-base=4.3.* \
+    r-devtools \
+    r-remotes \
+    r-roxygen2 \
+    r-plumber \
+    r-httr \
+    r-jsonlite \
+    r-dplyr \
+    r-tidyr \
+    r-readr \
+    r-stringr \
+    r-curl \
+    r-testthat \
     git \
-    ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+    && mamba clean --all -f -y
 
-# Install remotes package for installing from GitHub
-RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org/')"
+# Activate conda environment
+ENV PATH=/opt/conda/envs/hgnc-mcp/bin:$PATH \
+    CONDA_DEFAULT_ENV=hgnc-mcp \
+    CONDA_PREFIX=/opt/conda/envs/hgnc-mcp
+
+# Install additional R packages not available in conda-forge via CRAN
+# These are typically test/development packages not needed for runtime
+RUN Rscript -e "install.packages(c('covr'), repos='https://cloud.r-project.org/', dependencies=TRUE)"
 
 # Set working directory
 WORKDIR /build
@@ -27,28 +41,18 @@ WORKDIR /build
 # Copy the entire package
 COPY . .
 
-# First, explicitly install plumber and plumber2mcp since they're causing issues
-RUN R -e "\
-  options(repos = c(CRAN = 'https://cloud.r-project.org/')); \
-  cat('Installing plumber from CRAN...\n'); \
-  install.packages('plumber'); \
-  cat('Installing plumber2mcp from GitHub...\n'); \
-  remotes::install_github('armish/plumber2mcp', upgrade = 'never')"
+# Install plumber2mcp from GitHub
+RUN Rscript -e "remotes::install_github('armish/plumber2mcp', upgrade = 'never', force = TRUE)"
 
-# Now install all other dependencies
-RUN R -e "\
-  options(repos = c(CRAN = 'https://cloud.r-project.org/')); \
-  cat('Installing remaining dependencies...\n'); \
-  remotes::install_deps('.', dependencies = TRUE, upgrade = 'never')"
-
-# Build and install the package itself using R CMD INSTALL
-RUN R CMD INSTALL --no-multiarch --with-keep.source .
+# Install the hgnc.mcp package and its remaining dependencies
+RUN Rscript -e "remotes::install_deps('.', dependencies = TRUE, upgrade = 'never')" && \
+    R CMD INSTALL --no-multiarch --with-keep.source .
 
 # Verify the package was installed correctly
-RUN R -e "cat('Verifying installation...\n'); library(hgnc.mcp); cat('Version:', as.character(packageVersion('hgnc.mcp')), '\n')"
+RUN Rscript -e "cat('Verifying installation...\n'); library(hgnc.mcp); cat('Version:', as.character(packageVersion('hgnc.mcp')), '\n')"
 
 # Create a non-root user for running the server
-RUN useradd -m hgnc && \
+RUN useradd -m -s /bin/bash hgnc && \
     mkdir -p /home/hgnc/.cache/hgnc && \
     chown -R hgnc:hgnc /home/hgnc
 
@@ -62,9 +66,9 @@ ENV HGNC_CACHE_DIR=/home/hgnc/.cache/hgnc
 # Expose the default port
 EXPOSE 8080
 
-# Health check
+# Health check using the conda environment's Rscript
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD Rscript -e "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"
+    CMD ["/opt/conda/envs/hgnc-mcp/bin/Rscript", "-e", "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"]
 
-# Entry point - run the MCP server
-CMD ["Rscript", "-e", "hgnc.mcp::start_hgnc_mcp_server(host='0.0.0.0', port=8080, swagger=TRUE)"]
+# Entry point - run the MCP server using the conda environment's Rscript
+CMD ["/opt/conda/envs/hgnc-mcp/bin/Rscript", "-e", "hgnc.mcp::start_hgnc_mcp_server(host='0.0.0.0', port=8080, swagger=TRUE)"]

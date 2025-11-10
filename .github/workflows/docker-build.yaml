@@ -26,6 +26,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -51,7 +56,7 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build Docker image
+      - name: Build Docker image (single platform for testing)
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -59,13 +64,25 @@ jobs:
           push: false
           load: true
           tags: hgnc-mcp:test
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build multi-platform Docker image (test only)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Test server startup configuration
         run: |
           echo "Testing server startup logic..."
-          docker run --rm hgnc-mcp:test Rscript /usr/local/lib/R/site-library/hgnc.mcp/scripts/test_server_start.R
+          docker run --rm hgnc-mcp:test /opt/conda/envs/hgnc-mcp/bin/Rscript /opt/conda/envs/hgnc-mcp/lib/R/library/hgnc.mcp/scripts/test_server_start.R
 
       - name: Test Docker image
         run: |
@@ -185,6 +202,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
