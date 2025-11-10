@@ -9,6 +9,7 @@
         "-v",
         "hgnc-cache:/home/hgnc/.cache/hgnc",
         "ghcr.io/armish/hgnc.mcp:latest",
+        "/usr/local/bin/hgnc-mcp-server",
         "--stdio"
       ],
       "env": {}

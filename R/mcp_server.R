@@ -385,15 +385,12 @@ start_hgnc_mcp_server <- function(
       ...
     )
   } else {
-    # For stdio, plumber2mcp handles the stdio loop internally
-    # Just return the router - plumber2mcp will handle stdio communication
-    # when pr_mcp(transport="stdio") is set
+    # For stdio, plumber2mcp modifies pr$run() to handle stdio transport
+    # Call pr$run() which will start the stdio event loop
     if (!quiet) {
       message("Starting stdio server...")
     }
-    # The stdio server should run immediately when pr is returned
-    # plumber2mcp::pr_mcp with transport="stdio" sets up the stdio loop
-    invisible(pr)
+    pr$run()
   }
 
   invisible(pr)
