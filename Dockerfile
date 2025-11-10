@@ -71,5 +71,13 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD ["/opt/conda/envs/hgnc-mcp/bin/Rscript", "-e", "tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"]
 
-# Entry point - run the MCP server using the conda environment's Rscript
-CMD ["/opt/conda/envs/hgnc-mcp/bin/Rscript", "-e", "hgnc.mcp::start_hgnc_mcp_server(host='0.0.0.0', port=8080, swagger=TRUE)"]
+# Copy run_server.R script to a standard location for easy access
+# This script is already installed with the package, but we make it easily executable
+USER root
+RUN install -m 755 /build/inst/scripts/run_server.R /usr/local/bin/hgnc-mcp-server
+USER hgnc
+
+# Entry point - use the run_server.R script for flexibility
+# This allows passing arguments like --stdio to docker run
+ENTRYPOINT ["/opt/conda/envs/hgnc-mcp/bin/Rscript", "/usr/local/bin/hgnc-mcp-server"]
+CMD []

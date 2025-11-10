@@ -6,11 +6,10 @@
         "run",
         "--rm",
         "-i",
-        "-p",
-        "8080:8080",
         "-v",
         "hgnc-cache:/home/hgnc/.cache/hgnc",
-        "ghcr.io/armish/hgnc.mcp:latest"
+        "ghcr.io/armish/hgnc.mcp:latest",
+        "--stdio"
       ],
       "env": {}
     }

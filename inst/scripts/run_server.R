@@ -8,16 +8,20 @@
 #   Rscript inst/scripts/run_server.R [options]
 #
 # Options:
-#   --port PORT          Port number to run the server on (default: 8080)
-#   --host HOST          Host address to bind to (default: 0.0.0.0)
-#   --no-swagger         Disable Swagger UI documentation
+#   --stdio              Use stdio transport (for Claude Desktop, etc.)
+#   --port PORT          Port number to run the server on (default: 8080, HTTP only)
+#   --host HOST          Host address to bind to (default: 0.0.0.0, HTTP only)
+#   --no-swagger         Disable Swagger UI documentation (HTTP only)
 #   --check-cache        Check and download HGNC cache if needed before starting
 #   --update-cache       Force update of HGNC cache before starting
 #   --quiet              Suppress startup messages
 #   --help               Show this help message
 #
 # Examples:
-#   # Start on default port 8080
+#   # Start with stdio transport (for Claude Desktop)
+#   Rscript inst/scripts/run_server.R --stdio
+#
+#   # Start HTTP server on default port 8080
 #   Rscript inst/scripts/run_server.R
 #
 #   # Start on custom port with cache update
@@ -31,6 +35,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 # Default values
+transport <- "http"  # or "stdio"
 port <- 8080
 host <- "0.0.0.0"
 swagger <- TRUE
@@ -47,6 +52,8 @@ while (i <= length(args)) {
   if (arg == "--help" || arg == "-h") {
     show_help <- TRUE
     break
+  } else if (arg == "--stdio") {
+    transport <- "stdio"
   } else if (arg == "--port") {
     i <- i + 1
     if (i > length(args)) {
@@ -83,14 +90,16 @@ if (show_help) {
   cat("Usage:\n")
   cat("  Rscript inst/scripts/run_server.R [options]\n\n")
   cat("Options:\n")
-  cat("  --port PORT          Port number (default: 8080)\n")
-  cat("  --host HOST          Host address (default: 0.0.0.0)\n")
-  cat("  --no-swagger         Disable Swagger UI\n")
+  cat("  --stdio              Use stdio transport (for Claude Desktop, etc.)\n")
+  cat("  --port PORT          Port number (default: 8080, HTTP only)\n")
+  cat("  --host HOST          Host address (default: 0.0.0.0, HTTP only)\n")
+  cat("  --no-swagger         Disable Swagger UI (HTTP only)\n")
   cat("  --check-cache        Check/download HGNC cache if needed\n")
   cat("  --update-cache       Force update HGNC cache\n")
   cat("  --quiet, -q          Suppress startup messages\n")
   cat("  --help, -h           Show this help message\n\n")
   cat("Examples:\n")
+  cat("  Rscript inst/scripts/run_server.R --stdio\n")
   cat("  Rscript inst/scripts/run_server.R\n")
   cat("  Rscript inst/scripts/run_server.R --port 9090 --update-cache\n")
   cat("  Rscript inst/scripts/run_server.R --no-swagger\n\n")
@@ -173,6 +182,7 @@ tryCatch(
     hgnc.mcp::start_hgnc_mcp_server(
       port = port,
       host = host,
+      transport = transport,
       swagger = swagger,
       quiet = quiet
     )
@@ -183,7 +193,9 @@ tryCatch(
 
     # Provide helpful troubleshooting info
     cat("Troubleshooting:\n")
-    cat("  1. Check if the port is already in use\n")
+    if (transport == "http") {
+      cat("  1. Check if the port is already in use\n")
+    }
     cat(
       "  2. Ensure all dependencies are installed (run check_mcp_dependencies())\n"
     )

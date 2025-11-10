@@ -119,11 +119,15 @@ library(hgnc.mcp)
 # Check dependencies
 check_mcp_dependencies()
 
-# Start the server on default port 8080
-start_hgnc_mcp_server()
+# Start with stdio transport (recommended for desktop clients like Claude Desktop)
+start_hgnc_mcp_server(transport = "stdio")
 
-# Or customize the configuration
+# Or start HTTP server on default port 8080 (for web-based or remote clients)
+start_hgnc_mcp_server(transport = "http")
+
+# Customize HTTP server configuration
 start_hgnc_mcp_server(
+  transport = "http",
   port = 9090,
   host = "0.0.0.0",
   swagger = TRUE
@@ -133,16 +137,19 @@ start_hgnc_mcp_server(
 #### Using the standalone script:
 
 ```bash
-# Basic usage
+# Start with stdio transport (for desktop clients)
+Rscript inst/scripts/run_server.R --stdio
+
+# Start HTTP server (default behavior)
 Rscript inst/scripts/run_server.R
 
-# Custom port
+# Custom port for HTTP mode
 Rscript inst/scripts/run_server.R --port 9090
 
 # Update cache before starting
 Rscript inst/scripts/run_server.R --update-cache
 
-# Disable Swagger UI
+# Disable Swagger UI (HTTP mode only)
 Rscript inst/scripts/run_server.R --no-swagger
 
 # Get help
@@ -151,21 +158,41 @@ Rscript inst/scripts/run_server.R --help
 
 ### MCP Client Configuration
 
-To connect an MCP client (such as Claude Desktop) to the HGNC server, add the following to your MCP configuration file:
+#### Claude Desktop (Recommended)
 
-**Claude Desktop** (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
+Claude Desktop supports stdio transport for efficient local communication. Configuration file location:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Linux: `~/.config/Claude/claude_desktop_config.json`
 
+**Using local R installation:**
 ```json
 {
   "mcpServers": {
     "hgnc": {
-      "url": "http://localhost:8080/mcp"
+      "command": "Rscript",
+      "args": ["-e", "hgnc.mcp::start_hgnc_mcp_server(transport='stdio')"],
+      "env": {
+        "HGNC_CACHE_DIR": "${HOME}/.cache/hgnc"
+      }
     }
   }
 }
 ```
 
-**Other MCP Clients**: Consult your client's documentation for MCP server configuration.
+**Using Docker:**
+```json
+{
+  "mcpServers": {
+    "hgnc": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-v", "hgnc-cache:/home/hgnc/.cache/hgnc", "ghcr.io/armish/hgnc.mcp:latest", "--stdio"]
+    }
+  }
+}
+```
+
+**Other MCP Clients**: For HTTP-based clients, start the server with `transport='http'` and connect to `http://localhost:8080/mcp`.
 
 ### Available MCP Tools
 
@@ -241,14 +268,19 @@ Images are automatically built and published on every push to the main branch vi
 # Pull the pre-built image (supports both amd64 and arm64)
 docker pull ghcr.io/armish/hgnc.mcp:latest
 
-# Run the container
+# For Claude Desktop (stdio mode)
+docker run --rm -i \
+  -v hgnc-cache:/home/hgnc/.cache/hgnc \
+  ghcr.io/armish/hgnc.mcp:latest --stdio
+
+# For HTTP server mode
 docker run -d \
   --name hgnc-mcp-server \
   -p 8080:8080 \
   -v hgnc-cache:/home/hgnc/.cache/hgnc \
   ghcr.io/armish/hgnc.mcp:latest
 
-# Access the server
+# Access the server (HTTP mode only)
 open http://localhost:8080/__docs__/
 ```
 
@@ -262,7 +294,12 @@ cd hgnc.mcp
 # Build the Docker image
 docker build -t hgnc-mcp:latest .
 
-# Run the container
+# Run in stdio mode (for Claude Desktop)
+docker run --rm -i \
+  -v hgnc-cache:/home/hgnc/.cache/hgnc \
+  hgnc-mcp:latest --stdio
+
+# Or run in HTTP mode
 docker run -d \
   --name hgnc-mcp-server \
   -p 8080:8080 \

@@ -57,7 +57,7 @@ Example configuration:
       "command": "Rscript",
       "args": [
         "-e",
-        "hgnc.mcp::start_hgnc_mcp_server(port=8080, host='127.0.0.1', swagger=TRUE)"
+        "hgnc.mcp::start_hgnc_mcp_server(transport='stdio')"
       ],
       "env": {
         "HGNC_CACHE_DIR": "${HOME}/.cache/hgnc"
@@ -83,20 +83,33 @@ Example configuration:
         "run",
         "--rm",
         "-i",
-        "-p",
-        "8080:8080",
         "-v",
         "hgnc-cache:/home/hgnc/.cache/hgnc",
-        "ghcr.io/armish/hgnc.mcp:latest"
+        "ghcr.io/armish/hgnc.mcp:latest",
+        "--stdio"
       ]
     }
   }
 }
 ```
 
+### Transport Modes
+
+The HGNC MCP server supports two transport modes:
+
+**stdio (recommended for desktop clients like Claude Desktop):**
+- Uses standard input/output for communication
+- More efficient and reliable for local use
+- No network ports required
+
+**http (for web-based or remote clients):**
+- Uses HTTP/SSE for communication
+- Requires port configuration
+- Includes Swagger UI for API documentation
+
 ### Custom Configuration
 
-You can customize the server configuration by modifying the arguments:
+For stdio mode with custom cache location:
 
 ```json
 {
@@ -105,7 +118,7 @@ You can customize the server configuration by modifying the arguments:
       "command": "Rscript",
       "args": [
         "-e",
-        "hgnc.mcp::start_hgnc_mcp_server(port=9090, host='127.0.0.1', swagger=FALSE)"
+        "hgnc.mcp::start_hgnc_mcp_server(transport='stdio')"
       ],
       "env": {
         "HGNC_CACHE_DIR": "/custom/path/to/cache",
@@ -116,10 +129,27 @@ You can customize the server configuration by modifying the arguments:
 }
 ```
 
+For HTTP mode (if you need remote access):
+
+```json
+{
+  "mcpServers": {
+    "hgnc-http": {
+      "command": "Rscript",
+      "args": [
+        "-e",
+        "hgnc.mcp::start_hgnc_mcp_server(transport='http', port=9090, host='127.0.0.1', swagger=FALSE)"
+      ]
+    }
+  }
+}
+```
+
 Available options:
-- `port`: Port number (default: 8080)
-- `host`: Host address (default: 127.0.0.1 for local, 0.0.0.0 for all interfaces)
-- `swagger`: Enable Swagger UI (default: TRUE)
+- `transport`: Transport mode - "stdio" or "http" (default: "http")
+- `port`: Port number for HTTP mode (default: 8080)
+- `host`: Host address for HTTP mode (default: 0.0.0.0)
+- `swagger`: Enable Swagger UI for HTTP mode (default: TRUE)
 
 ### Testing the Connection
 
@@ -144,9 +174,9 @@ Check Claude Desktop logs:
 Common issues:
 
 1. **R not found**: Ensure R is in your PATH
-2. **Package not installed**: Run `install.packages("hgnc.mcp")` or install from GitHub
-3. **Port already in use**: Change the port number in the configuration
-4. **Docker not running**: Start Docker Desktop
+2. **Package not installed**: Run `remotes::install_github("armish/hgnc.mcp")`
+3. **Docker not running**: Start Docker Desktop (for Docker-based setup)
+4. **plumber2mcp not found**: Install with `remotes::install_github("armish/plumber2mcp")`
 
 #### Verify R installation
 
@@ -161,12 +191,20 @@ Rscript -e "library(hgnc.mcp); packageVersion('hgnc.mcp')"
 
 #### Test server manually
 
+For HTTP mode:
 ```bash
-# Start server manually
-Rscript -e "hgnc.mcp::start_hgnc_mcp_server(port=8080)"
+# Start server in HTTP mode
+Rscript -e "hgnc.mcp::start_hgnc_mcp_server(transport='http', port=8080)"
 
 # In another terminal, test it
 curl http://localhost:8080/__docs__/
+```
+
+For stdio mode (testing with Docker):
+```bash
+# Test stdio mode with Docker
+echo '{"jsonrpc":"2.0","method":"initialize","params":{},"id":1}' | \
+  docker run --rm -i ghcr.io/armish/hgnc.mcp:latest --stdio
 ```
 
 ## Other MCP Clients
@@ -261,18 +299,18 @@ If running the server on a remote machine:
 
 ### Multiple Server Instances
 
-Run multiple servers on different ports:
+You can run multiple server instances (e.g., different versions or configurations):
 
 ```json
 {
   "mcpServers": {
-    "hgnc-dev": {
+    "hgnc-local": {
       "command": "Rscript",
-      "args": ["-e", "hgnc.mcp::start_hgnc_mcp_server(port=8080)"]
+      "args": ["-e", "hgnc.mcp::start_hgnc_mcp_server(transport='stdio')"]
     },
-    "hgnc-prod": {
-      "command": "Rscript",
-      "args": ["-e", "hgnc.mcp::start_hgnc_mcp_server(port=8081)"]
+    "hgnc-docker": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "ghcr.io/armish/hgnc.mcp:latest", "--stdio"]
     }
   }
 }
