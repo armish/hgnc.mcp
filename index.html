@@ -183,11 +183,15 @@
 <span><span class="co"># Check dependencies</span></span>
 <span><span class="fu"><a href="reference/check_mcp_dependencies.html">check_mcp_dependencies</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Start the server on default port 8080</span></span>
-<span><span class="fu"><a href="reference/start_hgnc_mcp_server.html">start_hgnc_mcp_server</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># Start with stdio transport (recommended for desktop clients like Claude Desktop)</span></span>
+<span><span class="fu"><a href="reference/start_hgnc_mcp_server.html">start_hgnc_mcp_server</a></span><span class="op">(</span>transport <span class="op">=</span> <span class="st">"stdio"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Or customize the configuration</span></span>
+<span><span class="co"># Or start HTTP server on default port 8080 (for web-based or remote clients)</span></span>
+<span><span class="fu"><a href="reference/start_hgnc_mcp_server.html">start_hgnc_mcp_server</a></span><span class="op">(</span>transport <span class="op">=</span> <span class="st">"http"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Customize HTTP server configuration</span></span>
 <span><span class="fu"><a href="reference/start_hgnc_mcp_server.html">start_hgnc_mcp_server</a></span><span class="op">(</span></span>
+<span>  transport <span class="op">=</span> <span class="st">"http"</span>,</span>
 <span>  port <span class="op">=</span> <span class="fl">9090</span>,</span>
 <span>  host <span class="op">=</span> <span class="st">"0.0.0.0"</span>,</span>
 <span>  swagger <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -196,35 +200,55 @@
 <div class="section level4">
 <h4 id="using-the-standalone-script">Using the standalone script:<a class="anchor" aria-label="anchor" href="#using-the-standalone-script"></a>
 </h4>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Basic usage</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R</span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Start with stdio transport (for desktop clients)</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--stdio</span></span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Custom port</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--port</span> 9090</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Start HTTP server (default behavior)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R</span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Update cache before starting</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--update-cache</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># Custom port for HTTP mode</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--port</span> 9090</span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co"># Disable Swagger UI</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--no-swagger</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co"># Update cache before starting</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--update-cache</span></span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co"># Get help</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--help</span></span></code></pre></div>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co"># Disable Swagger UI (HTTP mode only)</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--no-swagger</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co"># Get help</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--help</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
 <h3 id="mcp-client-configuration">MCP Client Configuration<a class="anchor" aria-label="anchor" href="#mcp-client-configuration"></a>
 </h3>
-<p>To connect an MCP client (such as Claude Desktop) to the HGNC server, add the following to your MCP configuration file:</p>
-<p><strong>Claude Desktop</strong> (<code>~/Library/Application Support/Claude/claude_desktop_config.json</code> on macOS):</p>
+<div class="section level4">
+<h4 id="claude-desktop-recommended">Claude Desktop (Recommended)<a class="anchor" aria-label="anchor" href="#claude-desktop-recommended"></a>
+</h4>
+<p>Claude Desktop supports stdio transport for efficient local communication. Configuration file location: - macOS: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code> - Windows: <code>%APPDATA%\Claude\claude_desktop_config.json</code> - Linux: <code>~/.config/Claude/claude_desktop_config.json</code></p>
+<p><strong>Using local R installation:</strong></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">{</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="dt">"mcpServers"</span><span class="fu">:</span> <span class="fu">{</span></span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="dt">"hgnc"</span><span class="fu">:</span> <span class="fu">{</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>      <span class="dt">"url"</span><span class="fu">:</span> <span class="st">"http://localhost:8080/mcp"</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="fu">}</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">}</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
-<p><strong>Other MCP Clients</strong>: Consult your client’s documentation for MCP server configuration.</p>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>      <span class="dt">"command"</span><span class="fu">:</span> <span class="st">"Rscript"</span><span class="fu">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>      <span class="dt">"args"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"-e"</span><span class="ot">,</span> <span class="st">"hgnc.mcp::start_hgnc_mcp_server(transport='stdio')"</span><span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>      <span class="dt">"env"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>        <span class="dt">"HGNC_CACHE_DIR"</span><span class="fu">:</span> <span class="st">"${HOME}/.cache/hgnc"</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><strong>Using Docker:</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="dt">"mcpServers"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>    <span class="dt">"hgnc"</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>      <span class="dt">"command"</span><span class="fu">:</span> <span class="st">"docker"</span><span class="fu">,</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>      <span class="dt">"args"</span><span class="fu">:</span> <span class="ot">[</span><span class="st">"run"</span><span class="ot">,</span> <span class="st">"--rm"</span><span class="ot">,</span> <span class="st">"-i"</span><span class="ot">,</span> <span class="st">"-v"</span><span class="ot">,</span> <span class="st">"hgnc-cache:/home/hgnc/.cache/hgnc"</span><span class="ot">,</span> <span class="st">"ghcr.io/armish/hgnc.mcp:latest"</span><span class="ot">,</span> <span class="st">"--stdio"</span><span class="ot">]</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p><strong>Other MCP Clients</strong>: For HTTP-based clients, start the server with <code>transport='http'</code> and connect to <code>http://localhost:8080/mcp</code>.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="available-mcp-tools">Available MCP Tools<a class="anchor" aria-label="anchor" href="#available-mcp-tools"></a>
@@ -327,51 +351,61 @@
 <div class="section level4">
 <h4 id="quick-start-with-docker">Quick Start with Docker<a class="anchor" aria-label="anchor" href="#quick-start-with-docker"></a>
 </h4>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Pull the pre-built image (supports both amd64 and arm64)</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="ex">docker</span> pull ghcr.io/armish/hgnc.mcp:latest</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="co"># Run the container</span></span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="dt">\</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  <span class="at">--name</span> hgnc-mcp-server <span class="dt">\</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">-p</span> 8080:8080 <span class="dt">\</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">-v</span> hgnc-cache:/home/hgnc/.cache/hgnc <span class="dt">\</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  ghcr.io/armish/hgnc.mcp:latest</span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co"># Access the server</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="ex">open</span> http://localhost:8080/__docs__/</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Pull the pre-built image (supports both amd64 and arm64)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="ex">docker</span> pull ghcr.io/armish/hgnc.mcp:latest</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co"># For Claude Desktop (stdio mode)</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-i</span> <span class="dt">\</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">-v</span> hgnc-cache:/home/hgnc/.cache/hgnc <span class="dt">\</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  ghcr.io/armish/hgnc.mcp:latest <span class="at">--stdio</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co"># For HTTP server mode</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="at">--name</span> hgnc-mcp-server <span class="dt">\</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>  <span class="at">-p</span> 8080:8080 <span class="dt">\</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="at">-v</span> hgnc-cache:/home/hgnc/.cache/hgnc <span class="dt">\</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  ghcr.io/armish/hgnc.mcp:latest</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co"># Access the server (HTTP mode only)</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="ex">open</span> http://localhost:8080/__docs__/</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="build-from-source">Build from Source<a class="anchor" aria-label="anchor" href="#build-from-source"></a>
 </h4>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Clone the repository</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/armish/hgnc.mcp.git</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="bu">cd</span> hgnc.mcp</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co"># Build the Docker image</span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> hgnc-mcp:latest .</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co"># Run the container</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="dt">\</span></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="at">--name</span> hgnc-mcp-server <span class="dt">\</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="at">-p</span> 8080:8080 <span class="dt">\</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>  <span class="at">-v</span> hgnc-cache:/home/hgnc/.cache/hgnc <span class="dt">\</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  hgnc-mcp:latest</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Clone the repository</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/armish/hgnc.mcp.git</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="bu">cd</span> hgnc.mcp</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co"># Build the Docker image</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="ex">docker</span> build <span class="at">-t</span> hgnc-mcp:latest .</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co"># Run in stdio mode (for Claude Desktop)</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">--rm</span> <span class="at">-i</span> <span class="dt">\</span></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  <span class="at">-v</span> hgnc-cache:/home/hgnc/.cache/hgnc <span class="dt">\</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  hgnc-mcp:latest <span class="at">--stdio</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co"># Or run in HTTP mode</span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-d</span> <span class="dt">\</span></span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  <span class="at">--name</span> hgnc-mcp-server <span class="dt">\</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>  <span class="at">-p</span> 8080:8080 <span class="dt">\</span></span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>  <span class="at">-v</span> hgnc-cache:/home/hgnc/.cache/hgnc <span class="dt">\</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>  hgnc-mcp:latest</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="docker-compose">Docker Compose<a class="anchor" aria-label="anchor" href="#docker-compose"></a>
 </h4>
 <p>For a more complete setup with persistent storage:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Start the server and supporting services</span></span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span></span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co"># View logs</span></span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="ex">docker</span> compose logs <span class="at">-f</span></span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co"># Test the server</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="ex">docker</span> compose <span class="at">--profile</span> test up hgnc-test-client</span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
-<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co"># Stop the server</span></span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="ex">docker</span> compose down</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Start the server and supporting services</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="ex">docker</span> compose up <span class="at">-d</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co"># View logs</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="ex">docker</span> compose logs <span class="at">-f</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co"># Test the server</span></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="ex">docker</span> compose <span class="at">--profile</span> test up hgnc-test-client</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co"># Stop the server</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="ex">docker</span> compose down</span></code></pre></div>
 <blockquote>
 <p><strong>Note</strong>: This uses the modern <code>docker compose</code> command (Docker Compose V2). If you have the legacy standalone version, use <code>docker-compose</code> (with a hyphen) instead.</p>
 </blockquote>
@@ -395,27 +429,27 @@
 <strong>Resource limits</strong> - Set appropriate CPU and memory limits (recommended: 2 CPU, 4GB RAM)</li>
 </ol>
 <p>Example production docker-compose configuration:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hgnc-mcp-server</span><span class="kw">:</span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> ghcr.io/armish/hgnc.mcp:latest</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"127.0.0.1:8080:8080"</span><span class="co">  # Only expose to localhost</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hgnc-cache:/home/hgnc/.cache/hgnc</span></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> unless-stopped</span></span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="at">      </span><span class="fu">resources</span><span class="kw">:</span></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="at">        </span><span class="fu">limits</span><span class="kw">:</span></span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="at">          </span><span class="fu">cpus</span><span class="kw">:</span><span class="at"> </span><span class="st">'2'</span></span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="at">          </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> 4G</span></span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="at">        </span><span class="fu">reservations</span><span class="kw">:</span></span>
-<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="at">          </span><span class="fu">cpus</span><span class="kw">:</span><span class="at"> </span><span class="st">'0.5'</span></span>
-<span id="cb12-16"><a href="#cb12-16" tabindex="-1"></a><span class="at">          </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> 1G</span></span>
-<span id="cb12-17"><a href="#cb12-17" tabindex="-1"></a><span class="at">    </span><span class="fu">healthcheck</span><span class="kw">:</span></span>
-<span id="cb12-18"><a href="#cb12-18" tabindex="-1"></a><span class="at">      </span><span class="fu">test</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"CMD"</span><span class="kw">,</span><span class="at"> </span><span class="st">"Rscript"</span><span class="kw">,</span><span class="at"> </span><span class="st">"-e"</span><span class="kw">,</span><span class="at"> </span><span class="st">"tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"</span><span class="kw">]</span></span>
-<span id="cb12-19"><a href="#cb12-19" tabindex="-1"></a><span class="at">      </span><span class="fu">interval</span><span class="kw">:</span><span class="at"> 30s</span></span>
-<span id="cb12-20"><a href="#cb12-20" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 10s</span></span>
-<span id="cb12-21"><a href="#cb12-21" tabindex="-1"></a><span class="at">      </span><span class="fu">retries</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="at">  </span><span class="fu">hgnc-mcp-server</span><span class="kw">:</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> ghcr.io/armish/hgnc.mcp:latest</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"127.0.0.1:8080:8080"</span><span class="co">  # Only expose to localhost</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hgnc-cache:/home/hgnc/.cache/hgnc</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="at">    </span><span class="fu">restart</span><span class="kw">:</span><span class="at"> unless-stopped</span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="at">      </span><span class="fu">resources</span><span class="kw">:</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="at">        </span><span class="fu">limits</span><span class="kw">:</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="at">          </span><span class="fu">cpus</span><span class="kw">:</span><span class="at"> </span><span class="st">'2'</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="at">          </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> 4G</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="at">        </span><span class="fu">reservations</span><span class="kw">:</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="at">          </span><span class="fu">cpus</span><span class="kw">:</span><span class="at"> </span><span class="st">'0.5'</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="at">          </span><span class="fu">memory</span><span class="kw">:</span><span class="at"> 1G</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="at">    </span><span class="fu">healthcheck</span><span class="kw">:</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="at">      </span><span class="fu">test</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"CMD"</span><span class="kw">,</span><span class="at"> </span><span class="st">"Rscript"</span><span class="kw">,</span><span class="at"> </span><span class="st">"-e"</span><span class="kw">,</span><span class="at"> </span><span class="st">"tryCatch(httr::GET('http://localhost:8080/__docs__/'), error = function(e) quit(status=1))"</span><span class="kw">]</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="at">      </span><span class="fu">interval</span><span class="kw">:</span><span class="at"> 30s</span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="at">      </span><span class="fu">timeout</span><span class="kw">:</span><span class="at"> 10s</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="at">      </span><span class="fu">retries</span><span class="kw">:</span><span class="at"> </span><span class="dv">3</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="cloud-deployment">Cloud Deployment<a class="anchor" aria-label="anchor" href="#cloud-deployment"></a>
@@ -424,44 +458,44 @@
 <div class="section level4">
 <h4 id="aws-ecs--fargate">AWS ECS / Fargate<a class="anchor" aria-label="anchor" href="#aws-ecs--fargate"></a>
 </h4>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Tag for AWS ECR</span></span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a><span class="ex">docker</span> tag hgnc-mcp:latest <span class="op">&lt;</span>account-id<span class="op">&gt;</span>.dkr.ecr.<span class="op">&lt;</span>region<span class="op">&gt;</span>.amazonaws.com/hgnc-mcp:latest</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># Push to ECR</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="ex">docker</span> push <span class="op">&lt;</span>account-id<span class="op">&gt;</span>.dkr.ecr.<span class="op">&lt;</span>region<span class="op">&gt;</span>.amazonaws.com/hgnc-mcp:latest</span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="co"># Deploy using ECS task definition</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Tag for AWS ECR</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="ex">docker</span> tag hgnc-mcp:latest <span class="op">&lt;</span>account-id<span class="op">&gt;</span>.dkr.ecr.<span class="op">&lt;</span>region<span class="op">&gt;</span>.amazonaws.com/hgnc-mcp:latest</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Push to ECR</span></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="ex">docker</span> push <span class="op">&lt;</span>account-id<span class="op">&gt;</span>.dkr.ecr.<span class="op">&lt;</span>region<span class="op">&gt;</span>.amazonaws.com/hgnc-mcp:latest</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co"># Deploy using ECS task definition</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="google-cloud-run">Google Cloud Run<a class="anchor" aria-label="anchor" href="#google-cloud-run"></a>
 </h4>
-<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Tag for Google Container Registry</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="ex">docker</span> tag hgnc-mcp:latest gcr.io/<span class="op">&lt;</span>project-id<span class="op">&gt;</span>/hgnc-mcp:latest</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="co"># Push to GCR</span></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="ex">docker</span> push gcr.io/<span class="op">&lt;</span>project-id<span class="op">&gt;</span>/hgnc-mcp:latest</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="co"># Deploy to Cloud Run</span></span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="ex">gcloud</span> run deploy hgnc-mcp <span class="dt">\</span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>  <span class="at">--image</span> gcr.io/<span class="op">&lt;</span>project-id<span class="op">&gt;</span>/hgnc-mcp:latest <span class="dt">\</span></span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>  <span class="at">--port</span> 8080 <span class="dt">\</span></span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a>  <span class="at">--memory</span> 4Gi <span class="dt">\</span></span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a>  <span class="at">--cpu</span> 2</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Tag for Google Container Registry</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="ex">docker</span> tag hgnc-mcp:latest gcr.io/<span class="op">&lt;</span>project-id<span class="op">&gt;</span>/hgnc-mcp:latest</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># Push to GCR</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="ex">docker</span> push gcr.io/<span class="op">&lt;</span>project-id<span class="op">&gt;</span>/hgnc-mcp:latest</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co"># Deploy to Cloud Run</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="ex">gcloud</span> run deploy hgnc-mcp <span class="dt">\</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>  <span class="at">--image</span> gcr.io/<span class="op">&lt;</span>project-id<span class="op">&gt;</span>/hgnc-mcp:latest <span class="dt">\</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  <span class="at">--port</span> 8080 <span class="dt">\</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  <span class="at">--memory</span> 4Gi <span class="dt">\</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  <span class="at">--cpu</span> 2</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="azure-container-instances">Azure Container Instances<a class="anchor" aria-label="anchor" href="#azure-container-instances"></a>
 </h4>
-<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Create resource group</span></span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="ex">az</span> group create <span class="at">--name</span> hgnc-mcp-rg <span class="at">--location</span> eastus</span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># Deploy container</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="ex">az</span> container create <span class="dt">\</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>  <span class="at">--resource-group</span> hgnc-mcp-rg <span class="dt">\</span></span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>  <span class="at">--name</span> hgnc-mcp-server <span class="dt">\</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>  <span class="at">--image</span> ghcr.io/armish/hgnc.mcp:latest <span class="dt">\</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>  <span class="at">--ports</span> 8080 <span class="dt">\</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  <span class="at">--cpu</span> 2 <span class="dt">\</span></span>
-<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  <span class="at">--memory</span> 4</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># Create resource group</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="ex">az</span> group create <span class="at">--name</span> hgnc-mcp-rg <span class="at">--location</span> eastus</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="co"># Deploy container</span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="ex">az</span> container create <span class="dt">\</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>  <span class="at">--resource-group</span> hgnc-mcp-rg <span class="dt">\</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>  <span class="at">--name</span> hgnc-mcp-server <span class="dt">\</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a>  <span class="at">--image</span> ghcr.io/armish/hgnc.mcp:latest <span class="dt">\</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>  <span class="at">--ports</span> 8080 <span class="dt">\</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>  <span class="at">--cpu</span> 2 <span class="dt">\</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>  <span class="at">--memory</span> 4</span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -473,18 +507,18 @@
 <h3 id="local-development">Local Development<a class="anchor" aria-label="anchor" href="#local-development"></a>
 </h3>
 <p>For local development without Docker:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="co"># Clone the repository</span></span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/armish/hgnc.mcp.git</span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="bu">cd</span> hgnc.mcp</span>
-<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="co"># Install dependencies</span></span>
-<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="ex">R</span> <span class="at">-e</span> <span class="st">"install.packages('remotes'); remotes::install_deps()"</span></span>
-<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a></span>
-<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="co"># Install the package</span></span>
-<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="ex">R</span> CMD INSTALL .</span>
-<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a></span>
-<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="co"># Start the server</span></span>
-<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--port</span> 8080</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># Clone the repository</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/armish/hgnc.mcp.git</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="bu">cd</span> hgnc.mcp</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co"># Install dependencies</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="ex">R</span> <span class="at">-e</span> <span class="st">"install.packages('remotes'); remotes::install_deps()"</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="co"># Install the package</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="ex">R</span> CMD INSTALL .</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a><span class="co"># Start the server</span></span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R <span class="at">--port</span> 8080</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="cicd-integration">CI/CD Integration<a class="anchor" aria-label="anchor" href="#cicd-integration"></a>
@@ -544,9 +578,9 @@
 </tbody>
 </table>
 <p>Example with environment variables:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">HGNC_CACHE_DIR</span><span class="op">=</span>/data/hgnc</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="bu">export</span> <span class="va">MCP_SERVER_PORT</span><span class="op">=</span>9090</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="bu">export</span> <span class="va">HGNC_CACHE_DIR</span><span class="op">=</span>/data/hgnc</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="bu">export</span> <span class="va">MCP_SERVER_PORT</span><span class="op">=</span>9090</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="ex">Rscript</span> inst/scripts/run_server.R</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="security-considerations">Security Considerations<a class="anchor" aria-label="anchor" href="#security-considerations"></a>
@@ -584,33 +618,33 @@
 <strong>Error rates</strong>: Monitor server logs for errors</li>
 </ul>
 <p>Example health check script:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co"># health_check.sh</span></span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="cf">if</span> <span class="ex">curl</span> <span class="at">-f</span> <span class="at">-s</span> http://localhost:8080/__docs__/ <span class="op">&gt;</span> /dev/null<span class="kw">;</span> <span class="cf">then</span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"Server is healthy"</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="bu">exit</span> 0</span>
-<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="cf">else</span></span>
-<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"Server is unhealthy"</span></span>
-<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
-<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co"># health_check.sh</span></span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="cf">if</span> <span class="ex">curl</span> <span class="at">-f</span> <span class="at">-s</span> http://localhost:8080/__docs__/ <span class="op">&gt;</span> /dev/null<span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"Server is healthy"</span></span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a>  <span class="bu">exit</span> 0</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">"Server is unhealthy"</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a>  <span class="bu">exit</span> 1</span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
 </h3>
 <p>Common deployment issues:</p>
 <p><strong>Port already in use:</strong></p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="co"># Find what's using the port</span></span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="ex">lsof</span> <span class="at">-i</span> :8080</span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a><span class="co"># Use a different port</span></span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-p</span> 9090:8080 hgnc-mcp:latest</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Find what's using the port</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="ex">lsof</span> <span class="at">-i</span> :8080</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="co"># Use a different port</span></span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a><span class="ex">docker</span> run <span class="at">-p</span> 9090:8080 hgnc-mcp:latest</span></code></pre></div>
 <p><strong>Out of memory:</strong></p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="co"># Increase Docker memory limit</span></span>
-<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="ex">docker</span> update <span class="at">--memory</span><span class="op">=</span><span class="st">"4g"</span> hgnc-mcp-server</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># Increase Docker memory limit</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="ex">docker</span> update <span class="at">--memory</span><span class="op">=</span><span class="st">"4g"</span> hgnc-mcp-server</span></code></pre></div>
 <p><strong>Cache not persisting:</strong></p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="co"># Verify volume exists</span></span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="ex">docker</span> volume inspect hgnc-cache</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a><span class="co"># Check mount point</span></span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="ex">docker</span> inspect hgnc-mcp-server <span class="kw">|</span> <span class="fu">grep</span> Mounts <span class="at">-A</span> 10</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="co"># Verify volume exists</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="ex">docker</span> volume inspect hgnc-cache</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co"># Check mount point</span></span>
+<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a><span class="ex">docker</span> inspect hgnc-mcp-server <span class="kw">|</span> <span class="fu">grep</span> Mounts <span class="at">-A</span> 10</span></code></pre></div>
 <p>For more deployment examples and troubleshooting, see: - <a href="examples/docker/README.html">Docker deployment guide</a> - <a href="examples/mcp-clients/README.html">MCP client configuration</a> - <a href="https://github.com/armish/hgnc.mcp/issues" class="external-link">GitHub Issues</a></p>
 </div>
 </div>
@@ -620,7 +654,7 @@
 <div class="section level3">
 <h3 id="basic-gene-lookups">Basic Gene Lookups<a class="anchor" aria-label="anchor" href="#basic-gene-lookups"></a>
 </h3>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://armish.github.io/hgnc.mcp/">hgnc.mcp</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Search for genes</span></span>
@@ -635,7 +669,7 @@
 <div class="section level3">
 <h3 id="batch-operations">Batch Operations<a class="anchor" aria-label="anchor" href="#batch-operations"></a>
 </h3>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Normalize a list of gene symbols</span></span>
 <span><span class="va">symbols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BRCA1"</span>, <span class="st">"tp53"</span>, <span class="st">"EGFR"</span>, <span class="st">"OLD_SYMBOL"</span>, <span class="st">"invalid"</span><span class="op">)</span></span>
 <span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_normalize_list.html">hgnc_normalize_list</a></span><span class="op">(</span><span class="va">symbols</span><span class="op">)</span></span>
@@ -648,7 +682,7 @@
 <div class="section level3">
 <h3 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
 </h3>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Validate a gene panel</span></span>
 <span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BRCA1"</span>, <span class="st">"BRCA2"</span>, <span class="st">"TP53"</span>, <span class="st">"ATM"</span>, <span class="st">"CHEK2"</span><span class="op">)</span></span>
 <span><span class="va">validation</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_validate_panel.html">hgnc_validate_panel</a></span><span class="op">(</span><span class="va">panel</span><span class="op">)</span></span>
@@ -660,7 +694,7 @@
 <div class="section level3">
 <h3 id="change-tracking">Change Tracking<a class="anchor" aria-label="anchor" href="#change-tracking"></a>
 </h3>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Find genes modified in the last 30 days</span></span>
 <span><span class="va">recent_changes</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_changes.html">hgnc_changes</a></span><span class="op">(</span>since <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">recent_changes</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span>
@@ -674,7 +708,7 @@
 <div class="section level3">
 <h3 id="gene-groups">Gene Groups<a class="anchor" aria-label="anchor" href="#gene-groups"></a>
 </h3>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Search for gene groups</span></span>
 <span><span class="va">kinases</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_search_groups.html">hgnc_search_groups</a></span><span class="op">(</span><span class="st">"kinase"</span><span class="op">)</span></span>
 <span></span>
@@ -689,7 +723,7 @@
 <h3 id="clinical-genomics-panel-validation">Clinical Genomics: Panel Validation<a class="anchor" aria-label="anchor" href="#clinical-genomics-panel-validation"></a>
 </h3>
 <p>Ensure clinical gene panels use current HGNC-approved nomenclature:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Load a clinical panel from a CSV file</span></span>
 <span><span class="va">clinical_panel</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"hereditary_cancer_panel.csv"</span><span class="op">)</span><span class="op">$</span><span class="va">gene_symbol</span></span>
 <span></span>
@@ -721,7 +755,7 @@
 <h3 id="research-cross-study-data-integration">Research: Cross-Study Data Integration<a class="anchor" aria-label="anchor" href="#research-cross-study-data-integration"></a>
 </h3>
 <p>Harmonize gene symbols across multiple datasets:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Combine gene lists from different studies</span></span>
 <span><span class="va">study1_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"rnaseq_study1.csv"</span><span class="op">)</span><span class="op">$</span><span class="va">gene</span></span>
 <span><span class="va">study2_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="st">"microarray_study2.csv"</span><span class="op">)</span><span class="op">$</span><span class="va">gene</span></span>
@@ -743,7 +777,7 @@
 <h3 id="drug-development-target-validation">Drug Development: Target Validation<a class="anchor" aria-label="anchor" href="#drug-development-target-validation"></a>
 </h3>
 <p>Build and maintain target gene lists for drug development:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Build a kinase inhibitor target panel</span></span>
 <span><span class="va">kinase_groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_search_groups.html">hgnc_search_groups</a></span><span class="op">(</span><span class="st">"kinase"</span><span class="op">)</span></span>
 <span><span class="va">all_kinases</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hgnc_group_members.html">hgnc_group_members</a></span><span class="op">(</span><span class="st">"Protein kinases"</span><span class="op">)</span></span>
@@ -769,7 +803,7 @@
 <h3 id="regulatory-compliance-audit-trail">Regulatory Compliance: Audit Trail<a class="anchor" aria-label="anchor" href="#regulatory-compliance-audit-trail"></a>
 </h3>
 <p>Maintain nomenclature compliance for regulatory submissions:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Document panel version with HGNC provenance</span></span>
 <span><span class="va">create_compliance_report</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">panel_genes</span>, <span class="va">panel_name</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># Normalize genes</span></span>
@@ -812,7 +846,7 @@
 <h3 id="literature-mining-standardizing-gene-references">Literature Mining: Standardizing Gene References<a class="anchor" aria-label="anchor" href="#literature-mining-standardizing-gene-references"></a>
 </h3>
 <p>Extract and normalize gene symbols from publications:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Parse gene symbols from abstract/full text (hypothetical)</span></span>
 <span><span class="va">extracted_genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p53"</span>, <span class="st">"BRCA-1"</span>, <span class="st">"EGF receptor"</span>, <span class="st">"HER2"</span>, <span class="st">"ERBB2"</span><span class="op">)</span></span>
 <span></span>
@@ -842,8 +876,8 @@
 <h3 id="ai-assisted-analysis-using-mcp-with-claude">AI-Assisted Analysis: Using MCP with Claude<a class="anchor" aria-label="anchor" href="#ai-assisted-analysis-using-mcp-with-claude"></a>
 </h3>
 <p>With the MCP server running, Claude can help with gene nomenclature tasks:</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># Start the MCP server</span></span>
-<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">"library(hgnc.mcp); start_hgnc_mcp_server()"</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="co"># Start the MCP server</span></span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">"library(hgnc.mcp); start_hgnc_mcp_server()"</span></span></code></pre></div>
 <p>Then in Claude Desktop (with MCP configured):</p>
 <blockquote>
 <p><strong>You</strong>: “I have a list of genes from an old microarray study: BRCA1, p53, EGFR, HER-2, NBS1. Can you normalize these to current HGNC symbols and check if any have been updated?”</p>
@@ -868,7 +902,7 @@
 <a href="vignettes/gene-groups.Rmd">Working with HGNC Gene Groups</a> - Building gene panels from families and functional groups</li>
 </ul>
 <p>View vignettes in R:</p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># List all vignettes</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/vignette.html" class="external-link">vignette</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"hgnc.mcp"</span><span class="op">)</span></span>
 <span></span>
