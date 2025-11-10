@@ -18,8 +18,9 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install remotes package for installing from GitHub
-RUN R -e "install.packages('remotes', repos='https://cloud.r-project.org/')"
+# Configure R to use RStudio Package Manager for binary packages
+# This avoids compilation issues in multi-arch builds with QEMU
+RUN echo 'options(repos = c(CRAN = "https://p3m.dev/cran/__linux__/jammy/latest"))' >> /usr/lib/R/etc/Rprofile.site
 
 # Set working directory
 WORKDIR /build
@@ -27,17 +28,15 @@ WORKDIR /build
 # Copy the entire package
 COPY . .
 
-# First, explicitly install plumber and plumber2mcp since they're causing issues
+# Install all R dependencies in a single step using binary packages
+# This is much faster and avoids QEMU emulation issues
 RUN R -e "\
-  options(repos = c(CRAN = 'https://cloud.r-project.org/')); \
+  cat('Installing R dependencies...\n'); \
+  install.packages('remotes'); \
   cat('Installing plumber from CRAN...\n'); \
   install.packages('plumber'); \
   cat('Installing plumber2mcp from GitHub...\n'); \
-  remotes::install_github('armish/plumber2mcp', upgrade = 'never')"
-
-# Now install all other dependencies
-RUN R -e "\
-  options(repos = c(CRAN = 'https://cloud.r-project.org/')); \
+  remotes::install_github('armish/plumber2mcp', upgrade = 'never'); \
   cat('Installing remaining dependencies...\n'); \
   remotes::install_deps('.', dependencies = TRUE, upgrade = 'never')"
 
