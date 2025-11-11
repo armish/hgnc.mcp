@@ -43,9 +43,34 @@ jobs:
           # The server runs an event loop and won't exit on its own
           INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
 
-          # Run Docker with timeout (5 seconds should be enough for initialization)
-          # grep to find the response line, timeout to kill after getting response
-          RESPONSE=$(timeout 5s bash -c "echo '$INIT_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '{\"jsonrpc\"' || true")
+          # Run Docker with longer timeout (30s for container startup + R + packages)
+          # Use a temp file to capture output since grep in a pipeline can be tricky
+          TMPFILE=$(mktemp)
+          timeout 30s bash -c "echo '$INIT_REQUEST' | docker run --rm -i hgnc-mcp:test 2>&1 | tee '$TMPFILE' | grep -m 1 'jsonrpc' || true" &
+          PID=$!
+
+          # Wait for the process with timeout
+          SECONDS=0
+          while kill -0 $PID 2>/dev/null; do
+            if [ $SECONDS -gt 30 ]; then
+              kill $PID 2>/dev/null || true
+              echo "ERROR: Timeout waiting for response"
+              cat "$TMPFILE" | tail -20
+              rm -f "$TMPFILE"
+              exit 1
+            fi
+
+            # Check if we have a response
+            if grep -q '"jsonrpc"' "$TMPFILE" 2>/dev/null; then
+              kill $PID 2>/dev/null || true
+              break
+            fi
+            sleep 0.5
+          done
+
+          # Extract the JSON response (last line that contains jsonrpc)
+          RESPONSE=$(grep '"jsonrpc"' "$TMPFILE" | tail -1 || true)
+          rm -f "$TMPFILE"
 
           echo "Response: $RESPONSE"
 
@@ -77,8 +102,22 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
-          # Run Docker with timeout and grep for the tools response
-          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$TOOLS_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"method\":\"tools/list\"' || grep -m 1 '\"id\":1' || true")
+          # Run Docker with increased timeout
+          TMPFILE=$(mktemp)
+          (echo -e "$INIT\n$TOOLS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          PID=$!
+
+          SECONDS=0
+          while kill -0 $PID 2>/dev/null && [ $SECONDS -lt 30 ]; do
+            if grep -q '"id":1' "$TMPFILE" 2>/dev/null; then
+              kill $PID 2>/dev/null || true
+              break
+            fi
+            sleep 0.5
+          done
+
+          RESPONSE=$(grep '"id":1' "$TMPFILE" | head -1 || true)
+          rm -f "$TMPFILE"
 
           echo "Response: $RESPONSE"
 
@@ -107,8 +146,22 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           RESOURCES_REQUEST='{"jsonrpc":"2.0","id":2,"method":"resources/list","params":{}}'
 
-          # Run Docker with timeout
-          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$RESOURCES_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":2' || true")
+          # Run Docker with increased timeout
+          TMPFILE=$(mktemp)
+          (echo -e "$INIT\n$RESOURCES_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          PID=$!
+
+          SECONDS=0
+          while kill -0 $PID 2>/dev/null && [ $SECONDS -lt 30 ]; do
+            if grep -q '"id":2' "$TMPFILE" 2>/dev/null; then
+              kill $PID 2>/dev/null || true
+              break
+            fi
+            sleep 0.5
+          done
+
+          RESPONSE=$(grep '"id":2' "$TMPFILE" | head -1 || true)
+          rm -f "$TMPFILE"
 
           echo "Response: $RESPONSE"
 
@@ -151,8 +204,22 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           PROMPTS_REQUEST='{"jsonrpc":"2.0","id":3,"method":"prompts/list","params":{}}'
 
-          # Run Docker with timeout
-          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$PROMPTS_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":3' || true")
+          # Run Docker with increased timeout
+          TMPFILE=$(mktemp)
+          (echo -e "$INIT\n$PROMPTS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          PID=$!
+
+          SECONDS=0
+          while kill -0 $PID 2>/dev/null && [ $SECONDS -lt 30 ]; do
+            if grep -q '"id":3' "$TMPFILE" 2>/dev/null; then
+              kill $PID 2>/dev/null || true
+              break
+            fi
+            sleep 0.5
+          done
+
+          RESPONSE=$(grep '"id":3' "$TMPFILE" | head -1 || true)
+          rm -f "$TMPFILE"
 
           echo "Response: $RESPONSE"
 
@@ -180,8 +247,22 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           CALL_REQUEST='{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"GET__tools_info","arguments":{}}}'
 
-          # Run Docker with timeout
-          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$CALL_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":4' || true")
+          # Run Docker with increased timeout
+          TMPFILE=$(mktemp)
+          (echo -e "$INIT\n$CALL_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          PID=$!
+
+          SECONDS=0
+          while kill -0 $PID 2>/dev/null && [ $SECONDS -lt 30 ]; do
+            if grep -q '"id":4' "$TMPFILE" 2>/dev/null; then
+              kill $PID 2>/dev/null || true
+              break
+            fi
+            sleep 0.5
+          done
+
+          RESPONSE=$(grep '"id":4' "$TMPFILE" | head -1 || true)
+          rm -f "$TMPFILE"
 
           echo "Response: $RESPONSE"
 
@@ -210,7 +291,22 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
-          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$TOOLS_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":1' || true")
+          # Run Docker with increased timeout
+          TMPFILE=$(mktemp)
+          (echo -e "$INIT\n$TOOLS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          PID=$!
+
+          SECONDS=0
+          while kill -0 $PID 2>/dev/null && [ $SECONDS -lt 30 ]; do
+            if grep -q '"id":1' "$TMPFILE" 2>/dev/null; then
+              kill $PID 2>/dev/null || true
+              break
+            fi
+            sleep 0.5
+          done
+
+          RESPONSE=$(grep '"id":1' "$TMPFILE" | head -1 || true)
+          rm -f "$TMPFILE"
 
           # Get tool names
           TOOL_NAMES=$(echo "$RESPONSE" | jq -r '.result.tools[].name')
