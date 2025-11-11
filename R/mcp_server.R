@@ -287,6 +287,95 @@ start_hgnc_mcp_server <- function(
   }
   pr <- plumber2mcp::pr_mcp(pr, transport = transport)
 
+  # Register MCP Resources
+  if (!quiet) {
+    message("Registering MCP resources...")
+  }
+
+  # Check if pr_mcp_resource is available
+  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+
+  if (has_resource_support) {
+    # Get the pr_mcp_resource function dynamically
+    pr_mcp_resource_fn <- get("pr_mcp_resource", envir = asNamespace("plumber2mcp"))
+
+    # Resource 1: Snapshot metadata (static)
+    pr <- pr_mcp_resource_fn(
+      pr,
+      uri = "hgnc://snapshot",
+      name = "HGNC Dataset Snapshot",
+      description = "Metadata about the currently cached HGNC dataset including version, download date, and statistics",
+      mimeType = "application/json",
+      func = function() {
+        result <- hgnc_get_snapshot_metadata(format = "json")
+        # Return the content as JSON string
+        jsonlite::toJSON(result, auto_unbox = TRUE, pretty = TRUE)
+      }
+    )
+
+    # Resource 2: Gene card (parameterized by URI)
+    # Note: MCP resources with parameters use URI templates
+    pr <- pr_mcp_resource_fn(
+      pr,
+      uri = "hgnc://gene/{hgnc_id}",
+      name = "HGNC Gene Card",
+      description = "Detailed gene information card including symbol, name, location, aliases, cross-references, and group memberships",
+      mimeType = "application/json",
+      func = function(hgnc_id) {
+        result <- hgnc_get_gene_card(hgnc_id = hgnc_id, format = "json")
+        jsonlite::toJSON(result, auto_unbox = TRUE, pretty = TRUE)
+      }
+    )
+
+    # Resource 3: Group card (parameterized by URI)
+    pr <- pr_mcp_resource_fn(
+      pr,
+      uri = "hgnc://group/{group_id_or_name}",
+      name = "HGNC Gene Group Card",
+      description = "Gene group information with member list and metadata",
+      mimeType = "application/json",
+      func = function(group_id_or_name) {
+        result <- hgnc_get_group_card(
+          group_id_or_name = group_id_or_name,
+          format = "json",
+          include_members = TRUE
+        )
+        jsonlite::toJSON(result, auto_unbox = TRUE, pretty = TRUE)
+      }
+    )
+
+    # Resource 4: Changes summary (parameterized by URI)
+    pr <- pr_mcp_resource_fn(
+      pr,
+      uri = "hgnc://changes/{since}",
+      name = "HGNC Nomenclature Changes",
+      description = "Summary of gene nomenclature changes since a specified date",
+      mimeType = "application/json",
+      func = function(since) {
+        result <- hgnc_get_changes_summary(
+          since = since,
+          format = "json",
+          change_type = "all",
+          max_results = 100
+        )
+        jsonlite::toJSON(result, auto_unbox = TRUE, pretty = TRUE)
+      }
+    )
+
+    if (!quiet) {
+      message("Successfully registered 4 MCP resources")
+    }
+  } else {
+    if (!quiet) {
+      message(
+        "Note: MCP resources not available yet (pr_mcp_resource not exported in plumber2mcp)"
+      )
+      message(
+        "      Resources will be enabled automatically when plumber2mcp is updated."
+      )
+    }
+  }
+
   # Configure Swagger UI (only for HTTP transport)
   if (transport == "http") {
     if (swagger) {
