@@ -6,7 +6,7 @@ articles:
   getting-started: getting-started.html
   normalizing-gene-lists: normalizing-gene-lists.html
   running-mcp-server: running-mcp-server.html
-last_built: 2025-11-11T16:19Z
+last_built: 2025-11-11T19:20Z
 urls:
   reference: https://armish.github.io/hgnc.mcp/reference
   article: https://armish.github.io/hgnc.mcp/articles
