@@ -127,3 +127,37 @@ npx @modelcontextprotocol/inspector Rscript -e "hgnc.mcp::start_hgnc_mcp_server(
 **Resource read fails?**
 - Check URI format matches the template (e.g., hgnc://gene/BRCA1 not hgnc://gene?id=BRCA1)
 - Verify the hgnc_get_* functions work correctly
+
+## Automated Testing
+
+### GitHub Actions
+
+stdio mode is automatically tested in CI/CD via:
+
+**`.github/workflows/test-stdio-docker.yaml`** - Tests stdio transport with Docker
+- Runs on every push and PR
+- Tests MCP protocol messages (initialize, tools/list, resources/list, etc.)
+- Verifies resources don't appear as tools
+- Confirms tool calls work
+- Check the Actions tab on GitHub to see results
+
+**`.github/workflows/R-CMD-check.yaml`** - Tests R package
+- Runs testthat tests including stdio mode tests
+- Tests on multiple OS/R version combinations
+
+**`.github/workflows/test-coverage.yaml`** - Code coverage
+- Runs tests with coverage analysis
+
+### Local Test Suite
+
+Run the test suite locally:
+
+```r
+# Run all tests
+devtools::test()
+
+# Run specific test files
+testthat::test_file("tests/testthat/test-mcp_stdio_transport.R")
+testthat::test_file("tests/testthat/test-mcp_resources_integration.R")
+testthat::test_file("tests/testthat/test-mcp_prompts_integration.R")
+```

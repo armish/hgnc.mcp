@@ -1,0 +1,237 @@
+# Test MCP Server stdio Transport with Docker
+#
+# This workflow tests that the Docker container works correctly in stdio mode,
+# which is how it's used by Claude Desktop and other MCP clients.
+
+name: test-stdio-docker
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  test-stdio-mode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: hgnc-mcp:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test stdio mode - Initialize
+        id: test_init
+        run: |
+          echo "Testing MCP server initialization in stdio mode..."
+
+          # Send initialize message
+          INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+
+          # Run Docker with stdio and send initialize request
+          RESPONSE=$(echo "$INIT_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+
+          echo "Response: $RESPONSE"
+
+          # Check if response is valid JSON
+          if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
+            echo "ERROR: Response is not valid JSON"
+            exit 1
+          fi
+
+          # Check if response has expected structure
+          if ! echo "$RESPONSE" | jq -e '.result.serverInfo.name' > /dev/null; then
+            echo "ERROR: Response missing serverInfo.name"
+            exit 1
+          fi
+
+          echo "✓ Server initialized successfully"
+
+      - name: Test stdio mode - List Tools
+        run: |
+          echo "Testing tools/list method..."
+
+          # Send initialize followed by tools/list
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+          # Run Docker and send both messages
+          RESPONSE=$(echo -e "$INIT\n$TOOLS_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+
+          echo "Response: $RESPONSE"
+
+          # Check if response has tools array
+          if ! echo "$RESPONSE" | jq -e '.result.tools' > /dev/null; then
+            echo "ERROR: Response missing tools array"
+            exit 1
+          fi
+
+          # Count tools (should have 10 tools)
+          TOOL_COUNT=$(echo "$RESPONSE" | jq '.result.tools | length')
+          echo "Found $TOOL_COUNT tools"
+
+          if [ "$TOOL_COUNT" -lt 10 ]; then
+            echo "ERROR: Expected at least 10 tools, found $TOOL_COUNT"
+            exit 1
+          fi
+
+          echo "✓ Tools listed successfully"
+
+      - name: Test stdio mode - List Resources
+        run: |
+          echo "Testing resources/list method..."
+
+          # Send initialize followed by resources/list
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          RESOURCES_REQUEST='{"jsonrpc":"2.0","id":2,"method":"resources/list","params":{}}'
+
+          # Run Docker and send both messages
+          RESPONSE=$(echo -e "$INIT\n$RESOURCES_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+
+          echo "Response: $RESPONSE"
+
+          # Check if response has resources array
+          if ! echo "$RESPONSE" | jq -e '.result.resources' > /dev/null; then
+            echo "ERROR: Response missing resources array"
+            exit 1
+          fi
+
+          # Count resources (should have 4 resources if pr_mcp_resource is available)
+          RESOURCE_COUNT=$(echo "$RESPONSE" | jq '.result.resources | length')
+          echo "Found $RESOURCE_COUNT resources"
+
+          # Resources might be 0 if pr_mcp_resource is not exported yet
+          # That's okay - we just want to verify the endpoint works
+          if [ "$RESOURCE_COUNT" -gt 0 ]; then
+            echo "✓ Resources listed successfully ($RESOURCE_COUNT resources)"
+
+            # Verify resources have hgnc:// URIs
+            RESOURCE_URIS=$(echo "$RESPONSE" | jq -r '.result.resources[].uri')
+            echo "Resource URIs:"
+            echo "$RESOURCE_URIS"
+
+            # Check that all URIs start with hgnc://
+            if echo "$RESOURCE_URIS" | grep -v '^hgnc://'; then
+              echo "ERROR: Found non-hgnc:// resource URI"
+              exit 1
+            fi
+
+            echo "✓ All resources use hgnc:// URI scheme"
+          else
+            echo "⚠ No resources found (pr_mcp_resource may not be available yet)"
+          fi
+
+      - name: Test stdio mode - List Prompts
+        run: |
+          echo "Testing prompts/list method..."
+
+          # Send initialize followed by prompts/list
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          PROMPTS_REQUEST='{"jsonrpc":"2.0","id":3,"method":"prompts/list","params":{}}'
+
+          # Run Docker and send both messages
+          RESPONSE=$(echo -e "$INIT\n$PROMPTS_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+
+          echo "Response: $RESPONSE"
+
+          # Check if response has prompts array
+          if ! echo "$RESPONSE" | jq -e '.result.prompts' > /dev/null; then
+            echo "ERROR: Response missing prompts array"
+            exit 1
+          fi
+
+          PROMPT_COUNT=$(echo "$RESPONSE" | jq '.result.prompts | length')
+          echo "Found $PROMPT_COUNT prompts"
+
+          # Prompts might be 0 if pr_mcp_prompt is not exported yet
+          if [ "$PROMPT_COUNT" -gt 0 ]; then
+            echo "✓ Prompts listed successfully ($PROMPT_COUNT prompts)"
+          else
+            echo "⚠ No prompts found (pr_mcp_prompt may not be available yet)"
+          fi
+
+      - name: Test stdio mode - Call a Tool
+        run: |
+          echo "Testing tools/call method..."
+
+          # Send initialize followed by tools/call
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          CALL_REQUEST='{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"GET__tools_info","arguments":{}}}'
+
+          # Run Docker and send both messages
+          RESPONSE=$(echo -e "$INIT\n$CALL_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+
+          echo "Response: $RESPONSE"
+
+          # Check if response has result
+          if ! echo "$RESPONSE" | jq -e '.result' > /dev/null; then
+            echo "ERROR: Response missing result"
+            exit 1
+          fi
+
+          # Check if result has content array (MCP tool call response format)
+          if echo "$RESPONSE" | jq -e '.result.content' > /dev/null; then
+            echo "✓ Tool called successfully"
+          elif echo "$RESPONSE" | jq -e '.error' > /dev/null; then
+            ERROR_MSG=$(echo "$RESPONSE" | jq -r '.error.message')
+            echo "ERROR: Tool call failed: $ERROR_MSG"
+            exit 1
+          else
+            echo "ERROR: Unexpected response format"
+            exit 1
+          fi
+
+      - name: Test stdio mode - Verify No Resource/Tool Conflicts
+        run: |
+          echo "Verifying resources don't appear as tools..."
+
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+          RESPONSE=$(echo -e "$INIT\n$TOOLS_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+
+          # Get tool names
+          TOOL_NAMES=$(echo "$RESPONSE" | jq -r '.result.tools[].name')
+
+          # Check that GET__resources_* tools don't exist (they should be proper resources now)
+          if echo "$TOOL_NAMES" | grep -q "GET__resources_"; then
+            echo "ERROR: Found GET__resources_* in tools list - resources should not appear as tools"
+            echo "Tools containing 'resources':"
+            echo "$TOOL_NAMES" | grep "resources"
+            exit 1
+          fi
+
+          echo "✓ Resources are not exposed as tools"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo ""
+          echo "========================================="
+          echo "MCP stdio Mode Test Summary"
+          echo "========================================="
+          echo ""
+          echo "Tests completed. Check above for results."
+          echo ""
+          echo "Expected behavior:"
+          echo "  ✓ Server initializes"
+          echo "  ✓ Tools list returns 10+ tools"
+          echo "  ✓ Resources list works (may be empty if pr_mcp_resource not available)"
+          echo "  ✓ Prompts list works (may be empty if pr_mcp_prompt not available)"
+          echo "  ✓ Tool calls work"
+          echo "  ✓ Resources don't appear as tools"
+          echo ""
