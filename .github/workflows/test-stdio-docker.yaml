@@ -44,32 +44,33 @@ jobs:
           INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
 
           # Run Docker with longer timeout (30s for container startup + R + packages)
-          # Use a temp file to capture output since grep in a pipeline can be tricky
           TMPFILE=$(mktemp)
-          timeout 30s bash -c "echo '$INIT_REQUEST' | docker run --rm -i hgnc-mcp:test 2>&1 | tee '$TMPFILE' | grep -m 1 'jsonrpc' || true" &
+          (echo "$INIT_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
           PID=$!
 
           # Wait for the process with timeout
           SECONDS=0
-          while kill -0 $PID 2>/dev/null; do
-            if [ $SECONDS -gt 30 ]; then
-              kill $PID 2>/dev/null || true
-              echo "ERROR: Timeout waiting for response"
-              cat "$TMPFILE" | tail -20
-              rm -f "$TMPFILE"
-              exit 1
-            fi
-
-            # Check if we have a response
-            if grep -q '"jsonrpc"' "$TMPFILE" 2>/dev/null; then
+          while kill -0 $PID 2>/dev/null && [ $SECONDS -lt 30 ]; do
+            # Check if we have a response with jsonrpc and id:0
+            if grep -q '"id":0' "$TMPFILE" 2>/dev/null; then
               kill $PID 2>/dev/null || true
               break
             fi
             sleep 0.5
           done
 
-          # Extract the JSON response (last line that contains jsonrpc)
-          RESPONSE=$(grep '"jsonrpc"' "$TMPFILE" | tail -1 || true)
+          # If process is still running after 30s, kill it and show debug info
+          if kill -0 $PID 2>/dev/null; then
+            kill $PID 2>/dev/null || true
+            echo "ERROR: Timeout waiting for response"
+            echo "Last 20 lines of output:"
+            cat "$TMPFILE" | tail -20
+            rm -f "$TMPFILE"
+            exit 1
+          fi
+
+          # Extract the JSON response (line that contains id:0)
+          RESPONSE=$(grep '"id":0' "$TMPFILE" | head -1 || true)
           rm -f "$TMPFILE"
 
           echo "Response: $RESPONSE"
@@ -83,12 +84,14 @@ jobs:
           # Check if response is valid JSON
           if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
             echo "ERROR: Response is not valid JSON"
+            echo "Response was: $RESPONSE"
             exit 1
           fi
 
           # Check if response has expected structure
           if ! echo "$RESPONSE" | jq -e '.result.serverInfo.name' > /dev/null; then
             echo "ERROR: Response missing serverInfo.name"
+            echo "Response structure: $(echo "$RESPONSE" | jq '.')"
             exit 1
           fi
 
