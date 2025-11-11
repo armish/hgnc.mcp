@@ -74,14 +74,11 @@ test_that("server registers resources when pr_mcp_resource is available", {
   # Create a minimal plumber router
   pr <- plumber::plumb(api_file)
 
-  # Apply MCP integration first
-  pr <- plumber2mcp::pr_mcp(pr, transport = "stdio")
-
   # Get the pr_mcp_resource function
   pr_mcp_resource_fn <- get("pr_mcp_resource", envir = asNamespace("plumber2mcp"))
 
-  # Test that we can register a resource after pr_mcp()
-  # Note: This may fail if plumber2mcp's validation is strict
+  # Test that we can register a resource BEFORE pr_mcp()
+  # This is the correct order - resources must be registered before MCP integration
   result <- tryCatch(
     {
       pr <- pr_mcp_resource_fn(
@@ -97,18 +94,20 @@ test_that("server registers resources when pr_mcp_resource is available", {
       "success"
     },
     error = function(e) {
-      # If registration fails, it might be due to plumber2mcp internals
-      # This is okay - the important thing is that pr_mcp_resource exists
-      if (grepl("validate_pr|Plumber router", e$message, ignore.case = TRUE)) {
-        "validation_failed"
-      } else {
-        stop(e)
-      }
+      # If registration fails, capture the error for debugging
+      message("Resource registration failed: ", e$message)
+      "registration_failed"
     }
   )
 
-  # Either registration succeeded or failed with expected validation error
-  expect_true(result %in% c("success", "validation_failed"))
+  # Registration should succeed when done before pr_mcp()
+  expect_equal(result, "success")
+
+  # Now apply MCP integration AFTER resource registration
+  pr <- plumber2mcp::pr_mcp(pr, transport = "stdio")
+
+  # Verify the pr object is still valid after pr_mcp()
+  expect_s3_class(pr, "Plumber")
 })
 
 test_that("resource URIs follow hgnc:// URI scheme", {

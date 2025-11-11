@@ -281,13 +281,8 @@ start_hgnc_mcp_server <- function(
     }
   }
 
-  # Apply MCP integration
-  if (!quiet) {
-    message(sprintf("Applying MCP integration via plumber2mcp (transport: %s)...", transport))
-  }
-  pr <- plumber2mcp::pr_mcp(pr, transport = transport)
-
-  # Register MCP Resources
+  # Register MCP Resources BEFORE applying MCP integration
+  # This is important because pr_mcp() may transform the router object
   if (!quiet) {
     message("Registering MCP resources...")
   }
@@ -375,6 +370,12 @@ start_hgnc_mcp_server <- function(
       )
     }
   }
+
+  # Apply MCP integration AFTER registering resources
+  if (!quiet) {
+    message(sprintf("Applying MCP integration via plumber2mcp (transport: %s)...", transport))
+  }
+  pr <- plumber2mcp::pr_mcp(pr, transport = transport)
 
   # Configure Swagger UI (only for HTTP transport)
   if (transport == "http") {
