@@ -102,7 +102,7 @@ check_no_resource_tools() {
 }
 
 # Build initialize message
-INIT_MSG='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+INIT_MSG='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
 
 # Test 1: Initialize
 echo ""
