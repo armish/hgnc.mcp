@@ -317,18 +317,18 @@ test_that("old GET /resources/* endpoints are removed from plumber API", {
     skip("API file not found")
   }
 
-  # Read API file to check for GET /resources/* endpoints
+  # Read API file to check that GET /resources/* endpoints have been removed
   api_content <- readLines(api_file, warn = FALSE)
   api_text <- paste(api_content, collapse = "\n")
 
-  # These OLD endpoints should still exist for backwards compatibility
-  # but they should be GET not POST
-  expect_match(api_text, "@get /resources/gene_card")
-  expect_match(api_text, "@get /resources/group_card")
-  expect_match(api_text, "@get /resources/snapshot")
-  expect_match(api_text, "@get /resources/changes_summary")
+  # These OLD endpoints should NOT exist anymore - they've been replaced
+  # by proper MCP resource registration via pr_mcp_resource()
+  expect_false(grepl("@get /resources/gene_card", api_text, ignore.case = TRUE))
+  expect_false(grepl("@get /resources/group_card", api_text, ignore.case = TRUE))
+  expect_false(grepl("@get /resources/snapshot", api_text, ignore.case = TRUE))
+  expect_false(grepl("@get /resources/changes_summary", api_text, ignore.case = TRUE))
 
-  # They should NOT be POST (resources are read-only)
-  expect_false(grepl("@post /resources/gene_card", api_text, ignore.case = TRUE))
-  expect_false(grepl("@post /resources/group_card", api_text, ignore.case = TRUE))
+  # There should be a comment explaining where resources are now registered
+  expect_true(grepl("pr_mcp_resource", api_text))
+  expect_true(grepl("hgnc://", api_text))
 })
