@@ -298,82 +298,82 @@ start_hgnc_mcp_server <- function(
 
   # Print startup information
   if (!quiet) {
-    cat("\n")
-    cat("========================================\n")
-    cat("HGNC MCP Server Starting\n")
-    cat("========================================\n")
-    cat(sprintf("Transport: %s\n", transport))
+    cat("\n", file = stderr())
+    cat("========================================\n", file = stderr())
+    cat("HGNC MCP Server Starting\n", file = stderr())
+    cat("========================================\n", file = stderr())
+    cat(sprintf("Transport: %s\n", transport), file = stderr())
 
     if (transport == "http") {
-      cat(sprintf("Host:      %s\n", host))
-      cat(sprintf("Port:      %d\n", port))
-      cat("\n")
-      cat("API Endpoints:\n")
+      cat(sprintf("Host:      %s\n", host), file = stderr())
+      cat(sprintf("Port:      %d\n", port), file = stderr())
+      cat("\n", file = stderr())
+      cat("API Endpoints:\n", file = stderr())
       cat(sprintf(
         "  Base URL:     http://%s:%d\n",
         if (host == "0.0.0.0") "localhost" else host,
         port
-      ))
+      ), file = stderr())
       cat(sprintf(
         "  MCP Endpoint: http://%s:%d/mcp\n",
         if (host == "0.0.0.0") "localhost" else host,
         port
-      ))
+      ), file = stderr())
       if (swagger) {
         cat(sprintf(
           "  Swagger UI:   http://%s:%d/__docs__/\n",
           if (host == "0.0.0.0") "localhost" else host,
           port
-        ))
+        ), file = stderr())
       }
     } else {
-      cat("Mode:      stdio (standard input/output)\n")
+      cat("Mode:      stdio (standard input/output)\n", file = stderr())
     }
 
-    cat("\n")
-    cat("Available Tools: 10\n")
-    cat("  - info, find, fetch, resolve_symbol\n")
-    cat("  - normalize_list, xrefs\n")
-    cat("  - group_members, search_groups\n")
-    cat("  - changes, validate_panel\n")
-    cat("\n")
-    cat("Available Resources: 4\n")
-    cat("  - get_gene_card: Gene information cards\n")
-    cat("  - get_group_card: Gene group information\n")
-    cat("  - get_changes_summary: Nomenclature changes log\n")
-    cat("  - snapshot: Dataset metadata (static)\n")
-    cat("\n")
+    cat("\n", file = stderr())
+    cat("Available Tools: 10\n", file = stderr())
+    cat("  - info, find, fetch, resolve_symbol\n", file = stderr())
+    cat("  - normalize_list, xrefs\n", file = stderr())
+    cat("  - group_members, search_groups\n", file = stderr())
+    cat("  - changes, validate_panel\n", file = stderr())
+    cat("\n", file = stderr())
+    cat("Available Resources: 4\n", file = stderr())
+    cat("  - get_gene_card: Gene information cards\n", file = stderr())
+    cat("  - get_group_card: Gene group information\n", file = stderr())
+    cat("  - get_changes_summary: Nomenclature changes log\n", file = stderr())
+    cat("  - snapshot: Dataset metadata (static)\n", file = stderr())
+    cat("\n", file = stderr())
     if (has_prompt_support) {
-      cat("Available Prompts: 4\n")
-      cat("  - normalize-gene-list: Normalize gene symbols to HGNC\n")
-      cat("  - check-nomenclature-compliance: Validate gene panels\n")
-      cat("  - what-changed-since: Track nomenclature changes\n")
-      cat("  - build-gene-set-from-group: Create gene sets from groups\n")
+      cat("Available Prompts: 4\n", file = stderr())
+      cat("  - normalize-gene-list: Normalize gene symbols to HGNC\n", file = stderr())
+      cat("  - check-nomenclature-compliance: Validate gene panels\n", file = stderr())
+      cat("  - what-changed-since: Track nomenclature changes\n", file = stderr())
+      cat("  - build-gene-set-from-group: Create gene sets from groups\n", file = stderr())
     } else {
-      cat("Available Prompts: 0\n")
-      cat("  (Prompts pending plumber2mcp update)\n")
+      cat("Available Prompts: 0\n", file = stderr())
+      cat("  (Prompts pending plumber2mcp update)\n", file = stderr())
     }
-    cat("\n")
+    cat("\n", file = stderr())
 
     if (transport == "http") {
-      cat("MCP Client Configuration:\n")
-      cat("  Add to your MCP config file:\n")
-      cat("  {\n")
-      cat('    "mcpServers": {\n')
-      cat('      "hgnc": {\n')
-      cat(sprintf('        "url": "http://localhost:%d/mcp"\n', port))
-      cat('      }\n')
-      cat('    }\n')
-      cat("  }\n")
-      cat("\n")
-      cat("Press Ctrl+C to stop the server\n")
+      cat("MCP Client Configuration:\n", file = stderr())
+      cat("  Add to your MCP config file:\n", file = stderr())
+      cat("  {\n", file = stderr())
+      cat('    "mcpServers": {\n', file = stderr())
+      cat('      "hgnc": {\n', file = stderr())
+      cat(sprintf('        "url": "http://localhost:%d/mcp"\n', port), file = stderr())
+      cat('      }\n', file = stderr())
+      cat('    }\n', file = stderr())
+      cat("  }\n", file = stderr())
+      cat("\n", file = stderr())
+      cat("Press Ctrl+C to stop the server\n", file = stderr())
     } else {
-      cat("Ready for stdio communication.\n")
-      cat("Use this with MCP clients like Claude Desktop.\n")
+      cat("Ready for stdio communication.\n", file = stderr())
+      cat("Use this with MCP clients like Claude Desktop.\n", file = stderr())
     }
 
-    cat("========================================\n")
-    cat("\n")
+    cat("========================================\n", file = stderr())
+    cat("\n", file = stderr())
   }
 
   # Start the server based on transport mode
