@@ -39,13 +39,21 @@ jobs:
         run: |
           echo "Testing MCP server initialization in stdio mode..."
 
-          # Send initialize message
+          # Send initialize message and use timeout to prevent hanging
+          # The server runs an event loop and won't exit on its own
           INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
 
-          # Run Docker with stdio and send initialize request
-          RESPONSE=$(echo "$INIT_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+          # Run Docker with timeout (5 seconds should be enough for initialization)
+          # grep to find the response line, timeout to kill after getting response
+          RESPONSE=$(timeout 5s bash -c "echo '$INIT_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '{\"jsonrpc\"' || true")
 
           echo "Response: $RESPONSE"
+
+          # Check if we got a response
+          if [ -z "$RESPONSE" ]; then
+            echo "ERROR: No response received (server may have hung)"
+            exit 1
+          fi
 
           # Check if response is valid JSON
           if ! echo "$RESPONSE" | jq empty 2>/dev/null; then
@@ -69,8 +77,8 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
-          # Run Docker and send both messages
-          RESPONSE=$(echo -e "$INIT\n$TOOLS_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+          # Run Docker with timeout and grep for the tools response
+          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$TOOLS_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"method\":\"tools/list\"' || grep -m 1 '\"id\":1' || true")
 
           echo "Response: $RESPONSE"
 
@@ -99,8 +107,8 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           RESOURCES_REQUEST='{"jsonrpc":"2.0","id":2,"method":"resources/list","params":{}}'
 
-          # Run Docker and send both messages
-          RESPONSE=$(echo -e "$INIT\n$RESOURCES_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+          # Run Docker with timeout
+          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$RESOURCES_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":2' || true")
 
           echo "Response: $RESPONSE"
 
@@ -143,8 +151,8 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           PROMPTS_REQUEST='{"jsonrpc":"2.0","id":3,"method":"prompts/list","params":{}}'
 
-          # Run Docker and send both messages
-          RESPONSE=$(echo -e "$INIT\n$PROMPTS_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+          # Run Docker with timeout
+          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$PROMPTS_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":3' || true")
 
           echo "Response: $RESPONSE"
 
@@ -172,8 +180,8 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           CALL_REQUEST='{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"GET__tools_info","arguments":{}}}'
 
-          # Run Docker and send both messages
-          RESPONSE=$(echo -e "$INIT\n$CALL_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+          # Run Docker with timeout
+          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$CALL_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":4' || true")
 
           echo "Response: $RESPONSE"
 
@@ -202,7 +210,7 @@ jobs:
           INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
-          RESPONSE=$(echo -e "$INIT\n$TOOLS_REQUEST" | docker run --rm -i hgnc-mcp:test 2>/dev/null | tail -1)
+          RESPONSE=$(timeout 5s bash -c "echo -e '$INIT\n$TOOLS_REQUEST' | docker run --rm -i hgnc-mcp:test 2>/dev/null | grep -m 1 '\"id\":1' || true")
 
           # Get tool names
           TOOL_NAMES=$(echo "$RESPONSE" | jq -r '.result.tools[].name')
