@@ -558,7 +558,7 @@ endpoint_validate_panel <- function(
 #* This provides a resource-like view of gene data including symbol, name,
 #* location, status, aliases, cross-references, and group memberships.
 #*
-#* @post /tools/get_gene_card
+#* @get /resources/gene_card
 #* @param hgnc_id:str HGNC ID (with or without "HGNC:" prefix) or gene symbol
 #* @param format:str Output format - "json" (default), "markdown", or "text"
 #* @response 200 Gene card resource with uri, mimeType, and content
@@ -615,7 +615,7 @@ endpoint_get_gene_card <- function(req, res, hgnc_id = NULL, format = "json") {
 #* Provides a resource-like view of gene group information including
 #* member counts and optionally full member details.
 #*
-#* @post /tools/get_group_card
+#* @get /resources/group_card
 #* @param group_id_or_name Numeric gene group ID or group name/slug
 #* @param format:str Output format - "json" (default), "markdown", or "text"
 #* @param include_members:bool Whether to include full member records (default: TRUE)
@@ -723,7 +723,7 @@ endpoint_get_snapshot_metadata <- function(res, format = "json") {
 #* Retrieve a summary of nomenclature changes since a specified date.
 #* Provides a compact change log with gene IDs, symbols, and modification dates.
 #*
-#* @post /tools/get_changes_summary
+#* @get /resources/changes_summary
 #* @param since:str ISO 8601 date (YYYY-MM-DD) from which to track changes
 #* @param format:str Output format - "json" (default), "markdown", or "text"
 #* @param change_type:str Type of changes - "all" (default), "symbol", "name", "status", or "modified"
