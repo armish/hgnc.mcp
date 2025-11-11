@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "hgnc-local": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "-v",
+        "hgnc-cache:/home/hgnc/.cache/hgnc",
+        "hgnc-mcp:latest",
+        "--stdio"
+      ],
+      "env": {}
+    }
+  }
+}
