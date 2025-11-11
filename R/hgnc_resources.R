@@ -363,7 +363,7 @@ hgnc_get_snapshot_metadata <- function(format = c("json", "markdown", "text")) {
   # Load cached data to get metadata
   data <- load_hgnc_data()
 
-  if (is.null(data)) {
+  if (is.null(data) || nrow(data) == 0) {
     stop("No cached HGNC data available. Run download_hgnc_data() first.")
   }
 
