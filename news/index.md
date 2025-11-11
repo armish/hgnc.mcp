@@ -2,6 +2,17 @@
 
 ## hgnc.mcp 0.1.0 (Development Version)
 
+### Updates (2025-11-11)
+
+#### MCP Protocol Update
+
+- Updated to plumber2mcp v0.4.0 with MCP protocol version 2025-06-18
+- Updated test scripts and CI workflows to use new protocol version
+- Breaking change: Clients must support MCP protocol version 2025-06-18
+  or later
+- HTTP transport now includes MCP-Protocol-Version header
+- Enhanced protocol negotiation support
+
 ### Major Features
 
 #### Data Management
