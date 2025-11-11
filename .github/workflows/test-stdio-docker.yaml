@@ -44,8 +44,9 @@ jobs:
           INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
 
           # Run Docker with longer timeout (30s for container startup + R + packages)
+          # IMPORTANT: Must pass --stdio flag to enable stdio transport
           TMPFILE=$(mktemp)
-          (echo "$INIT_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          (echo "$INIT_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test --stdio 2>&1) > "$TMPFILE" &
           PID=$!
 
           # Wait for the process with timeout
@@ -107,7 +108,7 @@ jobs:
 
           # Run Docker with increased timeout
           TMPFILE=$(mktemp)
-          (echo -e "$INIT\n$TOOLS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          (echo -e "$INIT\n$TOOLS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test --stdio 2>&1) > "$TMPFILE" &
           PID=$!
 
           SECONDS=0
@@ -151,7 +152,7 @@ jobs:
 
           # Run Docker with increased timeout
           TMPFILE=$(mktemp)
-          (echo -e "$INIT\n$RESOURCES_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          (echo -e "$INIT\n$RESOURCES_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test --stdio 2>&1) > "$TMPFILE" &
           PID=$!
 
           SECONDS=0
@@ -209,7 +210,7 @@ jobs:
 
           # Run Docker with increased timeout
           TMPFILE=$(mktemp)
-          (echo -e "$INIT\n$PROMPTS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          (echo -e "$INIT\n$PROMPTS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test --stdio 2>&1) > "$TMPFILE" &
           PID=$!
 
           SECONDS=0
@@ -252,7 +253,7 @@ jobs:
 
           # Run Docker with increased timeout
           TMPFILE=$(mktemp)
-          (echo -e "$INIT\n$CALL_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          (echo -e "$INIT\n$CALL_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test --stdio 2>&1) > "$TMPFILE" &
           PID=$!
 
           SECONDS=0
@@ -296,7 +297,7 @@ jobs:
 
           # Run Docker with increased timeout
           TMPFILE=$(mktemp)
-          (echo -e "$INIT\n$TOOLS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test 2>&1) > "$TMPFILE" &
+          (echo -e "$INIT\n$TOOLS_REQUEST" | timeout 30s docker run --rm -i hgnc-mcp:test --stdio 2>&1) > "$TMPFILE" &
           PID=$!
 
           SECONDS=0
