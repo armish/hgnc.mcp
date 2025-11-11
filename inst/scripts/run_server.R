@@ -35,7 +35,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 # Default values
-transport <- "http"  # or "stdio"
+transport <- "http" # or "stdio"
 port <- 8080
 host <- "0.0.0.0"
 swagger <- TRUE
@@ -90,18 +90,36 @@ if (show_help) {
   cat("Usage:\n", file = stderr())
   cat("  Rscript inst/scripts/run_server.R [options]\n\n", file = stderr())
   cat("Options:\n", file = stderr())
-  cat("  --stdio              Use stdio transport (for Claude Desktop, etc.)\n", file = stderr())
-  cat("  --port PORT          Port number (default: 8080, HTTP only)\n", file = stderr())
-  cat("  --host HOST          Host address (default: 0.0.0.0, HTTP only)\n", file = stderr())
-  cat("  --no-swagger         Disable Swagger UI (HTTP only)\n", file = stderr())
-  cat("  --check-cache        Check/download HGNC cache if needed\n", file = stderr())
+  cat(
+    "  --stdio              Use stdio transport (for Claude Desktop, etc.)\n",
+    file = stderr()
+  )
+  cat(
+    "  --port PORT          Port number (default: 8080, HTTP only)\n",
+    file = stderr()
+  )
+  cat(
+    "  --host HOST          Host address (default: 0.0.0.0, HTTP only)\n",
+    file = stderr()
+  )
+  cat(
+    "  --no-swagger         Disable Swagger UI (HTTP only)\n",
+    file = stderr()
+  )
+  cat(
+    "  --check-cache        Check/download HGNC cache if needed\n",
+    file = stderr()
+  )
   cat("  --update-cache       Force update HGNC cache\n", file = stderr())
   cat("  --quiet, -q          Suppress startup messages\n", file = stderr())
   cat("  --help, -h           Show this help message\n\n", file = stderr())
   cat("Examples:\n", file = stderr())
   cat("  Rscript inst/scripts/run_server.R --stdio\n", file = stderr())
   cat("  Rscript inst/scripts/run_server.R\n", file = stderr())
-  cat("  Rscript inst/scripts/run_server.R --port 9090 --update-cache\n", file = stderr())
+  cat(
+    "  Rscript inst/scripts/run_server.R --port 9090 --update-cache\n",
+    file = stderr()
+  )
   cat("  Rscript inst/scripts/run_server.R --no-swagger\n\n", file = stderr())
   quit(status = 0)
 }
@@ -117,7 +135,10 @@ tryCatch(
   },
   error = function(e) {
     cat("Error: Could not load hgnc.mcp package.\n", file = stderr())
-    cat("Make sure the package is installed and in your library path.\n", file = stderr())
+    cat(
+      "Make sure the package is installed and in your library path.\n",
+      file = stderr()
+    )
     cat("\nYou can install it with:\n", file = stderr())
     cat("  install.packages('devtools')\n", file = stderr())
     cat("  devtools::install()\n", file = stderr())
@@ -159,12 +180,18 @@ if (update_cache || check_cache) {
         # Try to load data; this will download if missing
         data <- hgnc.mcp::load_hgnc_data(verbose = !quiet)
         if (!quiet) {
-          cat(sprintf("[OK] Cache available with %d genes\n\n", nrow(data)), file = stderr())
+          cat(
+            sprintf("[OK] Cache available with %d genes\n\n", nrow(data)),
+            file = stderr()
+          )
         }
       },
       error = function(e) {
         cat("[X] Failed to load cache:", e$message, "\n", file = stderr())
-        cat("Warning: Some tools may not work without cached data.\n\n", file = stderr())
+        cat(
+          "Warning: Some tools may not work without cached data.\n\n",
+          file = stderr()
+        )
       }
     )
   }
@@ -201,7 +228,10 @@ tryCatch(
       "  2. Ensure all dependencies are installed (run check_mcp_dependencies())\n",
       file = stderr()
     )
-    cat("  3. Check the logs above for specific error messages\n", file = stderr())
+    cat(
+      "  3. Check the logs above for specific error messages\n",
+      file = stderr()
+    )
 
     quit(status = 1)
   }

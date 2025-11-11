@@ -15,13 +15,16 @@ suppressPackageStartupMessages({
 
 # Check if pr_mcp_resource is available
 cat("1. Checking plumber2mcp resource support...\n")
-has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+has_resource_support <- "pr_mcp_resource" %in%
+  getNamespaceExports("plumber2mcp")
 
 if (has_resource_support) {
   cat("   [OK] pr_mcp_resource is available\n\n")
 } else {
   cat("   [ERROR] pr_mcp_resource is NOT exported in plumber2mcp\n")
-  cat("   Install latest version: remotes::install_github('armish/plumber2mcp')\n\n")
+  cat(
+    "   Install latest version: remotes::install_github('armish/plumber2mcp')\n\n"
+  )
   quit(status = 1)
 }
 
@@ -62,7 +65,11 @@ if (!is.null(gene_result)) {
 cat("   Testing hgnc_get_group_card()... ")
 group_result <- tryCatch(
   {
-    hgnc_get_group_card(group_id_or_name = "1", format = "json", include_members = FALSE)
+    hgnc_get_group_card(
+      group_id_or_name = "1",
+      format = "json",
+      include_members = FALSE
+    )
   },
   error = function(e) {
     cat("[ERROR]", e$message, "\n")
@@ -77,7 +84,11 @@ if (!is.null(group_result)) {
 cat("   Testing hgnc_get_changes_summary()... ")
 changes_result <- tryCatch(
   {
-    hgnc_get_changes_summary(since = "2024-01-01", format = "json", max_results = 5)
+    hgnc_get_changes_summary(
+      since = "2024-01-01",
+      format = "json",
+      max_results = 5
+    )
   },
   error = function(e) {
     cat("[ERROR]", e$message, "\n")

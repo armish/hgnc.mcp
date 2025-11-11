@@ -126,7 +126,9 @@ start_hgnc_mcp_server <- function(
   # Validate transport parameter
   if (!transport %in% c("http", "stdio")) {
     stop(
-      "Invalid transport mode '", transport, "'. ",
+      "Invalid transport mode '",
+      transport,
+      "'. ",
       "Must be 'http' or 'stdio'."
     )
   }
@@ -288,11 +290,15 @@ start_hgnc_mcp_server <- function(
   }
 
   # Check if pr_mcp_resource is available
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   if (has_resource_support) {
     # Get the pr_mcp_resource function dynamically
-    pr_mcp_resource_fn <- get("pr_mcp_resource", envir = asNamespace("plumber2mcp"))
+    pr_mcp_resource_fn <- get(
+      "pr_mcp_resource",
+      envir = asNamespace("plumber2mcp")
+    )
 
     # Resource 1: Snapshot metadata (static)
     pr <- pr_mcp_resource_fn(
@@ -373,7 +379,10 @@ start_hgnc_mcp_server <- function(
 
   # Apply MCP integration AFTER registering resources
   if (!quiet) {
-    message(sprintf("Applying MCP integration via plumber2mcp (transport: %s)...", transport))
+    message(sprintf(
+      "Applying MCP integration via plumber2mcp (transport: %s)...",
+      transport
+    ))
   }
   pr <- plumber2mcp::pr_mcp(pr, transport = transport)
 
@@ -399,22 +408,31 @@ start_hgnc_mcp_server <- function(
       cat(sprintf("Port:      %d\n", port), file = stderr())
       cat("\n", file = stderr())
       cat("API Endpoints:\n", file = stderr())
-      cat(sprintf(
-        "  Base URL:     http://%s:%d\n",
-        if (host == "0.0.0.0") "localhost" else host,
-        port
-      ), file = stderr())
-      cat(sprintf(
-        "  MCP Endpoint: http://%s:%d/mcp\n",
-        if (host == "0.0.0.0") "localhost" else host,
-        port
-      ), file = stderr())
-      if (swagger) {
-        cat(sprintf(
-          "  Swagger UI:   http://%s:%d/__docs__/\n",
+      cat(
+        sprintf(
+          "  Base URL:     http://%s:%d\n",
           if (host == "0.0.0.0") "localhost" else host,
           port
-        ), file = stderr())
+        ),
+        file = stderr()
+      )
+      cat(
+        sprintf(
+          "  MCP Endpoint: http://%s:%d/mcp\n",
+          if (host == "0.0.0.0") "localhost" else host,
+          port
+        ),
+        file = stderr()
+      )
+      if (swagger) {
+        cat(
+          sprintf(
+            "  Swagger UI:   http://%s:%d/__docs__/\n",
+            if (host == "0.0.0.0") "localhost" else host,
+            port
+          ),
+          file = stderr()
+        )
       }
     } else {
       cat("Mode:      stdio (standard input/output)\n", file = stderr())
@@ -435,10 +453,22 @@ start_hgnc_mcp_server <- function(
     cat("\n", file = stderr())
     if (has_prompt_support) {
       cat("Available Prompts: 4\n", file = stderr())
-      cat("  - normalize-gene-list: Normalize gene symbols to HGNC\n", file = stderr())
-      cat("  - check-nomenclature-compliance: Validate gene panels\n", file = stderr())
-      cat("  - what-changed-since: Track nomenclature changes\n", file = stderr())
-      cat("  - build-gene-set-from-group: Create gene sets from groups\n", file = stderr())
+      cat(
+        "  - normalize-gene-list: Normalize gene symbols to HGNC\n",
+        file = stderr()
+      )
+      cat(
+        "  - check-nomenclature-compliance: Validate gene panels\n",
+        file = stderr()
+      )
+      cat(
+        "  - what-changed-since: Track nomenclature changes\n",
+        file = stderr()
+      )
+      cat(
+        "  - build-gene-set-from-group: Create gene sets from groups\n",
+        file = stderr()
+      )
     } else {
       cat("Available Prompts: 0\n", file = stderr())
       cat("  (Prompts pending plumber2mcp update)\n", file = stderr())
@@ -451,7 +481,10 @@ start_hgnc_mcp_server <- function(
       cat("  {\n", file = stderr())
       cat('    "mcpServers": {\n', file = stderr())
       cat('      "hgnc": {\n', file = stderr())
-      cat(sprintf('        "url": "http://localhost:%d/mcp"\n', port), file = stderr())
+      cat(
+        sprintf('        "url": "http://localhost:%d/mcp"\n', port),
+        file = stderr()
+      )
       cat('      }\n', file = stderr())
       cat('    }\n', file = stderr())
       cat("  }\n", file = stderr())

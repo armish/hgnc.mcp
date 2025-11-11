@@ -11,7 +11,8 @@
 
 test_that("MCP server checks for resource support correctly", {
   # Check if pr_mcp_resource is in plumber2mcp exports
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   expect_type(has_resource_support, "logical")
   # This will be TRUE once plumber2mcp exports pr_mcp_resource
@@ -40,7 +41,8 @@ test_that("server checks for MCP resource support before registration", {
   skip_if_not_installed("plumber2mcp")
 
   # Check the same way the server does
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   expect_type(has_resource_support, "logical")
 
@@ -55,7 +57,8 @@ test_that("server registers resources when pr_mcp_resource is available", {
   skip_if_not_installed("plumber2mcp")
 
   # Check if pr_mcp_resource is available
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   if (!has_resource_support) {
     skip("pr_mcp_resource not available in plumber2mcp")
@@ -75,7 +78,10 @@ test_that("server registers resources when pr_mcp_resource is available", {
   pr <- plumber::plumb(api_file)
 
   # Get the pr_mcp_resource function
-  pr_mcp_resource_fn <- get("pr_mcp_resource", envir = asNamespace("plumber2mcp"))
+  pr_mcp_resource_fn <- get(
+    "pr_mcp_resource",
+    envir = asNamespace("plumber2mcp")
+  )
 
   # Test that we can register a resource BEFORE pr_mcp()
   # This is the correct order - resources must be registered before MCP integration
@@ -207,7 +213,8 @@ test_that("server outputs correct messages when resources are registered", {
   skip_if_not_installed("plumber")
   skip_if_not_installed("plumber2mcp")
 
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   if (!has_resource_support) {
     # Test the fallback message
@@ -324,9 +331,17 @@ test_that("old GET /resources/* endpoints are removed from plumber API", {
   # These OLD endpoints should NOT exist anymore - they've been replaced
   # by proper MCP resource registration via pr_mcp_resource()
   expect_false(grepl("@get /resources/gene_card", api_text, ignore.case = TRUE))
-  expect_false(grepl("@get /resources/group_card", api_text, ignore.case = TRUE))
+  expect_false(grepl(
+    "@get /resources/group_card",
+    api_text,
+    ignore.case = TRUE
+  ))
   expect_false(grepl("@get /resources/snapshot", api_text, ignore.case = TRUE))
-  expect_false(grepl("@get /resources/changes_summary", api_text, ignore.case = TRUE))
+  expect_false(grepl(
+    "@get /resources/changes_summary",
+    api_text,
+    ignore.case = TRUE
+  ))
 
   # There should be a comment explaining where resources are now registered
   expect_true(grepl("pr_mcp_resource", api_text))

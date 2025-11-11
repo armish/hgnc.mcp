@@ -41,7 +41,7 @@ jobs:
 
           # Send initialize message and use timeout to prevent hanging
           # The server runs an event loop and won't exit on its own
-          INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          INIT_REQUEST='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
 
           # Run Docker with longer timeout (30s for container startup + R + packages)
           # IMPORTANT: Must pass --stdio flag to enable stdio transport
@@ -103,7 +103,7 @@ jobs:
           echo "Testing tools/list method..."
 
           # Send initialize followed by tools/list
-          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
           # Run Docker with increased timeout
@@ -147,7 +147,7 @@ jobs:
           echo "Testing resources/list method..."
 
           # Send initialize followed by resources/list
-          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           RESOURCES_REQUEST='{"jsonrpc":"2.0","id":2,"method":"resources/list","params":{}}'
 
           # Run Docker with increased timeout
@@ -205,7 +205,7 @@ jobs:
           echo "Testing prompts/list method..."
 
           # Send initialize followed by prompts/list
-          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           PROMPTS_REQUEST='{"jsonrpc":"2.0","id":3,"method":"prompts/list","params":{}}'
 
           # Run Docker with increased timeout
@@ -248,7 +248,7 @@ jobs:
           echo "Testing tools/call method..."
 
           # Send initialize followed by tools/call
-          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           CALL_REQUEST='{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"GET__tools_info","arguments":{}}}'
 
           # Run Docker with increased timeout
@@ -292,7 +292,7 @@ jobs:
         run: |
           echo "Verifying resources don't appear as tools..."
 
-          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
+          INIT='{"jsonrpc":"2.0","id":0,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"test-client","version":"1.0.0"}}}'
           TOOLS_REQUEST='{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
           # Run Docker with increased timeout

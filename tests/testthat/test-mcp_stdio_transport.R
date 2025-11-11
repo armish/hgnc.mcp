@@ -35,7 +35,10 @@ test_that("start_hgnc_mcp_server validates transport parameter", {
 
   # Invalid transport should error
   expect_error(
-    suppressMessages(start_hgnc_mcp_server(transport = "invalid", quiet = TRUE)),
+    suppressMessages(start_hgnc_mcp_server(
+      transport = "invalid",
+      quiet = TRUE
+    )),
     "Invalid transport mode"
   )
 })
@@ -105,7 +108,8 @@ test_that("resources are registered in stdio transport mode", {
   skip_if_not_installed("plumber")
   skip_if_not_installed("plumber2mcp")
 
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   if (!has_resource_support) {
     skip("pr_mcp_resource not available in plumber2mcp")
@@ -125,7 +129,10 @@ test_that("resources are registered in stdio transport mode", {
   pr <- plumber2mcp::pr_mcp(pr, transport = "stdio")
 
   # Register a test resource
-  pr_mcp_resource_fn <- get("pr_mcp_resource", envir = asNamespace("plumber2mcp"))
+  pr_mcp_resource_fn <- get(
+    "pr_mcp_resource",
+    envir = asNamespace("plumber2mcp")
+  )
 
   # Test that we can register a resource after pr_mcp()
   # Note: This may fail if plumber2mcp's validation is strict
@@ -160,7 +167,8 @@ test_that("resources are registered in http transport mode", {
   skip_if_not_installed("plumber")
   skip_if_not_installed("plumber2mcp")
 
-  has_resource_support <- "pr_mcp_resource" %in% getNamespaceExports("plumber2mcp")
+  has_resource_support <- "pr_mcp_resource" %in%
+    getNamespaceExports("plumber2mcp")
 
   if (!has_resource_support) {
     skip("pr_mcp_resource not available in plumber2mcp")
@@ -180,7 +188,10 @@ test_that("resources are registered in http transport mode", {
   pr <- plumber2mcp::pr_mcp(pr, transport = "http")
 
   # Register a test resource
-  pr_mcp_resource_fn <- get("pr_mcp_resource", envir = asNamespace("plumber2mcp"))
+  pr_mcp_resource_fn <- get(
+    "pr_mcp_resource",
+    envir = asNamespace("plumber2mcp")
+  )
 
   # Test that we can register a resource after pr_mcp()
   # Note: This may fail if plumber2mcp's validation is strict
@@ -353,7 +364,11 @@ test_that("Docker entrypoint supports --stdio flag", {
 
   # The Dockerfile should have an entrypoint or CMD that handles stdio
   # Look for references to stdio or transport
-  has_stdio_support <- grepl("stdio|transport", dockerfile_text, ignore.case = TRUE)
+  has_stdio_support <- grepl(
+    "stdio|transport",
+    dockerfile_text,
+    ignore.case = TRUE
+  )
 
   if (has_stdio_support) {
     expect_true(has_stdio_support)
