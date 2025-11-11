@@ -75,9 +75,16 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # This script is already installed with the package, but we make it easily executable
 USER root
 RUN install -m 755 /build/inst/scripts/run_server.R /usr/local/bin/hgnc-mcp-server
+
+# Copy and set up the entrypoint wrapper script
+# This wrapper ensures arguments like --stdio are properly forwarded to the R script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 USER hgnc
 
-# Entry point - use Rscript as entrypoint for flexibility
-# Default CMD runs the server, but can be overridden for testing
-ENTRYPOINT ["/opt/conda/envs/hgnc-mcp/bin/Rscript"]
-CMD ["/usr/local/bin/hgnc-mcp-server"]
+# Entry point - wrapper script that properly handles arguments
+# Without args: runs HTTP server (default)
+# With --stdio: runs stdio transport for Claude Desktop
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD []
